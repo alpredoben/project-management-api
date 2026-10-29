@@ -1,0 +1,69 @@
+{
+  "error": {
+    "default": {
+      "internal_server": "Terjadi kesalahan internal pada server. Silakan coba beberapa saat lagi.",
+      "database_conflict": "Terjadi konflik data pada basis data (Database Conflict Error).",
+      "unauthorized": "Akses ditolak. Token tidak valid atau kedaluwarsa.",
+      "forbidden": "Anda tidak memiliki hak akses untuk melakukan aksi ini.",
+      "not_found": "Data atau sumber daya yang diminta tidak ditemukan.",
+      "bad_request": "Permintaan tidak valid. Periksa kembali data kiriman Anda.",
+      "validation_error": "Validasi data gagal. Periksa kembali bidang yang wajib diisi.",
+      "retrieved": "Data {{m}} gagal diambil.",
+      "created": "Data {{m}} gagal disimpan",
+      "updated": "Data {{m}} gagal diperbarui.",
+      "deleted": "Data {{m}} gagal dihapus.",
+      "required": "Data {{m}} wajib diisi",
+      "is_array": "Wajib menggunakan format data array",
+      "approved": "Data {{m}} gagal disetujui",
+      "not_found_param": "Data {{m}} tidak ditemukan",
+      "afterOrEqual": "Tanggal {{m}} harus sama dengan atau setelah {{target}}",
+      "invalidFormat": "Format {{m}} tidak valid.",
+      "maxLength": "Panjang maksimal {{m}} adalah {{max}} karakter.",
+      "minArray": "Minimal harus terdapat {{min}} data pada {{m}}.",
+      "exactArraySize": "Total item pada {{m}} harus berjumlah {{size}}.",
+      "minValue": "Nilai minimal untuk {{m}} adalah {{min}}."
+    },
+    "auth": {
+      "failed_credential": "Username atau password salah.",
+      "mismatch": "Email atau password yang anda masukkan salah.",
+      "not_found_credential": "Data atau sumber daya yang diminta tidak ditemukan.",
+      "invalid_credentials": "Email atau password yang Anda masukkan salah.",
+      "token_expired": "Sesi Anda telah habis. Silakan login kembali."
+    },
+    "penerimaan": {
+      "failed_config_sap": "Konfigurasi API SAP tidak ditemukan dalam database",
+      "expired_sap_session": "Session SAP telah kadaluarsa atau tidak valid",
+      "invalid_data": "{{m}} tidak valid"
+    },
+    "purchase_order": {
+      "access_denied": "Permintaan akses fitur purchase request ditolak."
+    },
+    "purchase_request": {
+      "only_ulp_can_create": "Hanya user tingkat ULP yang dapat membuat Purchase Request.",
+      "only_ulp_can_update": "Hanya user tingkat ULP yang dapat mengubah Purchase Request.",
+      "not_owned": "Purchase Request ini bukan milik gudang Anda.",
+      "cannot_modify": "Purchase Request yang sudah ditindaklanjuti tidak dapat diubah.",
+      "only_up_can_follow_up": "Hanya user tingkat UP yang dapat menindaklanjuti Purchase Request ini.",
+      "invalid_transition": "Status \"{{from}}\" tidak dapat diubah menjadi \"{{to}}\"."
+    }
+  },
+  "success": {
+    "default": {
+      "retrieved": "Data {{m}} berhasil diambil.",
+      "created": "Data {{m}} berhasil disimpan",
+      "updated": "Data {{m}} berhasil diperbarui.",
+      "deleted": "Data {{m}} berhasil dihapus.",
+      "approved": "Data {{m}} berhasil disetujui",
+      "notification_read": "Notifikasi telah di baca"
+    },
+    "auth": {
+      "login": "Login berhasil dilakukan."
+    },
+    "purchase_request": {
+      "rejected": "Purchase Request ditolak.",
+      "followed_up": "Purchase Request ditandai ditindaklanjuti via {{jalur}}.",
+      "completed": "Purchase Request ditandai selesai.",
+      "status_reset": "Status Purchase Request dikembalikan ke Diajukan."
+    }
+  }
+}

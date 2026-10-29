@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Socket Client Test</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-slate-50 text-slate-800 font-sans p-4 sm:p-8 min-h-screen">
+    <div
+      class="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-slate-200"
+    >
+      <h1 class="text-2xl font-bold text-slate-900 mb-6 border-b pb-4">
+        Socket Client Test
+      </h1>
+
+      <form id="tokenForm" class="flex flex-col sm:flex-row gap-3 mb-6">
+        <input
+          type="text"
+          id="tokenInput"
+          placeholder="Masukkan token JWT"
+          value="<%= typeof defaultToken !== 'undefined' ? defaultToken : '' %>"
+          class="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm transition-shadow"
+        />
+        <button
+          type="submit"
+          id="connectBtn"
+          class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors focus:ring-4 focus:ring-blue-200 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          Aktifkan Socket
+        </button>
+      </form>
+
+      <div class="mb-8">
+        <div
+          id="status"
+          class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-slate-100 text-slate-600 transition-colors"
+        >
+          Status: Belum terhubung
+        </div>
+      </div>
+
+      <div
+        id="socketContainer"
+        class="bg-slate-50 rounded-lg border border-slate-200 p-4 sm:p-6 min-h-[300px]"
+      >
+        <h2
+          class="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 text-slate-500"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+            />
+          </svg>
+          Log Notifikasi
+        </h2>
+        <ul id="messages" class="space-y-3"></ul>
+      </div>
+    </div>
+
+    <script>
+      const NOTIFICATION_EVENT_TYPE = {
+        PURCHASE_ORDER_SUBMITTED: 'PURCHASE_ORDER_SUBMITTED',
+        PURCHASE_ORDER_REJECTED: 'PURCHASE_ORDER_REJECTED',
+        PENERIMAAN_APPROVED: 'PENERIMAAN_APPROVED',
+        PENERIMAAN_REJECTED: 'PENERIMAAN_REJECTED',
+        GENERAL_ANNOUNCEMENT: 'GENERAL_ANNOUNCEMENT',
+      };
+
+      const NotificationEventNames = {
+        New: 'notification:new',
+        RegionUpdate: 'notification:region_update',
+        MarkRead: 'notification:mark_read',
+      };
+
+      const SOCKET_URL = '<%= socketUrl %>';
+      const TOKEN_STORAGE_KEY = 'socket_client_token';
+
+      let socket = null;
+      let currentToken = null;
+
+      const tokenForm = document.getElementById('tokenForm');
+      const tokenInput = document.getElementById('tokenInput');
+      const connectBtn = document.getElementById('connectBtn');
+      const statusDiv = document.getElementById('status');
+      const socketContainer = document.getElementById('socketContainer');
+
+      function getTokenFromStorage() {
+        return localStorage.getItem(TOKEN_STORAGE_KEY);
+      }
+
+      function saveTokenToStorage(token) {
+        localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      }
+
+      function clearTokenFromStorage() {
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
+      }
+
+      // Fungsi untuk mengatur status dengan Tailwind classes
+      function setStatus(text, statusType) {
+        const statusClasses = {
+          'status-idle': 'bg-slate-100 text-slate-600',
+          'status-connecting': 'bg-amber-100 text-amber-700',
+          'status-connected': 'bg-emerald-100 text-emerald-700',
+          'status-disconnected': 'bg-rose-100 text-rose-700',
+        };
+
+        statusDiv.textContent = 'Status: ' + text;
+        const colorClass =
+          statusClasses[statusType] || statusClasses['status-idle'];
+        statusDiv.className = `inline-flex items-center px-3 py-1 rounded-full text-sm font-medium transition-colors ${colorClass}`;
+      }
+
+      // "Hot reload" / refresh SPA: ganti isi container log notifikasi
+      function refreshSocketSection() {
+        socketContainer.innerHTML = `
+          <h2 class="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-500" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+            </svg>
+            Log Notifikasi
+          </h2>
+          <ul id="messages" class="space-y-3"></ul>
+        `;
+      }
+
+      // Desain ulang notifikasi berbentuk kartu modern menggunakan Tailwind
+      function appendMessage(payload, type) {
+        const messagesEl = document.getElementById('messages');
+        if (!messagesEl) return;
+        const li = document.createElement('li');
+
+        const isDanger = type === 'danger';
+
+        // Konfigurasi warna berdasarkan tipe notifikasi
+        const wrapperClass = isDanger
+          ? 'bg-rose-50 border-l-4 border-rose-500 text-rose-900'
+          : 'bg-emerald-50 border-l-4 border-emerald-500 text-emerald-900';
+
+        const badgeClass = isDanger
+          ? 'bg-rose-200 text-rose-800'
+          : 'bg-emerald-200 text-emerald-800';
+
+        const messageClass = isDanger ? 'text-rose-700' : 'text-emerald-700';
+
+        // Merender elemen HTML ke dalam list item menggunakan innerHTML
+        li.innerHTML = `
+          <div class="${wrapperClass} p-4 rounded-r-lg shadow-sm transition-all hover:shadow-md">
+            <div class="flex items-center gap-3 mb-1.5">
+              <span class="${badgeClass} text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+                ${payload.priority || 'INFO'}
+              </span>
+              <span class="font-semibold text-sm">
+                ${payload.title || 'Notifikasi Baru'}
+              </span>
+            </div>
+            <p class="${messageClass} text-sm mt-1 leading-relaxed">
+              ${payload.message || '-'}
+            </p>
+          </div>
+        `;
+
+        // Prepend digunakan agar notifikasi terbaru muncul di paling atas
+        messagesEl.prepend(li);
+      }
+
+      function disconnectSocket() {
+        if (socket) {
+          socket.removeAllListeners();
+          socket.disconnect();
+          socket = null;
+        }
+      }
+
+      function connectSocket(token) {
+        disconnectSocket();
+
+        if (!token) {
+          refreshSocketSection();
+          setStatus(
+            'Tidak aktif (token tidak ditemukan di local storage)',
+            'status-idle'
+          );
+          return;
+        }
+
+        refreshSocketSection();
+        setStatus('Menghubungkan...', 'status-connecting');
+
+        socket = io(SOCKET_URL, {
+          auth: { token },
+          transports: ['websocket'],
+        });
+
+        socket.on('connect', () => {
+          console.log('Terhubung ke server dengan ID:', socket.id);
+          setStatus(`Terhubung (ID: ${socket.id})`, 'status-connected');
+        });
+
+        socket.on('disconnect', (reason) => {
+          console.log('Terputus dari server:', reason);
+          setStatus(`Terputus (${reason})`, 'status-disconnected');
+        });
+
+        // Menangkap event notifikasi
+        socket.on(
+          `${NotificationEventNames.New}|${NOTIFICATION_EVENT_TYPE.PURCHASE_ORDER_SUBMITTED}`,
+          (payload) => {
+            console.log('Notifikasi Baru Diterima:', payload);
+            appendMessage(payload, 'success');
+          }
+        );
+
+        socket.on(
+          `${NotificationEventNames.New}|${NOTIFICATION_EVENT_TYPE.PURCHASE_ORDER_REJECTED}`,
+          (payload) => {
+            console.log('Notifikasi Baru Diterima:', payload);
+            appendMessage(payload, 'danger');
+          }
+        );
+
+        socket.on(
+          `${NotificationEventNames.New}|${NOTIFICATION_EVENT_TYPE.PENERIMAAN_REJECTED}`,
+          (payload) => {
+            console.log('Notifikasi Baru Diterima:', payload);
+            appendMessage(payload, 'danger');
+          }
+        );
+
+        socket.on('connect_error', (err) => {
+          console.error('Gagal terhubung:', err.message);
+          setStatus(`Gagal terhubung: ${err.message}`, 'status-disconnected');
+        });
+      }
+
+      tokenForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newToken = tokenInput.value.trim();
+
+        if (!newToken) {
+          alert('Token tidak boleh kosong.');
+          return;
+        }
+
+        saveTokenToStorage(newToken);
+
+        const tokenFromStorage = getTokenFromStorage();
+        if (tokenFromStorage !== currentToken) {
+          currentToken = tokenFromStorage;
+          connectSocket(tokenFromStorage);
+        }
+      });
+
+      (function init() {
+        const storedToken = getTokenFromStorage();
+
+        if (storedToken) {
+          tokenInput.value = storedToken;
+          currentToken = storedToken;
+          connectSocket(storedToken);
+        } else {
+          setStatus(
+            'Tidak aktif (token tidak ditemukan di local storage)',
+            'status-idle'
+          );
+        }
+      })();
+    </script>
+  </body>
+</html>

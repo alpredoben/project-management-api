@@ -1,0 +1,151 @@
+{
+  "/auth/login": {
+    "post": {
+      "tags": [
+        "Authentication"
+      ],
+      "summary": "Login User Account",
+      "description": "Otentikasi pengguna untuk mendapatkan Access & Refresh Token.",
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/LoginDto"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Login berhasil",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/In_SuccessResponse"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
+"/auth/refresh-token": {
+  "post": {
+    "tags": [
+      "Authentication"
+    ],
+    "summary": "Get Refresh Access Token",
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/RefreshTokenDto"
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Token berhasil diperbarui",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/In_SuccessResponse"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Token tidak valid",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/In_ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  }
+},
+"/auth/logout": {
+  "post": {
+    "tags": [
+      "Authentication"
+    ],
+    "summary": "Logout Account",
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "description": "Fitur logout account",
+    "responses": {
+      "200": {
+        "description": "Logout berhasil",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/In_SuccessResponse"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+},
+"/auth/me": {
+  "get": {
+    "tags": [
+      "Authentication"
+    ],
+    "summary": "Get User Profile",
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Profil berhasil diambil",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/In_SuccessResponse"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Tidak ada token",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/In_ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+}

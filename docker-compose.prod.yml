@@ -1,0 +1,37 @@
+services:
+  # Api production
+  task-nd-api-prod:
+    build:
+      context: .
+      dockerfile: ./docker/prod/Dockerfile.prod
+    container_name: task-nd-api-prod
+    restart: always
+    ports:
+      - '127.0.0.1:8007:8007'
+    env_file:
+      - .env.prod
+    environment:
+      - NODE_ENV=production
+    stop_grace_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:8007/api/v1/health']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+    networks:
+      - task-nd-prod-network
+
+networks:
+  task-nd-prod-network:
+    external: true
+    name: task-nd-prod-network

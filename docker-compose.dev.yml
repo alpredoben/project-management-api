@@ -1,0 +1,28 @@
+services:
+  task-nd-api-dev:
+    build:
+      context: .
+      dockerfile: ./docker/dev/Dockerfile.dev
+    container_name: task-nd-api-dev
+    restart: unless-stopped
+    ports:
+      - '8017:8017'
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    env_file:
+      - .env
+    environment:
+      - CHOKIDAR_USEPOLLING=false
+      - NODE_OPTIONS=--max-old-space-size=512
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    networks:
+      - task-nd-network-dev
+
+networks:
+  task-nd-network-dev:
+    external: true
+    name: task-nd-network-dev

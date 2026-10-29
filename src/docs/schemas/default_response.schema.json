@@ -1,0 +1,91 @@
+{
+  "In_ErrorDetail": {
+    "type": "object",
+    "properties": {
+      "field": { "type": "string", "example": "username" },
+      "message": { "type": "string", "example": "Username wajib diisi." }
+    }
+  },
+  "In_ErrorResponse": {
+    "type": "object",
+    "properties": {
+      "success": { "type": "boolean", "example": false },
+      "message": {
+        "type": "string",
+        "example": "Permintaan tidak valid. Periksa kembali data kiriman Anda."
+      },
+      "errors": {
+        "type": "array",
+        "items": { "$ref": "#/components/schemas/In_ErrorDetail" },
+        "nullable": true
+      },
+      "timestamp": {
+        "type": "string",
+        "format": "date-time",
+        "example": "2026-08-12T10:02:04Z"
+      }
+    }
+  },
+  "In_SuccessResponse": {
+    "type": "object",
+    "properties": {
+      "success": { "type": "boolean", "example": true },
+      "message": { "type": "string", "example": "Data berhasil diproses." },
+      "data": { "type": "object", "nullable": true },
+      "timestamp": {
+        "type": "string",
+        "format": "date-time",
+        "example": "2026-08-12T10:02:04Z"
+      }
+    }
+  },
+  "In_PaginationMeta": {
+    "type": "object",
+    "properties": {
+      "current_page": { "type": "integer", "example": 1 },
+      "per_page": { "type": "integer", "example": 10 },
+      "total_items": { "type": "integer", "example": 50 },
+      "total_pages": { "type": "integer", "example": 5 },
+      "has_next_page": { "type": "boolean", "example": true },
+      "has_previous_page": { "type": "boolean", "example": false }
+    }
+  },
+  "In_MetaResponse": {
+    "type": "object",
+    "properties": {
+      "pagination": { "$ref": "#/components/schemas/In_PaginationMeta" },
+      "timestamp": {
+        "type": "string",
+        "format": "date-time",
+        "example": "2026-08-12T10:02:04Z"
+      }
+    }
+  },
+  "In_PaginationResponse": {
+    "type": "object",
+    "properties": {
+      "success": { "type": "boolean", "example": true },
+      "message": { "type": "string", "example": "Data berhasil diambil." },
+      "data": { "type": "array", "items": { "type": "object" } },
+      "meta": { "type": "object", "nullable": true }
+    }
+  },
+  "In_SuccessBinaryResponse": {
+    "type": "string",
+    "format": "binary",
+    "description": "File biner PDF"
+  },
+  "In_ErrorBinaryResponse": {
+    "type": "object",
+    "properties": {
+      "status": {
+        "type": "string",
+        "example": "error"
+      },
+      "message": {
+        "type": "string",
+        "example": "Gagal mengambil PDF dari server internal"
+      }
+    }
+  }
+}

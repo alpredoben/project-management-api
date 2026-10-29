@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rest API - Inventory Nusadaya Excellence</title>
+    <meta
+      name="description"
+      content="REST API Documentation for Inventory Nusadaya Excellence"
+    />
+    <meta property="og:title" content="Inventory Nusadaya Excellence" />
+    <meta
+      property="og:description"
+      content="REST API Documentation for Inventory Nusadaya Excellence"
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="min-h-screen bg-slate-50 text-slate-900 font-sans">
+      <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between h-16 items-center">
+            <div class="flex items-center space-x-2">
+              <Server class="h-6 w-6 text-blue-600" />
+              <span class="font-bold text-xl tracking-tight text-slate-900">INDEX API</span>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="relative overflow-hidden bg-white">
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 relative">
+          <div class="text-center max-w-3xl mx-auto">
+            <div class="inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold text-blue-600 ring-1 ring-inset ring-blue-600/20 mb-8 bg-blue-50/50 backdrop-blur-sm">
+              <span>v1.0 is now available</span>
+              <ChevronRight class="ml-1 h-4 w-4" />
+            </div>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 mb-6 leading-tight">
+              REST API <br class="md:hidden" />
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                Inventory Nusadaya Excellence
+              </span>
+            </h1>
+            <p class="text-lg md:text-xl text-slate-600 mb-10 leading-relaxed max-w-2xl mx-auto">
+              Integrate powerful inventory management, real-time stock tracking, and warehouse analytics directly into your applications with our robust developer API.
+            </p>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-10">
+        <div class="bg-slate-900 rounded-xl shadow-2xl overflow-hidden border border-slate-800">
+          <div class="flex items-center justify-between px-4 py-3 bg-slate-800/50 border-b border-slate-800">
+            <div class="flex space-x-2">
+              <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+              <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+            </div>
+            <div class="text-slate-400 text-xs font-mono">Quick Start</div>
+            <button onClick={handleCopy} class="text-slate-400 hover:text-white transition-colors cursor-pointer" aria-label="Copy code">
+              {copied ? <Check class="w-4 h-4 text-green-400" /> : <Copy class="w-4 h-4" />}
+            </button>
+          </div>
+          <div class="p-6 overflow-x-auto">
+            <pre class="font-mono text-sm leading-relaxed">
+              <code class="text-pink-400">curl</code> <span class="text-slate-300">-X GET</span> <span class="text-green-400">"https://warehouse-api.nusadaya.net/api/v1"</span> <span class="text-yellow-300">\</span>
+              <br/>
+              <span class="text-slate-300">  -H</span> <span class="text-green-400">"Authorization: Bearer YOUR_API_KEY"</span> <span class="text-yellow-300">\</span>
+              <br/>
+              <span class="text-slate-300">  -H</span> <span class="text-green-400">"Content-Type: application/json"</span>
+            </pre>
+          </div>
+        </div>
+      </div>
+
+
+      <footer class="bg-slate-900 border-t border-slate-800 text-slate-400 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+          <div class="flex items-center space-x-2 mb-4 md:mb-0">
+             <Server class="h-6 w-6 text-blue-500" />
+             <span class="font-semibold text-white">Nusadaya API</span>
+          </div>
+          <div class="text-sm text-slate-500">
+            &copy; <%= currentYear %> Inventory Nusadaya Excellence. All rights reserved.
+          </div>
+        </div>
+      </footer>
+    </div>
+    </div>
+  </body>
+</html>
