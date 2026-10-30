@@ -12,7 +12,7 @@ export class TaskMembers1793322594224 implements MigrationInterface {
           uuidPk(),
           uuidCol("task_id"),
           uuidCol("member_id"),
-          uuidCol("project_id"), // memastikan task & member berada di project yang sama
+          { name: "is_pic", type: "boolean", default: false },
           { name: "notes", type: "text", isNullable: true },
           ...auditColumns(),
         ],
@@ -22,14 +22,13 @@ export class TaskMembers1793322594224 implements MigrationInterface {
         foreignKeys: [
           fk(
             "fk_task_members_task",
-            ["task_id", "project_id"],
-            "tasks",
-            ["id", "project_id"],
+            ["task_id"],
+            SCHEMA_NAMES.TASKS,
+            ["id"],
             "CASCADE",
           ),
-          fk("fk_task_members_member", ["member_id", "project_id"], "members", [
+          fk("fk_task_members_member", ["member_id"], SCHEMA_NAMES.USERS, [
             "id",
-            "project_id",
           ]),
         ],
         indices: [

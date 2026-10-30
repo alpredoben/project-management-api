@@ -14,32 +14,28 @@ export class Tasks1793322501604 implements MigrationInterface {
           uuidCol("task_status_id"),
           { name: "title", type: "varchar", length: "255" },
           { name: "description", type: "text", isNullable: true },
-          { name: "start_date", type: "date", isNullable: true }, // YYYY-MM-DD
+          { name: "start_date", type: "date", isNullable: true },
           { name: "end_date", type: "date", isNullable: true },
           { name: "has_problem", type: "boolean", default: false },
-          { name: "problem_message", type: "text", isNullable: true },
-          uuidCol("user_pic_id"), // 1 PIC / leader
+          { name: "notes", type: "text", isNullable: true },
+          uuidCol("user_pic_id"),
           ...auditColumns(),
         ],
         uniques: [
           { name: "uq_tasks_id_project", columnNames: ["id", "project_id"] },
         ], // target composite FK
         foreignKeys: [
-          fk("fk_tasks_project", ["project_id"], "projects"),
-          fk("fk_tasks_task_type", ["task_type_id"], "task_types"),
-          fk("fk_tasks_task_status", ["task_status_id"], "task_status"),
-          fk("fk_tasks_user_pic", ["user_pic_id"], "users"),
-        ],
-        checks: [
-          {
-            name: "ck_tasks_dates",
-            expression:
-              "end_date IS NULL OR start_date IS NULL OR end_date >= start_date",
-          },
-          {
-            name: "ck_tasks_problem",
-            expression: "has_problem = FALSE OR problem_message IS NOT NULL",
-          },
+          fk("fk_tasks_project", ["project_id"], SCHEMA_NAMES.PROJECTS, ["id"]),
+          fk("fk_tasks_task_type", ["task_type_id"], SCHEMA_NAMES.TASK_TYPES, [
+            "id",
+          ]),
+          fk(
+            "fk_tasks_task_status",
+            ["task_status_id"],
+            SCHEMA_NAMES.TASK_STATUS,
+            ["id"],
+          ),
+          fk("fk_tasks_user_pic", ["user_pic_id"], SCHEMA_NAMES.USERS, ["id"]),
         ],
         indices: [
           { name: "ix_tasks_project", columnNames: ["project_id"] },

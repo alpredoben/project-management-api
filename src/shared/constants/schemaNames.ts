@@ -8,12 +8,12 @@ export const SCHEMA_NAMES = {
   ROLE_MENU_PERMISSIONS: "role_menu_permissions",
   PROJECT_STATUS: "project_status",
   PROJECT_TYPES: "project_types",
-
-  // Member
   MEMBER_TYPES: "member_types",
   MEMBER_ROLES: "member_roles",
+
+  // Projects
   PROJECTS: "projects",
-  MEMBERS: "members",
+  PROJECT_COLLABORATORS: "project_collaborators",
 
   // Task
   TASK_STATUS: "task_status",

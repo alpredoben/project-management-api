@@ -13,7 +13,7 @@ const databaseOptions: DataSourceOptions = {
   synchronize: config.pkg.db.synchronize ?? false,
   logging: config.pkg.db.logging ?? false,
   ssl: config.pkg.db.ssl ? { rejectUnauthorized: false } : false,
-  entities: [__dirname + '/database/models/*{.entity,}{.ts,.js}'],
+  entities: [__dirname + '/database/entities/**/*{.ts,.js}'],
   migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
   subscribers: [__dirname + '/database/subscribers/*{.ts,.js}'],
   connectTimeout: config.pkg.db.connectTimeout, 

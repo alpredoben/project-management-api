@@ -19,8 +19,9 @@ export class Projects1793322187625 implements MigrationInterface {
           },
           { name: "project_name", type: "varchar", length: "200" },
           { name: "description", type: "text", isNullable: true },
-          uuidCol("owner_id"),
+          uuidCol("owner_id", true),
           uuidCol("parent_id", true),
+          { name: "max_contributors", type: "int", default: 0 },
           { name: "start_date", type: "date", isNullable: true },
           { name: "end_date", type: "date", isNullable: true },
           ...auditColumns(),
@@ -44,17 +45,6 @@ export class Projects1793322187625 implements MigrationInterface {
             ["id"],
             "RESTRICT",
           ),
-        ],
-        checks: [
-          {
-            name: "ck_projects_not_own_parent",
-            expression: "parent_id IS NULL OR parent_id <> id",
-          },
-          {
-            name: "ck_projects_dates",
-            expression:
-              "end_date IS NULL OR start_date IS NULL OR end_date >= start_date",
-          },
         ],
         indices: [
           { name: "ix_projects_parent", columnNames: ["parent_id"] },

@@ -32,11 +32,10 @@ export class TaskComments1793322702428 implements MigrationInterface {
           },
         ],
         foreignKeys: [
-          // Hanya member yang di-assign ke task ini yang boleh berkomentar
           fk(
             "fk_task_comments_assignee",
             ["task_id", "member_id"],
-            "task_members",
+            SCHEMA_NAMES.TASK_MEMBERS,
             ["task_id", "member_id"],
             "CASCADE",
           ),
@@ -44,7 +43,7 @@ export class TaskComments1793322702428 implements MigrationInterface {
           fk(
             "fk_task_comments_parent",
             ["parent_comment_id", "task_id"],
-            "task_comments",
+            SCHEMA_NAMES.TASK_COMMENTS,
             ["id", "task_id"],
             "CASCADE",
           ),
