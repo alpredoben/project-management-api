@@ -1,9 +1,11 @@
 services:
-  task-nd-api-dev:
+
+  # API
+  pm-api-dev:
     build:
       context: .
       dockerfile: ./docker/dev/Dockerfile.dev
-    container_name: task-nd-api-dev
+    container_name: pm-api-dev
     restart: unless-stopped
     ports:
       - '8017:8017'
@@ -15,14 +17,242 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=false
       - NODE_OPTIONS=--max-old-space-size=512
+    depends_on:
+      pm-db-dev:
+        condition: service_healthy
+      pm-rabbitmq-dev:
+        condition: service_healthy
+      pm-redis-dev:
+        condition: service_healthy
+      pm-loki-dev:
+      pm-promtail-dev:
+        condition: service_healthy
+      pm-grafana-dev:
+        condition: service_healthy
     deploy:
       resources:
         limits:
           memory: 512M
     networks:
-      - task-nd-network-dev
+      - pm-network-dev
+
+  # Database
+  pm-db-dev:
+    image: postgres:18-alpine
+    container_name: pm-db-dev
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: postgres
+    ports:
+      - '5436:5432'
+    command: >
+      postgres
+      -c max_connections=50
+      -c shared_buffers=128MB
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    networks:
+      pm-network-dev
+    volumes:
+      - pm-dev-pg-data:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres} -d postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Storage
+  pm-minio-dev:
+    image: docker.io/pgsty/silo:RELEASE.2026-09-16T00-00-00Z
+    container_name: pm-minio-dev
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    command: server /data --console-address ":9001"
+    ports:
+      - '18000:9000'
+      - '18001:9001'
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    volumes:
+      - pm-minio-dev-data:/data
+    networks:
+      - pm-network-dev
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis
+  pm-redis-dev:
+    image: redis:alpine
+    container_name: pm-redis-dev
+    ports:
+      - '6344:6379'
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    deploy:
+        resources:
+          limits:
+            memory: 128M
+    networks:
+      - pm-network-dev
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'redis-cli',
+          '-a',
+          '${REDIS_PASSWORD}',
+          '--no-auth-warning',
+          'ping',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # RabbitMQ
+  pm-rabbitmq-dev:
+    image: rabbitmq:3-management-alpine
+    container_name: pm-rabbitmq-dev
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - '5452:5672'
+      - '15652:15672'
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    networks:
+      - pm-network-dev
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # Loki
+  pm-loki-dev:
+    image: grafana/loki:3.1.1
+    container_name: pm-loki-dev
+    restart: unless-stopped
+    user: '10001:10001'
+    ports:
+      - '3201:3100'
+    command: -config.file=/etc/loki/local-config.yaml
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+    volumes:
+      - ./grafana/dev/loki-config-dev.yaml:/etc/loki/local-config.yaml:ro
+      - pm-loki-dev-data:/loki
+    networks:
+      - pm-network-dev
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'wget -qO- http://localhost:3100/ready | grep -q ready']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # Promtail
+  pm-promtail-dev:
+    image: grafana/promtail:3.1.1
+    container_name: pm-promtail-dev
+    restart: unless-stopped
+    user: root
+    command: -config.file=/etc/promtail/promtail-config.yaml
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    volumes:
+      - ./grafana/dev/promtail-config.dev.yaml:/etc/promtail/promtail-config.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - pm-promtail-dev-positions:/tmp
+    networks:
+      - pm-network-dev
+    depends_on:
+      pm-loki-dev:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # Grafana
+  pm-grafana-dev:
+    image: grafana/grafana:11.2.0
+    container_name: pm-grafana-dev
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_FEATURE_TOGGLES_ENABLE: 'lokiLogsDataplane'
+    ports:
+      - '3001:3000'
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    volumes:
+      - pm-grafana-dev-data:/var/lib/grafana
+      - ./grafana/dev/grafana-datasources.dev.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+    networks:
+      - pm-network-dev
+    depends_on:
+      pm-loki-dev:
+        condition: service_healthy
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'wget -qO- http://localhost:3000/api/health | grep -q ok']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+volumes:
+  pm-dev-pg-data:
+  pm-minio-dev-data:
+  pm-loki-dev-data:
+  pm-grafana-dev-data:
+  pm-promtail-dev-positions:
 
 networks:
-  task-nd-network-dev:
-    external: true
-    name: task-nd-network-dev
+  pm-network-dev:
+    driver: bridge
+    name: pm-network-dev

@@ -5,20 +5,20 @@ import { config } from '../config';
 /** Warehouse Options */
 const databaseOptions: DataSourceOptions = {
   type: (config.pkg.db.driver as 'mysql' | 'postgres') || 'mysql',
-  host: config.pkg.db.warehouse.host,
-  port: Number(config.pkg.db.warehouse.port),
-  username: config.pkg.db.warehouse.user,
-  password: config.pkg.db.warehouse.pass,
-  database: config.pkg.db.warehouse.name,
+  host: config.pkg.db.host,
+  port: Number(config.pkg.db.port),
+  username: config.pkg.db.user,
+  password: config.pkg.db.pass,
+  database: config.pkg.db.name,
   synchronize: config.pkg.db.synchronize ?? false,
   logging: config.pkg.db.logging ?? false,
   ssl: config.pkg.db.ssl ? { rejectUnauthorized: false } : false,
-  entities: [__dirname + '/models/*{.entity,}{.ts,.js}'],
-  migrations: [__dirname + '/migrations/*{.ts,.js}'],
-  subscribers: [__dirname + '/../subscribers/*{.ts,.js}'],
-  connectTimeout: config.pkg.db.connectTimeout, // 10 detik: gagal cepat & jelas jika handshake macet
+  entities: [__dirname + '/database/models/*{.entity,}{.ts,.js}'],
+  migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
+  subscribers: [__dirname + '/database/subscribers/*{.ts,.js}'],
+  connectTimeout: config.pkg.db.connectTimeout, 
   extra: {
-    connectionLimit: 20, // Maximum connections in pool
+    connectionLimit: 20, 
     queueLimit: 0,
     waitForConnections: true,
   },
@@ -27,7 +27,7 @@ const databaseOptions: DataSourceOptions = {
 
 // Inisialisasi Instance TypeORM DataSource
 export const OpenDataSource = new DataSource(databaseOptions);
-/** Initial all database connection*/
+
 export const initializeDatabases = async (): Promise<void> => {
   try {
     if (!OpenDataSource.isInitialized) {

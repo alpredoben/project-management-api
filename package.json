@@ -1,7 +1,7 @@
 {
-  "name": "warehouse-api",
+  "name": "pm-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "Task Management API for PLN Nusa Daya",
   "main": "index.js",
   "scripts": {
     "start": "node dist/server.js",
@@ -12,17 +12,11 @@
     "tailwind:watch": "tailwindcss -i ./src/styles/input.css -o ./public/css/style.css --watch",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "typeorm": "typeorm-ts-node-commonjs",
-    "migration:create": "typeorm-ts-node-commonjs migration:create",
-    "migration:generate:warehouse": "typeorm-ts-node-commonjs migration:generate -d src/database/cli-warehouse.ts",
-    "migration:run:warehouse": "typeorm-ts-node-commonjs migration:run -d src/database/cli-warehouse.ts",
-    "migration:revert:warehouse": "typeorm-ts-node-commonjs migration:revert -d src/database/cli-warehouse.ts",
-    "migration:generate:teams": "typeorm-ts-node-commonjs migration:generate -d src/database/cli-teams.ts",
-    "migration:run:teams": "typeorm-ts-node-commonjs migration:run -d src/database/cli-teams.ts",
-    "migration:revert:teams": "typeorm-ts-node-commonjs migration:revert -d src/database/cli-teams.ts",
-    "debug:notif": "tsx src/debug/test-notification.ts",
-    "debug:loki": "tsx src/debug/test-loki.ts",
-    "debug:loki:prod": "node dist/debug/test-loki.js"
+    "typeorm": "tsx ./node_modules/typeorm/cli.js",
+    "migration:create": "node scripts/migration.js create",
+    "migration:generate": "node scripts/migration.js generate",
+    "migration:run": "npm run typeorm migration:run -d ./src/database/data-source.ts",
+    "migration:revert": "npm run typeorm migration:revert -d ./src/database/data-source.ts"
   },
   "keywords": [
     "index",
@@ -44,7 +38,7 @@
     "dayjs": "^1.11.22",
     "dotenv": "^17.4.2",
     "ejs": "^6.0.1",
-    "express": "^5.2.1",
+    "express": "^5.3.0",
     "express-validator": "^7.3.2",
     "helmet": "^8.3.0",
     "i18next": "^26.3.6",
@@ -52,7 +46,7 @@
     "i18next-http-middleware": "^3.9.8",
     "ioredis": "^5.11.1",
     "jsonwebtoken": "^9.0.3",
-    "minio": "^8.0.7",
+    "minio": "^7.1.3",
     "mysql2": "^3.23.3",
     "node-cron": "^4.6.0",
     "pdfkit": "^0.20.2",
@@ -78,5 +72,10 @@
     "tailwindcss": "^3.4.19",
     "tsx": "^4.23.12",
     "typescript": "^5.3.3"
+  },
+  "allowScripts": {
+    "@scarf/scarf@1.4.0": true,
+    "esbuild@0.28.2": true,
+    "protobufjs@7.6.6": true
   }
 }

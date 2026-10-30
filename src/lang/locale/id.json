@@ -29,22 +29,6 @@
       "not_found_credential": "Data atau sumber daya yang diminta tidak ditemukan.",
       "invalid_credentials": "Email atau password yang Anda masukkan salah.",
       "token_expired": "Sesi Anda telah habis. Silakan login kembali."
-    },
-    "penerimaan": {
-      "failed_config_sap": "Konfigurasi API SAP tidak ditemukan dalam database",
-      "expired_sap_session": "Session SAP telah kadaluarsa atau tidak valid",
-      "invalid_data": "{{m}} tidak valid"
-    },
-    "purchase_order": {
-      "access_denied": "Permintaan akses fitur purchase request ditolak."
-    },
-    "purchase_request": {
-      "only_ulp_can_create": "Hanya user tingkat ULP yang dapat membuat Purchase Request.",
-      "only_ulp_can_update": "Hanya user tingkat ULP yang dapat mengubah Purchase Request.",
-      "not_owned": "Purchase Request ini bukan milik gudang Anda.",
-      "cannot_modify": "Purchase Request yang sudah ditindaklanjuti tidak dapat diubah.",
-      "only_up_can_follow_up": "Hanya user tingkat UP yang dapat menindaklanjuti Purchase Request ini.",
-      "invalid_transition": "Status \"{{from}}\" tidak dapat diubah menjadi \"{{to}}\"."
     }
   },
   "success": {
@@ -58,12 +42,6 @@
     },
     "auth": {
       "login": "Login berhasil dilakukan."
-    },
-    "purchase_request": {
-      "rejected": "Purchase Request ditolak.",
-      "followed_up": "Purchase Request ditandai ditindaklanjuti via {{jalur}}.",
-      "completed": "Purchase Request ditandai selesai.",
-      "status_reset": "Status Purchase Request dikembalikan ke Diajukan."
     }
   }
 }

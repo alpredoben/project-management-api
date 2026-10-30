@@ -18,20 +18,8 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noPropertyAccessFromIndexSignature": true,
-    "typeRoots": [
-      "./node_modules/@types",
-      "./src/shared/types"
-    ]
+    "typeRoots": ["./node_modules/@types", "./src/shared/types"]
   },
-  "include": [
-    "src/**/*",
-    "src/debug/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "docker",
-    "nginx",
-    "logs"
-  ]
+  "include": ["src/**/*", "src/debug/**/*.ts", "scripts"],
+  "exclude": ["node_modules", "dist", "docker", "nginx", "logs"]
 }
