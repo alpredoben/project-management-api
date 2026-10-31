@@ -3,7 +3,6 @@ import { config } from './config';
 import { initializeDatabases } from './database/data-source';
 import { QueueListenerManager } from './events/queue-listener.manager';
 import { GracefulShutdown } from './graceful-shutdown';
-import { initSapSessionCron } from './jobs/sap-session.job';
 import { redisService } from './pkg/redis';
 import { initSocketServer } from './pkg/websocket';
 import { BASE_URL } from './shared/constants';
@@ -21,11 +20,6 @@ const startServer = async () => {
 
     redisService.connect();
     logger.info('[Server] Koneksi Redis berhasil diinisialisasi.');
-
-    if (config.app.env?.toLowerCase() !== 'production') {
-      initSapSessionCron();
-      logger.info('[Server] Cronjob SAP Session Checking berjalan.');
-    }
 
     await QueueListenerManager.startAll();
     logger.info('[Server] Queue listener berhasil dijalankan.');

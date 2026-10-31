@@ -1,50 +1,54 @@
-import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
+import bcrypt from "bcryptjs";
+import { randomInt } from "crypto";
+import { config } from "../../config";
+
+const DEFAULT_PATTERN = /^\$2[aby]\$(\d{2})\$[./A-Za-z0-9]{53}$/;
+
+// Baca "/pola/flags" dari .env menjadi RegExp
+const loadPattern = (): RegExp => {
+  const raw = config.security.password.pattern;
+  if (!raw) return DEFAULT_PATTERN;
+  const m = raw.match(/^\/(.+)\/([a-z]*)$/s);
+  return m ? new RegExp(m[1], m[2]) : new RegExp(raw);
+};
+
+const ROUNDS = Number(config.security.password.salt ?? 10);
+if (!Number.isInteger(ROUNDS) || ROUNDS < 4 || ROUNDS > 31) {
+  throw new Error("BCRYPT_SALT_ROUNDS harus bilangan bulat 4-31.");
+}
+const HASH_PATTERN = loadPattern();
+const MAX_BYTES = 72;
+const CHARS =
+  "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%^&*-_=+?";
 
 export class PasswordUtil {
-  public static async verifyPassword(
-    plainPassword: string,
-    storedHash: string
-  ): Promise<{ isValid: boolean; isMd5: boolean }> {
-    if (!storedHash || !plainPassword) {
-      return { isValid: false, isMd5: false };
+  static async hashPassword(plain: string): Promise<string> {
+    if (!plain) throw new Error("Password must not be empty.");
+    if (Buffer.byteLength(plain, "utf8") > MAX_BYTES) {
+      throw new Error("Password exceeds bcrypt's 72-byte limit.");
     }
-
-    // Check hash bcrypt (Laravel $2y$ / standard $2a$ / $2b$)
-    if (
-      storedHash.startsWith('$2y$') ||
-      storedHash.startsWith('$2a$') ||
-      storedHash.startsWith('$2b$')
-    ) {
-      // Normalized  2y$ Laravel version to $2a$ library bcrypt Node.js
-      const normalizedHash = storedHash.replace(/^\$2y\$/, '$2a$');
-      const isValid = await bcrypt.compare(plainPassword, normalizedHash);
-
-      return { isValid, isMd5: false };
-    }
-
-    // Check hash legacy MD5
-    if (storedHash.length === 32) {
-      const inputMd5 = crypto
-        .createHash('md5')
-        .update(plainPassword)
-        .digest('hex');
-      const isValid = crypto.timingSafeEqual(
-        Buffer.from(inputMd5, 'utf-8'),
-        Buffer.from(storedHash, 'utf-8')
-      );
-
-      return { isValid, isMd5: true };
-    }
-
-    return { isValid: false, isMd5: false };
+    return bcrypt.hash(plain, ROUNDS);
   }
 
-  /**
-   * Create bcrypt hash standar laravel from plain password
-   */
-  public static async makeLaravelHash(plainPassword: string): Promise<string> {
-    const hash = await bcrypt.hash(plainPassword, 10);
-    return hash.replace(/^\$2a\$/, '$2y$');
+  static async verifyPassword(
+    plain: string,
+    storedHash: string,
+  ): Promise<boolean> {
+    if (!plain || !storedHash) return false;
+    if (Buffer.byteLength(plain, "utf8") > MAX_BYTES) return false;
+    const m = storedHash.match(HASH_PATTERN);
+    if (!m) return false;
+    const cost = Number(m[1]);
+    if (cost < 4 || cost > 31) return false;
+    return bcrypt.compare(plain, storedHash.replace(/^\$2y\$/, "$2a$"));
+  }
+
+  static generatePassword(length = 16): string {
+    if (!Number.isInteger(length) || length < 12 || length > 72) {
+      throw new Error("Length harus bilangan bulat 12-72.");
+    }
+    return Array.from({ length }, () => CHARS[randomInt(CHARS.length)]).join(
+      "",
+    );
   }
 }

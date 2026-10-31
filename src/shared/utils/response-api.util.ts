@@ -1,11 +1,11 @@
-import { Response } from 'express';
+import { Response } from "express";
 import {
   In_RESPONSE_Success,
   In_RESPONSE_Pagination,
   In_RESPONSE_Error,
   In_API_ErrorFormat,
-  In_API_PaginationMeta,
-} from '../../interfaces/responseApi.interface';
+  In_API_AttributMeta,
+} from "../../interfaces/responseApi.interface";
 
 export class ResponseAPI {
   // Success
@@ -13,7 +13,7 @@ export class ResponseAPI {
     res: Response,
     statusCode: number,
     message: string,
-    data?: object | Record<string, any> | [] | null
+    data?: object | Record<string, any> | [] | null,
   ): Response {
     const response: In_RESPONSE_Success = {
       success: true,
@@ -30,7 +30,7 @@ export class ResponseAPI {
     statusCode: number,
     message: string,
     data: Record<string, any>[] | object[] | any[],
-    meta: In_API_PaginationMeta
+    meta: In_API_AttributMeta,
   ): Response {
     const response: In_RESPONSE_Pagination = {
       success: true,
@@ -49,11 +49,12 @@ export class ResponseAPI {
     res: Response,
     statusCode: number,
     message: string,
-    errors?: In_API_ErrorFormat[]
+    errors?: In_API_ErrorFormat[],
   ): Response {
     const response: In_RESPONSE_Error = {
       success: false,
       message,
+      timestamp: new Date().toISOString(),
     };
 
     // Hanya masukkan array "errors" ke dalam response jika data errors-nya ada

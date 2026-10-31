@@ -15,8 +15,8 @@
     "typeorm": "tsx ./node_modules/typeorm/cli.js",
     "migration:create": "node scripts/migration.js create",
     "migration:generate": "node scripts/migration.js generate",
-    "migration:run": "npm run typeorm migration:run -d ./src/database/data-source.ts",
-    "migration:revert": "npm run typeorm migration:revert -d ./src/database/data-source.ts"
+    "migration:run": "npm run typeorm -- migration:run -d ./src/database/data-source.ts",
+    "migration:revert": "npm run typeorm -- migration:revert -d ./src/database/data-source.ts"
   },
   "keywords": [
     "index",
@@ -50,6 +50,7 @@
     "mysql2": "^3.23.3",
     "node-cron": "^4.6.0",
     "pdfkit": "^0.20.2",
+    "pg": "^8.23.1",
     "redis": "^5.12.1",
     "socket.io": "^4.8.3",
     "swagger-ui-express": "^5.0.1",

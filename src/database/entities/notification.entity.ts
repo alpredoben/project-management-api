@@ -3,7 +3,7 @@ import { SCHEMA_NAMES } from "../../shared/constants/schemaNames";
 import { BaseAuditEntity } from "./base.entity";
 
 @Entity({ name: SCHEMA_NAMES.NOTIFICATIONS })
-export class NotificationEntity extends BaseAuditEntity {
+export class Notification extends BaseAuditEntity {
   @Column({ name: "sender_user_id", type: "uuid", nullable: true })
   sender_user_id?: string | null;
 

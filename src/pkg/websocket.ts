@@ -1,30 +1,30 @@
-import logger from '../shared/utils/logger.util';
-import { Server as HttpServer } from 'http';
-import { Server as SocketIOServer } from 'socket.io';
-import { createAdapter } from '@socket.io/redis-adapter';
-import { config } from '../config';
-import { redisService } from './redis';
+import logger from "../shared/utils/logger.util";
+import { Server as HttpServer } from "http";
+import { Server as SocketIOServer } from "socket.io";
+import { createAdapter } from "@socket.io/redis-adapter";
+import { config } from "../config";
+import { redisService } from "./redis";
 import {
   In_AuthenticatedSocket,
   socketAuthMiddleware,
-} from '../middleware/socketAuthMiddleware';
-import { NotificationEventNames } from '../shared/constants';
+} from "../middleware/socketAuthMiddleware";
+import { NOTIFICATION_EVENT_NAMES } from "../shared/constants";
 
 let IO: SocketIOServer | null = null;
 let adapterPubClient: ReturnType<
-  ReturnType<typeof redisService.getClient>['duplicate']
+  ReturnType<typeof redisService.getClient>["duplicate"]
 > | null = null;
 let adapterSubClient: ReturnType<
-  ReturnType<typeof redisService.getClient>['duplicate']
+  ReturnType<typeof redisService.getClient>["duplicate"]
 > | null = null;
 
-const ALLOWED_ORIGINS = (config.app.socketOrigin || '')
-  .split(',')
+const ALLOWED_ORIGINS = (config.app.socketOrigin || "")
+  .split(",")
   .map((t) => t.trim())
   .filter(Boolean);
 
 export const initSocketServer = async (
-  httpServer: HttpServer
+  httpServer: HttpServer,
 ): Promise<SocketIOServer> => {
   IO = new SocketIOServer(httpServer, {
     cors: {
@@ -32,7 +32,7 @@ export const initSocketServer = async (
       credentials: true,
     },
     maxHttpBufferSize: 1e6, // 1MB, cegah payload besar/abuse
-    transports: ['websocket'],
+    transports: ["websocket"],
   });
 
   const baseClient = redisService.getClient();
@@ -41,13 +41,13 @@ export const initSocketServer = async (
   adapterPubClient = pubClient;
   adapterSubClient = subClient;
 
-  pubClient.on('error', (err) => {
-    logger.error('Redis pub client error (socket adapter)', {
+  pubClient.on("error", (err) => {
+    logger.error("Redis pub client error (socket adapter)", {
       error: err.message,
     });
   });
-  subClient.on('error', (err) => {
-    logger.error('Redis sub client error (socket adapter)', {
+  subClient.on("error", (err) => {
+    logger.error("Redis sub client error (socket adapter)", {
       error: err.message,
     });
   });
@@ -69,83 +69,76 @@ export const initSocketServer = async (
     return entry.count > limit;
   };
 
-  IO.on('connection', (socket: In_AuthenticatedSocket) => {
-    const { userId, kd_region, kd_area } = socket.user!;
+  IO.on("connection", (socket: In_AuthenticatedSocket) => {
+    const { id } = socket.user!;
 
-    socket.join(`user:${userId}`);
+    socket.join(`user:${id}`);
 
-    if (kd_region) socket.join(`region:${kd_region}`);
-    if (kd_area) socket.join(`area:${kd_area}`);
-
-    console.log('[Socket IO] Socket connected', {
+    console.log("[Socket IO] Socket connected", {
       socketId: socket.id,
-      userId,
-      kd_region,
-      kd_area,
+      id,
     });
 
-    logger.info('Socket connected', {
+    logger.info("Socket connected", {
       socketId: socket.id,
-      userId,
-      kd_region,
-      kd_area,
+      id,
     });
 
-    socket.on(NotificationEventNames.MarkRead, async (payload, ack) => {
+    socket.on(NOTIFICATION_EVENT_NAMES.MARK_READ, async (payload, ack) => {
       if (isRateLimited(socket.id)) {
-        logger.warn('Socket rate limit exceeded', {
+        logger.warn("Socket rate limit exceeded", {
           socketId: socket.id,
-          userId,
+          id,
         });
-        return ack?.({ ok: false, error: 'RATE_LIMITED' });
+        return ack?.({ ok: false, error: "RATE_LIMITED" });
       }
       if (!payload?.notificationId) {
-        return ack?.({ ok: false, error: 'INVALID_PAYLOAD' });
+        return ack?.({ ok: false, error: "INVALID_PAYLOAD" });
       }
 
       try {
-        const { notificationService } =
-          require('../modules/notifications/notification.service') as typeof import('../modules/notifications/notification.service');
+        // const { notificationService } =
+        //   require("../modules/notifications/notification.service") as typeof import("../modules/notifications/notification.service");
 
-        await notificationService.markAsRead(userId, payload.notificationId);
+        // await notificationService.markAsRead(id, payload.notificationId);
 
         ack?.({ ok: true });
       } catch (err) {
-        logger.error('Failed to mark notification as read via socket', {
+        logger.error("Failed to mark notification as read via socket", {
           socketId: socket.id,
-          userId,
+          id,
           notificationId: payload.notificationId,
           error: (err as Error).message,
         });
-        ack?.({ ok: false, error: 'MARK_AS_READ_FAILED' });
+        ack?.({ ok: false, error: "MARK_AS_READ_FAILED" });
       }
     });
 
-    socket.on('disconnect', (reason) => {
+    socket.on("disconnect", (reason) => {
       eventCounters.delete(socket.id);
-      logger.info('Socket disconnected', {
+      logger.info("Socket disconnected", {
         socketId: socket.id,
-        userId,
+        id,
         reason,
       });
     });
 
-    socket.on('error', (err) => {
-      logger.error('Socket error', {
+    socket.on("error", (err) => {
+      logger.error("Socket error", {
         socketId: socket.id,
-        userId,
+        id,
         error: err.message,
       });
     });
   });
 
-  logger.info('Socket.IO server initialized');
+  logger.info("Socket.IO server initialized");
   return IO;
 };
 
 export const getSocketServer = (): SocketIOServer => {
   if (!IO) {
-    throw new Error('Socket.IO server has not been initialized yet.');
+    throw new Error("Socket.IO server has not been initialized yet.");
   }
   return IO;
 };
@@ -167,18 +160,18 @@ export const closeSocketServer = async (): Promise<void> => {
 
 /** Emit notifikasi realtime ke SATU user tertentu. */
 export const emitNotificationToUser = (
-  userId: string,
+  id: string,
   event: string,
-  payload: unknown
+  payload: unknown,
 ): void => {
-  getSocketServer().to(`user:${userId}`).emit(event, payload);
+  getSocketServer().to(`user:${id}`).emit(event, payload);
 };
 
 /** Broadcast ke seluruh user dalam 1 region (kd_region) */
 export const emitNotificationToRegion = (
   kdRegion: string,
   event: string,
-  payload: unknown
+  payload: unknown,
 ): void => {
   getSocketServer().to(`region:${kdRegion}`).emit(event, payload);
 };
@@ -187,7 +180,7 @@ export const emitNotificationToRegion = (
 export const emitNotificationToArea = (
   kdArea: string,
   event: string,
-  payload: unknown
+  payload: unknown,
 ): void => {
   getSocketServer().to(`area:${kdArea}`).emit(event, payload);
 };

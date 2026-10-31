@@ -6,6 +6,8 @@ export const loginValidation = [
     .withMessage('email wajib diisi.')
     .isString()
     .withMessage('email harus berupa teks.')
+    .trim()
+    .toLowerCase()
     .isEmail()
     .withMessage('Format email tidak valid.'),
 
@@ -18,7 +20,8 @@ export const loginValidation = [
     body('remember_me')
       .optional()
     .isBoolean()
-    .withMessage('Nilai remember_me harus berupa boolean (true/false).'),
+      .withMessage('Nilai remember_me harus berupa boolean (true/false).')
+      .toBoolean(),
 ];
 
 export const refreshTokenValidation = [

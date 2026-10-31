@@ -1,6 +1,9 @@
-.PHONY: dev-open-db dev-network dev-check-env dev-up-dev dev-restart \
+.PHONY: dev-network dev-check-env dev-up-dev dev-restart \
 	dev-logs-dev dev-down-dev dev-down-all-dev dev-status-dev clean-images help
 
+
+# SERVICE NAME
+SERVICE_DEV_NAME = pm-api-dev
 
 # Environment files
 ENV_DEV = .env.dev
@@ -21,21 +24,8 @@ NETWORK_PROD = pm-network-prod
 # Global variables
 HEALTHCHECK_TIMEOUT=120
 
-# Service names dev
-MINIO_DEV = pm-minio-dev
-DATABASE_DEV = pm-db-dev
-RABBITMQ_DEV = pm-rabbitmq-dev
-REDIS_DEV = pm-redis-dev
-LOKI_DEV = pm-loki-dev
-PROMTAIL_DEV = pm-promtail-dev
-GRAFANA_DEV = pm-grafana-dev
 
 # =============== CLI Development =========================
-
-
-# Open database shell
-dev-open-db:
-	docker exec -it $(DATABASE_DEV) mysql -u root -p
 
 
 # Check and create network if not exists
@@ -49,24 +39,10 @@ dev-check-env:
 
 # Start development infrastructure
 dev-up: dev-check-env dev-network
-	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) up -d --force-recreate --remove-orphans
-	@echo ">> Menunggu service infrastruktur development sehat (timeout $(HEALTHCHECK_TIMEOUT)s)..."
-	@timeout $(HEALTHCHECK_TIMEOUT) bash -c '\
-		until [ "$$(docker inspect -f "{{.State.Health.Status}}" $(DATABASE_DEV) 2>/dev/null)" = "healthy" ] && \
-			  [ "$$(docker inspect -f "{{.State.Health.Status}}" $(REDIS_DEV) 2>/dev/null)" = "healthy" ] && \
-		      [ "$$(docker inspect -f "{{.State.Health.Status}}" $(RABBITMQ_DEV) 2>/dev/null)" = "healthy" ] && \
-		      [ "$$(docker inspect -f "{{.State.Health.Status}}" $(MINIO_DEV) 2>/dev/null)" = "healthy" ] && \
-		      [ "$$(docker inspect -f "{{.State.Status}}" $(LOKI_DEV) 2>/dev/null)" = "running" ] && \
-		      [ "$$(docker inspect -f "{{.State.Health.Status}}" $(GRAFANA_DEV) 2>/dev/null)" = "healthy" ]; do \
-			sleep 2; \
-		done' || (echo "!! Timeout menunggu service healthy. Cek 'make logs-dev' atau 'make status-dev'." && exit 1)
-	@# Catatan: $(LOKI_DEV) tidak punya Docker healthcheck (image-nya tidak menyediakan shell/wget untuk exec-based check), jadi hanya dicek statusnya "running", bukan "healthy".
-	@echo ">> Seluruh service infrastruktur development sehat."
-
-
+	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) up -d --force-recreate
 
 dev-restart: dev-check-env
-	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) up -d --force-recreate --remove-orphans
+	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) up -d --force-recreate 
 
 dev-logs:
 	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) logs -f
@@ -80,6 +56,16 @@ dev-down-all:
 dev-status:
 	@echo ">> Infrastruktur Development:"
 	@docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) ps
+
+dev-compose-migrate:
+	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) exec $(SERVICE_DEV_NAME) npm run migration:run
+
+# Revert last database migration via Docker Compose
+dev-compose-migrate-revert:
+	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) exec $(SERVICE_DEV_NAME) npm run migration:revert
+
+dev-local-migrate:
+	npm run migration:run
 
 clean-images:
 	docker image prune -f

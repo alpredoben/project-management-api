@@ -1,58 +1,66 @@
-export interface BaseEntity {
-    created_at: Date;
-    created_by: string | null;
-    updated_at?: Date | null;
-    updated_by?: string | null;  
-    deleted_at?: Date | null;
-    deleted_by?: string | null;
-}
+import {
+  Role,
+  User,
+  Permission,
+  Menu,
+  UserRole,
+  RoleMenuPermission,
+  ProjectType,
+  ProjectStatus,
+  Project,
+  ProjectCollaborator,
+  TaskStatus,
+  TaskType,
+  Task,
+  TaskMember,
+  TaskComment,
+  TaskProgressLog,
+  TaskLike,
+  TaskStatusHistory,
+  AttachmentFile,
+  Notification,
+  ActivityLog,
+} from "../database/entities";
+import { TaskStatusHistories1793323052708 } from "../database/migrations/1793323052708-TaskStatusHistories";
 
-export interface In_ENTITY_Role extends BaseEntity {
-    id: string;
-    name: string;
-    slug: string;
-    description: string;
-    users?: In_ENTITY_User[];
-    role_menu_permissions?: In_ENTITY_RoleMenuPermission[];
-}
+export interface In_ENTITY_User extends User {}
 
-export interface In_ENTITY_User extends BaseEntity {
-    id: string;
-    name: string;
-    email: string;
-    phone: string;
-    is_active: boolean;
-    roles?: In_ENTITY_Role[];
-}
+export interface In_ENTITY_Role extends Role {}
 
-export interface In_ENTITY_Permission extends BaseEntity {
-    id: string;
-    name: string;
-    slug: string;
-    description: string;
-}
+export interface In_ENTITY_Permission extends Permission {}
 
-export interface In_ENTITY_Menu extends BaseEntity {
-    id: string;
-    name: string;
-    slug: string;
-    path?: string | null;
-    description?: string | null;
-    icon?: string | null;
-    parent_id?: string | null;
-    order_number?: number | null;
-    children?: In_ENTITY_Menu[];
-}
+export interface In_ENTITY_Menu extends Menu {}
 
+export interface In_ENTITY_UserRole extends UserRole {}
 
-export interface In_ENTITY_RoleMenuPermission extends BaseEntity {
-    id: string;
-    role_id: string;
-    menu_id: string;
-    permission_id: string
-    role?: In_ENTITY_Role;
-    menu?: In_ENTITY_Menu;
-    permission?: In_ENTITY_Permission; 
-}
+export interface In_ENTITY_RoleMenuPermission extends RoleMenuPermission {}
 
+export interface In_ENTITY_ProjectType extends ProjectType {}
 
+export interface In_ENTITY_ProjectStatus extends ProjectStatus {}
+
+export interface In_ENTITY_Project extends Project {}
+
+export interface In_ENTITY_ProjectCollaborator extends ProjectCollaborator {}
+
+export interface In_ENTITY_TaskStatus extends TaskStatus {}
+
+export interface In_ENTITY_TaskType extends TaskType {}
+
+export interface In_ENTITY_Task extends Task {}
+
+export interface In_ENTITY_TaskMember extends TaskMember {}
+
+export interface In_ENTITY_TaskComment extends TaskComment {}
+
+export interface In_ENTITY_TaskProgressLog extends TaskProgressLog {}
+
+export interface In_ENTITY_TaskLike extends TaskLike {}
+
+export interface In_ENTITY_TaskStatusHistory extends TaskStatusHistory {}
+
+export interface In_ENTITY_AttachmentFile extends AttachmentFile {}
+
+export interface In_ENTITY_Notification extends Notification {}
+
+export interface In_ENTITY_ActivityLog extends ActivityLog {}

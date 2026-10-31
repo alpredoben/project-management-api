@@ -1,10 +1,10 @@
-import { DataSource, DataSourceOptions } from 'typeorm';
-import { config } from '../config';
+import { DataSource, DataSourceOptions } from "typeorm";
+import { config } from "../config";
 // import logger from '../shared/utils/logger.util';
 
 /** Warehouse Options */
 const databaseOptions: DataSourceOptions = {
-  type: (config.pkg.db.driver as 'mysql' | 'postgres') || 'mysql',
+  type: (config.pkg.db.driver as "mysql" | "postgres") || "mysql",
   host: config.pkg.db.host,
   port: Number(config.pkg.db.port),
   username: config.pkg.db.user,
@@ -13,17 +13,16 @@ const databaseOptions: DataSourceOptions = {
   synchronize: config.pkg.db.synchronize ?? false,
   logging: config.pkg.db.logging ?? false,
   ssl: config.pkg.db.ssl ? { rejectUnauthorized: false } : false,
-  entities: [__dirname + '/database/entities/**/*{.ts,.js}'],
-  migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
-  subscribers: [__dirname + '/database/subscribers/*{.ts,.js}'],
-  connectTimeout: config.pkg.db.connectTimeout, 
+  entities: [__dirname + "/database/entities/*{.ts,.js}"],
+  migrations: [__dirname + "/database/migrations/*{.ts,.js}"],
+  subscribers: [__dirname + "/database/subscribers/*{.ts,.js}"],
+  connectTimeout: config.pkg.db.connectTimeout,
   extra: {
-    connectionLimit: 20, 
+    connectionLimit: 20,
     queueLimit: 0,
     waitForConnections: true,
   },
 };
-
 
 // Inisialisasi Instance TypeORM DataSource
 export const OpenDataSource = new DataSource(databaseOptions);
@@ -33,10 +32,9 @@ export const initializeDatabases = async (): Promise<void> => {
     if (!OpenDataSource.isInitialized) {
       await OpenDataSource.initialize();
       console.log(
-        `[Database] Connected to Database (${config.pkg.db.name}) on port ${config.pkg.db.port}`
+        `[Database] Connected to Database (${config.pkg.db.name}) on port ${config.pkg.db.port}`,
       );
     }
-
   } catch (error: any) {
     console.error(`[Database] Initialization failed: ${error.message}`, {
       stack: error.stack,
@@ -54,7 +52,7 @@ export const closeDatabases = async (): Promise<void> => {
     }
   } catch (error: any) {
     console.error(
-      `[Database] Error while closing connections: ${error.message}`
+      `[Database] Error while closing connections: ${error.message}`,
     );
   }
 };

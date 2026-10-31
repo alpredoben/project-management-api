@@ -5,6 +5,7 @@ export const SCHEMA_NAMES = {
   MENUS: "menus",
   USERS: "users",
   USER_ROLES: "user_roles",
+  ROLE_PERMISSIONS: "role_permissions",
   ROLE_MENU_PERMISSIONS: "role_menu_permissions",
   PROJECT_STATUS: "project_status",
   PROJECT_TYPES: "project_types",

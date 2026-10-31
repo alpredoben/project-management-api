@@ -1,4 +1,4 @@
-import { In_API_PaginationMeta } from '../../interfaces/responseApi.interface';
+import { In_API_PaginationMeta } from "../../interfaces/responseApi.interface";
 
 export interface In_PaginationQuery {
   page?: number | string;
@@ -12,8 +12,20 @@ export interface In_PaginationComposite {
   perPage: number;
 }
 
+export const getPageAndLimit = (
+  query: In_PaginationQuery,
+): { currentPage: number; perPage: number } => {
+  const page = Math.max(1, Number(query.page) || 1);
+  const limit = Math.max(1, Math.min(100, Number(query.limit) || 10));
+
+  return {
+    currentPage: page,
+    perPage: limit,
+  };
+};
+
 export const getPaginationParams = (
-  query: In_PaginationQuery
+  query: In_PaginationQuery,
 ): In_PaginationComposite => {
   const page = Math.max(1, Number(query.page) || 1);
   const limit = Math.max(1, Math.min(100, Number(query.limit) || 10));
@@ -30,7 +42,7 @@ export const getPaginationParams = (
 export const generatePaginationMeta = (
   currentPage: number,
   perPage: number,
-  totalItems: number
+  totalItems: number,
 ): In_API_PaginationMeta => {
   const totalPages =
     totalItems > 0 && perPage > 0 ? Math.ceil(totalItems / perPage) : 1;

@@ -1,12 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
-import { randomUUID } from 'crypto';
-import logger from '../shared/utils/logger.util';
-import { HTTP_STATUS, SKIPPED_PATHS } from '../shared/constants';
+import { Request, Response, NextFunction } from "express";
+import { randomUUID } from "crypto";
+import logger from "../shared/utils/logger.util";
+import { HTTP_STATUS, SKIPPED_PATHS } from "../shared/constants";
 
 export const loggerMiddleware = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
   if (SKIPPED_PATHS.includes(req.path)) {
     next();
@@ -15,24 +15,23 @@ export const loggerMiddleware = (
 
   const start = Date.now();
 
-  // Corelation of Request Id to Grafana Log.
-  const requestId = (req.headers['x-request-id'] as string) || randomUUID();
+  const requestId = (req.headers["x-request-id"] as string) || randomUUID();
   (req as any).id = requestId;
-  res.setHeader('X-Request-Id', requestId);
+  res.setHeader("X-Request-Id", requestId);
 
   let logged = false;
 
   const writeLog = () => {
-    if (logged) return; // 'finish' and'close'
+    if (logged) return;
 
     logged = true;
     const duration = Date.now() - start;
-    const forwarded = req.headers['x-forwarded-for'];
+    const forwarded = req.headers["x-forwarded-for"];
     const ip =
       req.ip ||
-      (Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0]) ||
+      (Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(",")[0]) ||
       req.socket.remoteAddress ||
-      'unknown';
+      "unknown";
 
     const logMetadata = {
       request_id: requestId,
@@ -42,12 +41,9 @@ export const loggerMiddleware = (
       status: res.statusCode,
       execution_time_ms: duration,
       ip,
-      userAgent: req.get('user-agent') || 'unknown',
-      userId: req.user?.userId ?? 'unauthenticated',
-      role: req.user?.role ?? 'guest',
-      kdRegion: req.user?.kd_region ?? 'system',
-      kdArea: req.user?.kd_area ?? 'system',
-      aksesGudang: req.user?.akses_gudang ?? 'system',
+      userAgent: req.get("user-agent") || "unknown",
+      userId: req.user?.id ?? "unauthenticated",
+      userName: req.user?.name ?? "No name",
       aborted: !res.writableEnded,
     };
 
@@ -62,7 +58,7 @@ export const loggerMiddleware = (
     }
   };
 
-  res.on('finish', writeLog);
-  res.on('close', writeLog);
+  res.on("finish", writeLog);
+  res.on("close", writeLog);
   next();
 };

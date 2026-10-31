@@ -4,6 +4,7 @@ export * from "./role.entity";
 export * from "./permission.entity";
 export * from "./menu.entity";
 export * from "./userRole.entity";
+export * from "./rolePermission.entity";
 export * from "./roleMenuPermission.entity";
 export * from "./projectStatus.entity";
 export * from "./projectType.entity";

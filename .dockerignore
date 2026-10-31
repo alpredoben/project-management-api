@@ -12,3 +12,5 @@ README.md
 .env.*
 .vscode
 .idea
+
+grafana

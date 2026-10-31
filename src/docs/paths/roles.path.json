@@ -1,0 +1,246 @@
+{
+  "/roles": {
+    "post": {
+      "tags": ["Roles"],
+      "summary": "Create a role",
+      "operationId": "createRole",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/CreateRoleDto" }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Role created.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RoleResponse" }
+            }
+          }
+        },
+        "401": {
+          "description": "Authentication required.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_ErrorResponse" }
+            }
+          }
+        },
+        "409": {
+          "description": "A role with the same name already exists.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_ErrorResponse" }
+            }
+          }
+        },
+        "422": {
+          "description": "Request validation failed.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_ErrorResponse" }
+            }
+          }
+        }
+      }
+    },
+    "get": {
+      "tags": ["Roles"],
+      "summary": "Get paginated roles",
+      "operationId": "getRoles",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        {
+          "name": "page",
+          "in": "query",
+          "schema": { "type": "integer", "minimum": 1, "default": 1 }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 10 }
+        },
+        {
+          "name": "sort_by",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "enum": ["id", "name", "slug", "created_at", "updated_at"],
+            "default": "created_at"
+          }
+        },
+        {
+          "name": "order_by",
+          "in": "query",
+          "schema": { "type": "string", "enum": ["ASC", "DESC"], "default": "DESC" }
+        },
+        {
+          "name": "search",
+          "in": "query",
+          "schema": { "type": "string" }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Paginated role list.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RoleListResponse" }
+            }
+          }
+        },
+        "401": {
+          "description": "Authentication required.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_ErrorResponse" }
+            }
+          }
+        },
+        "422": {
+          "description": "Query validation failed.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_ErrorResponse" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/roles/{id}": {
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      }
+    ],
+    "get": {
+      "tags": ["Roles"],
+      "summary": "Get a role by ID",
+      "operationId": "getRoleById",
+      "security": [{ "bearerAuth": [] }],
+      "responses": {
+        "200": {
+          "description": "Role detail.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RoleResponse" }
+            }
+          }
+        },
+        "401": {
+          "description": "Authentication required.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_ErrorResponse" }
+            }
+          }
+        },
+        "404": {
+          "description": "Role not found.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_ErrorResponse" }
+            }
+          }
+        }
+      }
+    },
+    "put": {
+      "tags": ["Roles"],
+      "summary": "Update a role",
+      "operationId": "updateRole",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdateRoleDto" }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Role updated.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RoleResponse" }
+            }
+          }
+        },
+        "401": {
+          "description": "Authentication required.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_ErrorResponse" }
+            }
+          }
+        },
+        "404": {
+          "description": "Role not found.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_ErrorResponse" }
+            }
+          }
+        },
+        "409": {
+          "description": "A role with the same name already exists.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_ErrorResponse" }
+            }
+          }
+        },
+        "422": {
+          "description": "Request validation failed.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_ErrorResponse" }
+            }
+          }
+        }
+      }
+    },
+    "delete": {
+      "tags": ["Roles"],
+      "summary": "Delete a role",
+      "description": "Soft-deletes the role.",
+      "operationId": "deleteRole",
+      "security": [{ "bearerAuth": [] }],
+      "responses": {
+        "200": {
+          "description": "Role deleted.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "401": {
+          "description": "Authentication required.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_ErrorResponse" }
+            }
+          }
+        },
+        "404": {
+          "description": "Role not found.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_ErrorResponse" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -5,7 +5,6 @@
       "database_conflict": "Terjadi konflik data pada basis data (Database Conflict Error).",
       "unauthorized": "Akses ditolak. Token tidak valid atau kedaluwarsa.",
       "forbidden": "Anda tidak memiliki hak akses untuk melakukan aksi ini.",
-      "not_found": "Data atau sumber daya yang diminta tidak ditemukan.",
       "bad_request": "Permintaan tidak valid. Periksa kembali data kiriman Anda.",
       "validation_error": "Validasi data gagal. Periksa kembali bidang yang wajib diisi.",
       "retrieved": "Data {{m}} gagal diambil.",
@@ -15,20 +14,25 @@
       "required": "Data {{m}} wajib diisi",
       "is_array": "Wajib menggunakan format data array",
       "approved": "Data {{m}} gagal disetujui",
-      "not_found_param": "Data {{m}} tidak ditemukan",
+      "not_found": "Data {{m}} tidak ditemukan",
       "afterOrEqual": "Tanggal {{m}} harus sama dengan atau setelah {{target}}",
+      "mustUUID": "{{m}} harus berisikan UUID",
       "invalidFormat": "Format {{m}} tidak valid.",
       "maxLength": "Panjang maksimal {{m}} adalah {{max}} karakter.",
       "minArray": "Minimal harus terdapat {{min}} data pada {{m}}.",
+      "mustText": "{{mm}} harus berisikan text",
       "exactArraySize": "Total item pada {{m}} harus berjumlah {{size}}.",
-      "minValue": "Nilai minimal untuk {{m}} adalah {{min}}."
+      "minValue": "Nilai minimal untuk {{m}} adalah {{min}}.",
+      "not_supported": "Nilai {{m}} tidak didukung",
+      "exists": "{{m}} sudah digunakan"
     },
     "auth": {
       "failed_credential": "Username atau password salah.",
       "mismatch": "Email atau password yang anda masukkan salah.",
       "not_found_credential": "Data atau sumber daya yang diminta tidak ditemukan.",
       "invalid_credentials": "Email atau password yang Anda masukkan salah.",
-      "token_expired": "Sesi Anda telah habis. Silakan login kembali."
+      "token_expired": "Sesi Anda telah habis. Silakan login kembali.",
+      "refresh_token_invalid": "Token sesi tidak valid atau telah kedaluwarsa."
     }
   },
   "success": {
@@ -41,7 +45,9 @@
       "notification_read": "Notifikasi telah di baca"
     },
     "auth": {
-      "login": "Login berhasil dilakukan."
+      "login": "Login berhasil dilakukan.",
+      "logout": "Logout berhasil dilakukan.",
+      "token_refreshed": "Token berhasil diperbarui."
     }
   }
 }

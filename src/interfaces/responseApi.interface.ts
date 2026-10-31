@@ -12,9 +12,13 @@ export interface In_API_PaginationMeta {
   has_previous_page: boolean;
 }
 
+export interface In_API_AttributMeta {
+  pagination: In_API_PaginationMeta;
+  total_rows?: number | 0;
+}
 
 // Success Response Interface
-export interface In_RESPONSE_Success{
+export interface In_RESPONSE_Success {
   success: boolean;
   message: string;
   data: object | Record<string, any> | any;
@@ -35,13 +39,5 @@ export interface In_RESPONSE_Pagination {
   message: string;
   data: Record<string, any>[];
   timestamp: string;
-  meta: {
-    pagination: In_API_PaginationMeta;
-    total_rows?: number | 0;
-  };
+  meta: In_API_AttributMeta;
 }
-
-
-
-
-

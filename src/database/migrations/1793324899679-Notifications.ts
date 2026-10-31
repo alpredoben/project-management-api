@@ -19,8 +19,6 @@ const FN_CHECK_TARGET = "fn_notifications_check_target";
 const FN_CASCADE_TARGET = "fn_notifications_cascade_target_delete";
 
 export class Notifications1793324899679 implements MigrationInterface {
-  name = "Notifications1793324899679";
-
   public async up(q: QueryRunner): Promise<void> {
     await q.createTable(
       new Table({

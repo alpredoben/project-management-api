@@ -15,8 +15,6 @@ const FN_CHECK_REF = "fn_attachment_files_check_reference";
 const FN_BLOCK_DELETE = "fn_attachment_files_block_parent_delete";
 
 export class Attachments1793323355885 implements MigrationInterface {
-  name = "Attachments1793323355885";
-
   public async up(q: QueryRunner): Promise<void> {
     await q.createTable(
       new Table({

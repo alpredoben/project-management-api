@@ -1,32 +1,225 @@
 {
   "/auth/login": {
     "post": {
-      "tags": [
-        "Authentication"
-      ],
-      "summary": "Login User Account",
-      "description": "Otentikasi pengguna untuk mendapatkan Access & Refresh Token.",
+      "tags": ["Authentication"],
+      "summary": "Login",
+      "description": "Authenticate a user and issue an access token and a refresh token. The refresh token is stored server-side as a hash and is rotated when refreshed.",
+      "operationId": "login",
       "requestBody": {
         "required": true,
         "content": {
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/LoginDto"
+            },
+            "examples": {
+              "login": {
+                "summary": "Login request",
+                "value": {
+                  "email": "user@example.com",
+                  "password": "your-password",
+                  "remember_me": false
+                }
+              }
             }
           }
         }
       },
       "responses": {
         "200": {
-          "description": "Login berhasil",
+          "description": "Login successful.",
           "content": {
             "application/json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/In_SuccessResponse"
-                  }
-                ]
+                "$ref": "#/components/schemas/LoginResponse"
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Email/password is incorrect or the account is inactive.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/In_ErrorResponse"
+              }
+            }
+          }
+        },
+        "422": {
+          "description": "Request validation failed.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/In_ErrorResponse"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Unexpected server error.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/In_ErrorResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/auth/refresh-token": {
+    "post": {
+      "tags": ["Authentication"],
+      "summary": "Refresh tokens",
+      "description": "Validate the current refresh token, rotate it, and issue a new access token. A refresh token can only be used once.",
+      "operationId": "refreshAuthTokens",
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RefreshTokenDto"
+            },
+            "examples": {
+              "refresh": {
+                "summary": "Refresh token request",
+                "value": {
+                  "refreshToken": "eyJhbGciOi..."
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "New access and refresh tokens issued.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenResponse"
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Refresh token is invalid, expired, revoked, or already used.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/In_ErrorResponse"
+              }
+            }
+          }
+        },
+        "422": {
+          "description": "Request validation failed.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/In_ErrorResponse"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Unexpected server error.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/In_ErrorResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/auth/logout": {
+    "post": {
+      "tags": ["Authentication"],
+      "summary": "Logout",
+      "description": "Revoke the current refresh token and mark the user as logged out. The current access token remains valid until it expires.",
+      "operationId": "logout",
+      "security": [
+        {
+          "bearerAuth": []
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Logout successful.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutResponse"
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Access token is missing, invalid, expired, or not an access token.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/In_ErrorResponse"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Unexpected server error.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/In_ErrorResponse"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/auth/me": {
+    "get": {
+      "tags": ["Authentication"],
+      "summary": "Get current user profile",
+      "description": "Return the profile and active roles for the user identified by the access token.",
+      "operationId": "getCurrentUser",
+      "security": [
+        {
+          "bearerAuth": []
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Current user profile retrieved.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CurrentUserResponse"
+              }
+            }
+          }
+        },
+        "401": {
+          "description": "Access token is missing, invalid, expired, or the user is inactive.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/In_ErrorResponse"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Unexpected server error.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/In_ErrorResponse"
               }
             }
           }
@@ -34,118 +227,4 @@
       }
     }
   }
-},
-"/auth/refresh-token": {
-  "post": {
-    "tags": [
-      "Authentication"
-    ],
-    "summary": "Get Refresh Access Token",
-    "requestBody": {
-      "required": true,
-      "content": {
-        "application/json": {
-          "schema": {
-            "$ref": "#/components/schemas/RefreshTokenDto"
-          }
-        }
-      }
-    },
-    "responses": {
-      "200": {
-        "description": "Token berhasil diperbarui",
-        "content": {
-          "application/json": {
-            "schema": {
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/In_SuccessResponse"
-                }
-              ]
-            }
-          }
-        }
-      },
-      "401": {
-        "description": "Token tidak valid",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/In_ErrorResponse"
-            }
-          }
-        }
-      }
-    }
-  }
-},
-"/auth/logout": {
-  "post": {
-    "tags": [
-      "Authentication"
-    ],
-    "summary": "Logout Account",
-    "security": [
-      {
-        "bearerAuth": []
-      }
-    ],
-    "description": "Fitur logout account",
-    "responses": {
-      "200": {
-        "description": "Logout berhasil",
-        "content": {
-          "application/json": {
-            "schema": {
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/In_SuccessResponse"
-                }
-              ]
-            }
-          }
-        }
-      }
-    }
-  }
-},
-"/auth/me": {
-  "get": {
-    "tags": [
-      "Authentication"
-    ],
-    "summary": "Get User Profile",
-    "security": [
-      {
-        "bearerAuth": []
-      }
-    ],
-    "responses": {
-      "200": {
-        "description": "Profil berhasil diambil",
-        "content": {
-          "application/json": {
-            "schema": {
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/In_SuccessResponse"
-                }
-              ]
-            }
-          }
-        }
-      },
-      "401": {
-        "description": "Tidak ada token",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/In_ErrorResponse"
-            }
-          }
-        }
-      }
-    }
-  }
-}
 }

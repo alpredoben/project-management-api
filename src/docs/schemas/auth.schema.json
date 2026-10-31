@@ -3,9 +3,25 @@
     "type": "object",
     "required": ["email", "password"],
     "properties": {
-      "email": { "type": "string", "example": "user@example.com" },
-      "password": { "type": "string", "example": "password123" },
-      "remember_me": { "type": "boolean", "example": true }
+      "email": {
+        "type": "string",
+        "format": "email",
+        "description": "User email address. Leading/trailing whitespace is trimmed and the address is normalized to lowercase.",
+        "example": "user@example.com"
+      },
+      "password": {
+        "type": "string",
+        "description": "Plain-text password sent over HTTPS. The server verifies it against the stored password hash.",
+        "format": "password",
+        "writeOnly": true,
+        "example": "your-password"
+      },
+      "remember_me": {
+        "type": "boolean",
+        "description": "When true, issues longer-lived access and refresh tokens.",
+        "default": false,
+        "example": false
+      }
     }
   },
   "RefreshTokenDto": {
@@ -14,8 +30,189 @@
     "properties": {
       "refreshToken": {
         "type": "string",
-        "example": "eyJhbGciOiJIUzI1NiIsInR..."
+        "description": "Refresh JWT returned by login or the previous successful refresh. Each token is single-use.",
+        "minLength": 1,
+        "example": "eyJhbGciOi..."
       }
     }
+  },
+  "AuthUserProfile": {
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "email",
+      "phone",
+      "is_active",
+      "roles",
+      "role_menu_permissions"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid",
+        "example": "67a2e8de-4129-4db4-b6ef-02350c59ebaa"
+      },
+      "name": {
+        "type": "string",
+        "nullable": true,
+        "example": "Example User"
+      },
+      "email": {
+        "type": "string",
+        "format": "email",
+        "example": "user@example.com"
+      },
+      "phone": {
+        "type": "string",
+        "nullable": true,
+        "example": "+6281234567890"
+      },
+      "is_active": {
+        "type": "boolean",
+        "example": true
+      },
+      "roles": {
+        "type": "array",
+        "description": "The user's assigned active roles.",
+        "items": {
+          "type": "object",
+          "required": ["id", "name", "slug"],
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": "string"
+            },
+            "slug": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        },
+        "example": [
+          {
+            "id": "67a2e8de-4129-4db4-b6ef-02350c59ebaa",
+            "name": "Project Manager",
+            "slug": "project-manager"
+          }
+        ]
+      },
+      "role_menu_permissions": {
+        "type": "array",
+        "description": "An active menu and permission granted through an assigned role.",
+        "maxItems": 1,
+        "items": {
+          "type": "object",
+          "required": ["permission", "menu"],
+          "properties": {
+            "permission": {
+              "type": "object",
+              "required": ["id", "name", "slug"],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                }
+              }
+            },
+            "menu": {
+              "type": "object",
+              "description": "The complete menu entity."
+            }
+          }
+        }
+      }
+    }
+  },
+  "AuthTokenPair": {
+    "type": "object",
+    "required": ["token_type", "access_token", "refresh_token"],
+    "properties": {
+      "token_type": {
+        "type": "string",
+        "enum": ["Bearer"],
+        "example": "Bearer"
+      },
+      "access_token": {
+        "type": "string",
+        "description": "JWT to send in the Authorization header as `Bearer <access_token>`.",
+        "example": "eyJhbGciOi..."
+      },
+      "refresh_token": {
+        "type": "string",
+        "description": "Single-use refresh JWT. Store it securely and replace it after every refresh.",
+        "example": "eyJhbGciOi..."
+      }
+    }
+  },
+  "LoginResponse": {
+    "allOf": [
+      {
+        "$ref": "#/components/schemas/In_SuccessResponse"
+      },
+      {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AuthTokenPair"
+          }
+        }
+      }
+    ]
+  },
+  "RefreshTokenResponse": {
+    "allOf": [
+      {
+        "$ref": "#/components/schemas/In_SuccessResponse"
+      },
+      {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AuthTokenPair"
+          }
+        }
+      }
+    ]
+  },
+  "LogoutResponse": {
+    "allOf": [
+      {
+        "$ref": "#/components/schemas/In_SuccessResponse"
+      },
+      {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Logout berhasil dilakukan."
+          }
+        }
+      }
+    ]
+  },
+  "CurrentUserResponse": {
+    "allOf": [
+      {
+        "$ref": "#/components/schemas/In_SuccessResponse"
+      },
+      {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AuthUserProfile"
+          }
+        }
+      }
+    ]
   }
 }
