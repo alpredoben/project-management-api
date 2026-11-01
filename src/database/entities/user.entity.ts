@@ -25,6 +25,9 @@ export class User extends BaseAuditEntity {
   @Column({ type: "varchar", length: 255, nullable: true })
   refresh_token?: string | null;
 
+  @Column({ type: "text", nullable: true })
+  avatar?: string | null;
+
   @Column({ name: "last_login_at", type: "timestamp", nullable: true })
   last_login_at?: Date | null;
 }

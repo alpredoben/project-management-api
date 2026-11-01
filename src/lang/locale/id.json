@@ -20,7 +20,7 @@
       "invalidFormat": "Format {{m}} tidak valid.",
       "maxLength": "Panjang maksimal {{m}} adalah {{max}} karakter.",
       "minArray": "Minimal harus terdapat {{min}} data pada {{m}}.",
-      "mustText": "{{mm}} harus berisikan text",
+      "mustText": "{{m}} harus berisikan text",
       "exactArraySize": "Total item pada {{m}} harus berjumlah {{size}}.",
       "minValue": "Nilai minimal untuk {{m}} adalah {{min}}.",
       "not_supported": "Nilai {{m}} tidak didukung",

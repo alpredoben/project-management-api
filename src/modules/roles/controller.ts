@@ -6,7 +6,12 @@ import {
   getPageAndLimit,
   getPaginationParams,
 } from "../../shared/utils/pagination.util";
-import { In_DTO_RoleListQuery, ROLE_SORT_FIELDS, T_RoleSortField } from "./dto";
+import {
+  In_DTO_Assignment,
+  In_DTO_RoleListQuery,
+  ROLE_SORT_FIELDS,
+  T_RoleSortField,
+} from "./dto";
 import { service } from "./services";
 import {
   createSlug,
@@ -127,6 +132,36 @@ export class RoleController {
     }
   }
 
+  public async assignPermission(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    const payload: In_DTO_Assignment = {
+      role_id: req.params["id"] as string,
+      permissions_ids: req.body.permission_ids as string[],
+    };
+
+    try {
+      const assignments = await service.assignPermission(
+        payload,
+        makeBaseAudit(req, "create"),
+      );
+      ResponseAPI.success(
+        res,
+        HTTP_STATUS.OK,
+        getStringMessage(
+          req,
+          "success.default.updated",
+          "Permission berhasil ditambahkan ke role.",
+        ),
+        assignments,
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public fetchPagination = async (
     req: Request,
     res: Response,
@@ -151,7 +186,7 @@ export class RoleController {
     }
   };
 
-  private isRoleSortBy(value: unknown): value is T_RoleSortField {
+  private validateSortBy(value: unknown): value is T_RoleSortField {
     return (
       typeof value === "string" &&
       (new Set(ROLE_SORT_FIELDS) as ReadonlySet<string>).has(value)
@@ -173,7 +208,7 @@ export class RoleController {
       limit: pagination.perPage,
       sort_by:
         typeof req.query?.["sort_by"] === "string" &&
-        this.isRoleSortBy(req.query["sort_by"])
+        this.validateSortBy(req.query["sort_by"])
           ? req.query["sort_by"]
           : "created_at",
       order_by:

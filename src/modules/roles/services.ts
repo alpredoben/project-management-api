@@ -1,9 +1,10 @@
 import { Role } from "../../database/entities/role.entity";
+import { RolePermission } from "../../database/entities/rolePermission.entity";
 import { In_RESULT_Pagination } from "../../interfaces/dto.interface";
 import { In_ENTITY_Role } from "../../interfaces/entity.interface";
 import { HTTP_STATUS } from "../../shared/constants";
 import { AppError } from "../../shared/utils/error.util";
-import { In_DTO_RoleListQuery } from "./dto";
+import { In_DTO_Assignment, In_DTO_RoleListQuery } from "./dto";
 import { repository } from "./repository";
 import i18next from "i18next";
 
@@ -67,6 +68,25 @@ export class RoleService {
     query: In_DTO_RoleListQuery,
   ): Promise<In_RESULT_Pagination> {
     return await repository.fetchPagination(query);
+  }
+
+  public async assignPermission(
+    payload: In_DTO_Assignment,
+    baseAudit: Partial<RolePermission>,
+  ): Promise<RolePermission[]> {
+    const role = await this.findById(payload.role_id);
+    const uniquePermissionIds = [...new Set(payload.permissions_ids)];
+    const permissions =
+      await repository.findPermissionsByIds(uniquePermissionIds);
+
+    if (permissions.length !== uniquePermissionIds.length) {
+      throw new AppError(
+        i18next.t("error.default.not_found", { m: "Permission" }),
+        HTTP_STATUS.NOT_FOUND,
+      );
+    }
+
+    return repository.assignPermission(role.id, uniquePermissionIds, baseAudit);
   }
 }
 

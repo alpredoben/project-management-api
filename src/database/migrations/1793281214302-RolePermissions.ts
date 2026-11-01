@@ -7,7 +7,7 @@ import {
 } from "typeorm";
 import { SCHEMA_NAMES } from "../../shared/constants/schemaNames";
 
-export class RolePermissions1793414000000 implements MigrationInterface {
+export class RolePermissions1793281214302 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
@@ -141,8 +141,7 @@ export class RolePermissions1793414000000 implements MigrationInterface {
     );
     const rolePermissionForeignKey = roleMenuPermissions?.foreignKeys.find(
       ({ name }) =>
-        name ===
-        `FK_${SCHEMA_NAMES.ROLE_MENU_PERMISSIONS}_role_permission`,
+        name === `FK_${SCHEMA_NAMES.ROLE_MENU_PERMISSIONS}_role_permission`,
     );
     if (roleMenuPermissions && rolePermissionForeignKey) {
       await queryRunner.dropForeignKey(

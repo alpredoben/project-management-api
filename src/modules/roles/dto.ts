@@ -1,3 +1,5 @@
+import { BaseAuditEntity } from "../../database/entities";
+
 export const ROLE_SORT_FIELDS = [
   "id",
   "name",
@@ -23,3 +25,8 @@ export const DEFAULT_SORT_COLUMN: Record<T_RoleSortField, string> = {
   created_at: "role.created_at",
   updated_at: "role.updated_at",
 };
+
+export interface In_DTO_Assignment {
+  role_id: string;
+  permissions_ids: string[];
+}

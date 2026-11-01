@@ -56,6 +56,11 @@ export class Users1793280752456 implements MigrationInterface {
             isNullable: true,
           },
           {
+            name: "avatar",
+            type: "text",
+            isNullable: true,
+          },
+          {
             name: "last_login_at",
             type: "timestamp",
             default: null,

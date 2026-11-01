@@ -1,5 +1,7 @@
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { OpenDataSource } from "../../database/data-source";
+import { Permission } from "../../database/entities/permission.entity";
+import { RolePermission } from "../../database/entities/rolePermission.entity";
 import { Role } from "../../database/entities/role.entity";
 import {
   DEFAULT_SORT_COLUMN,
@@ -51,6 +53,60 @@ export class RoleRepository {
       return false;
     }
     return true;
+  }
+
+  public findPermissionsByIds(ids: string[]): Promise<Permission[]> {
+    return OpenDataSource.getRepository(Permission).findBy({ id: In(ids) });
+  }
+
+  public async assignPermission(
+    roleId: string,
+    permissionIds: string[],
+    baseAudit: Partial<RolePermission>,
+  ): Promise<RolePermission[]> {
+    const { created_at, created_by, ...baseUpdate } = baseAudit;
+    return OpenDataSource.transaction(async (manager) => {
+      const rolePermissionRepository = manager.getRepository(RolePermission);
+      const existing = await rolePermissionRepository
+        .createQueryBuilder("rolePermission")
+        .withDeleted()
+        .where("rolePermission.role_id = :roleId", { roleId })
+        .andWhere("rolePermission.permission_id IN (:...permissionIds)", {
+          permissionIds,
+        })
+        .getMany();
+      const existingIds = new Set(
+        existing.map((assignment) => assignment.permission_id),
+      );
+      const restored = existing
+        .filter((assignment) => assignment.deleted_at)
+        .map((assignment) =>
+          rolePermissionRepository.merge(assignment, baseUpdate, {
+            deleted_at: null,
+            deleted_by: null,
+          }),
+        );
+      const newAssignments = permissionIds
+        .filter((permissionId) => !existingIds.has(permissionId))
+        .map((permission_id) =>
+          rolePermissionRepository.create({
+            role_id: roleId,
+            permission_id,
+            created_at,
+            created_by,
+            ...baseUpdate,
+          }),
+        );
+
+      if (restored.length > 0 || newAssignments.length > 0) {
+        await rolePermissionRepository.save([...restored, ...newAssignments]);
+      }
+
+      return rolePermissionRepository.findBy({
+        role_id: roleId,
+        permission_id: In(permissionIds),
+      });
+    });
   }
 
   public async fetchPagination(

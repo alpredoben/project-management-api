@@ -1,15 +1,21 @@
-import { Router } from 'express';
-import healthRoute from '../modules/health/health.route';
-import authRouter from '../modules/auth/route';
-import roleRouter from '../modules/roles/route';
+import { Router } from "express";
+import healthRoute from "../modules/health/health.route";
+import authRouter from "../modules/auth/route";
+import menuRouter from "../modules/menus/route";
+import permissionRouter from "../modules/permissions/route";
+import roleRouter from "../modules/roles/route";
+import userRouter from "../modules/users/route";
 
 const router = Router();
 
 /** Health Route */
-router.use('/health', healthRoute);
+router.use("/health", healthRoute);
 
 /** Auth Route */
-router.use('/auth', authRouter);
-router.use('/roles', roleRouter);
+router.use("/auth", authRouter);
+router.use("/menus", menuRouter);
+router.use("/permissions", permissionRouter);
+router.use("/roles", roleRouter);
+router.use("/users", userRouter);
 
 export default router;

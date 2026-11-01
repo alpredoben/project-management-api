@@ -3,15 +3,14 @@ import { authMiddleware } from "../../middleware/auth.middleware";
 import { validationMiddleware } from "../../middleware/validation.middleware";
 import { roleController } from "./controller";
 import {
+  assignPermissionValidation,
   createRoleValidation,
   roleIdValidation,
   roleListValidation,
   updateRoleValidation,
 } from "./validate";
 
-const router = Router();
-
-router.use(authMiddleware);
+const router = Router().use(authMiddleware);
 
 router.post(
   "/",
@@ -21,12 +20,12 @@ router.post(
 router.get(
   "/",
   validationMiddleware(roleListValidation),
-  roleController.findAll,
+  roleController.fetchPagination,
 );
 router.get(
   "/:id",
   validationMiddleware(roleIdValidation),
-  roleController.findById,
+  roleController.fetchById,
 );
 router.put(
   "/:id",
@@ -37,6 +36,11 @@ router.delete(
   "/:id",
   validationMiddleware(roleIdValidation),
   roleController.delete,
+);
+router.post(
+  "/:id/permissions",
+  validationMiddleware(assignPermissionValidation),
+  roleController.assignPermission,
 );
 
 export default router;

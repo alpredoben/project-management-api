@@ -46,7 +46,8 @@ export const getStringMessage = (
   req: Request,
   key: string,
   fallback: string,
-): string => req.t?.(key, { defaultValue: fallback }) ?? fallback;
+  params: Record<string, string> = {},
+): string => req.t?.(key, { ...params }) ?? fallback;
 
 export const createSlug = (text: any): any => {
   if (text == "") return null;

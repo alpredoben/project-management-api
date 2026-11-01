@@ -38,6 +38,20 @@ export const updateRoleValidation = [
   roleDescription,
 ];
 
+export const assignPermissionValidation = [
+  ...roleIdValidation,
+  body("permission_ids")
+    .isArray({ min: 1 })
+    .withMessage(
+      i18next.t("error.default.required", { m: "Daftar permission" }),
+    ),
+  body("permission_ids.*")
+    .isUUID()
+    .withMessage(
+      i18next.t("error.default.mustUUID", { m: "ID permission" }),
+    ),
+];
+
 export const roleListValidation = [
   query("page")
     .optional()
