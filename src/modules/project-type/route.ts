@@ -8,6 +8,7 @@ import {
   queryListValidation,
   updateValidation,
 } from "./validate";
+import { listQueryValidation } from "../../shared/utils/validation.util";
 
 const router = Router().use(authMiddleware);
 
@@ -15,6 +16,10 @@ router
   .route("/")
   .get(validate(queryListValidation), controller.fetchPagination)
   .post(validate(createValidation), controller.store);
+
+router
+  .route("/dropdown")
+  .get(validate(listQueryValidation(["type_name"])), controller.fetchDropdown);
 
 router
   .route("/:id")

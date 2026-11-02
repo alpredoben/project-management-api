@@ -48,6 +48,7 @@ export const parseListQuery = <S extends string>(
   req: Request,
   sortFields: readonly S[],
   defaultSort: S,
+  defaultOrder: "ASC" | "DESC" = "DESC",
 ): In_DTO_ListQuery<S> => {
   const { currentPage, perPage } = getPageAndLimit({
     page: asString(req.query["page"]),
@@ -60,7 +61,11 @@ export const parseListQuery = <S extends string>(
     limit: perPage,
     sort_by: sortFields.find((field) => field === sortBy) ?? defaultSort,
     order_by:
-      asString(req.query["order_by"])?.toUpperCase() === "ASC" ? "ASC" : "DESC",
+      asString(req.query["order_by"])?.toUpperCase() === "ASC"
+        ? "ASC"
+        : asString(req.query["order_by"])?.toUpperCase() === "DESC"
+          ? "DESC"
+          : defaultOrder,
     search: asString(req.query["search"])?.trim() ?? "",
   };
 };
@@ -94,11 +99,12 @@ export const handleList =
     action: (
       query: In_DTO_ListQuery<S>,
     ) => Promise<{ data: any[]; meta: In_API_AttributMeta }>,
+    defaultOrder: "ASC" | "DESC" = "DESC",
   ): RequestHandler =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { data, meta } = await action(
-        parseListQuery(req, sortFields, defaultSort),
+        parseListQuery(req, sortFields, defaultSort, defaultOrder),
       );
       ResponseAPI.successPagination(
         res,

@@ -1,6 +1,7 @@
-import { Column, Entity, Unique } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import { SCHEMA_NAMES } from "../../shared/constants/schemaNames";
 import { BaseAuditEntity } from "./base.entity";
+import { Project } from "./projects.entity";
 
 @Entity({ name: SCHEMA_NAMES.USERS })
 export class User extends BaseAuditEntity {
@@ -30,4 +31,7 @@ export class User extends BaseAuditEntity {
 
   @Column({ name: "last_login_at", type: "timestamp", nullable: true })
   last_login_at?: Date | null;
+
+  @OneToMany(() => Project, (project) => project.owner)
+  projects?: Project[];
 }

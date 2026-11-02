@@ -41,6 +41,14 @@ export class ProjectStatusController {
     "sort_order",
     (query) => service.fetchPagination(query),
   );
+
+  public fetchDropdown = handleList(
+    LABEL,
+    ["status_name"],
+    "status_name",
+    (query) => service.fetchPagination(query),
+    "ASC",
+  );
 }
 
 export const projectStatusController = new ProjectStatusController();

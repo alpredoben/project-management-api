@@ -41,6 +41,14 @@ export class ProjectTypeController {
     "sort_order",
     (query) => service.fetchPagination(query),
   );
+
+  public fetchDropdown = handleList(
+    LABEL,
+    ["type_name"],
+    "type_name",
+    (query) => service.fetchPagination(query),
+    "ASC",
+  );
 }
 
 export const projectTypeController = new ProjectTypeController();

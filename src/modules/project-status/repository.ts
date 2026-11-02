@@ -38,7 +38,7 @@ export class ProjectStatusRepository {
     const builder = this.repository
       .createQueryBuilder("ps")
       .withDeleted()
-      .where("LOWER(ps.project_status_name) = LOWER(:name)", { name });
+      .where("LOWER(ps.status_name) = LOWER(:name)", { name });
     return this.excluding(builder, exceptId).getExists();
   }
 
@@ -126,7 +126,7 @@ export class ProjectStatusRepository {
     return this.repository
       .createQueryBuilder("ps")
       .select("ps.id", "id")
-      .addSelect("ps.project_status_name", "status_name")
+      .addSelect("ps.status_name", "status_name")
       .addSelect("ps.sort_order", "sort_order")
       .addSelect("ps.created_at", "created_at")
       .addSelect("ps.updated_at", "updated_at");
@@ -146,7 +146,7 @@ export class ProjectStatusRepository {
     search: string,
   ): SelectQueryBuilder<ProjectStatus> {
     return search
-      ? builder.andWhere("ps.project_status_name ILIKE :search", {
+      ? builder.andWhere("ps.status_name ILIKE :search", {
           search: `%${escapeLike(search)}%`,
         })
       : builder;

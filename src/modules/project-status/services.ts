@@ -54,7 +54,7 @@ export class ProjectStatusService {
     ]);
 
     const updated = await repository.update(id, {
-      ...(status_name !== undefined && { project_status_name: status_name }),
+      ...(status_name !== undefined && { status_name }),
       ...(sort_order !== undefined && { sort_order }),
       ...audit,
     });
