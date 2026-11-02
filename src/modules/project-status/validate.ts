@@ -11,10 +11,6 @@ import { PROJECT_STATUS_FIELDS, PROJECT_STATUS_SORT_FIELDS } from "./dto";
 
 const STATUS_NAME_MAX = 100;
 
-export const projectStatusIdValidation = [
-  param("id").isUUID().withMessage(mustUUID("ID status project")),
-];
-
 const statusNameField = (isRequired: boolean) => {
   const chain = body("status_name");
   if (!isRequired) chain.optional();
@@ -39,13 +35,14 @@ const sortOrderField = (isRequired: boolean) => {
     .toInt();
 };
 
-export const createProjectStatusValidation = [
-  statusNameField(true),
-  sortOrderField(true),
+export const primaryKeyValidation = [
+  param("id").isUUID().withMessage(mustUUID("ID status project")),
 ];
 
-export const updateProjectStatusValidation = [
-  ...projectStatusIdValidation,
+export const createValidation = [statusNameField(true), sortOrderField(true)];
+
+export const updateValidation = [
+  ...primaryKeyValidation,
   atLeastOneOf(
     PROJECT_STATUS_FIELDS,
     "Minimal satu field status project harus diubah.",
@@ -54,6 +51,6 @@ export const updateProjectStatusValidation = [
   sortOrderField(false),
 ];
 
-export const projectStatusListValidation = listQueryValidation(
+export const queryListValidation = listQueryValidation(
   PROJECT_STATUS_SORT_FIELDS,
 );

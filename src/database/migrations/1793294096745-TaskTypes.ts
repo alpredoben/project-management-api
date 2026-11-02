@@ -7,7 +7,7 @@ export class TaskTypes1793294096745 implements MigrationInterface {
     await q.createTable(
       new Table({
         name: SCHEMA_NAMES.TASK_TYPES,
-        columns: lookupColumns("task_type_name"),
+        columns: lookupColumns("type_name", true),
       }),
       true,
     );

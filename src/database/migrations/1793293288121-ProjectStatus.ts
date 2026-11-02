@@ -1,5 +1,5 @@
 import { MigrationInterface, QueryRunner, Table } from "typeorm";
-import { auditColumns, uuidPk } from "../migration-helper";
+import { auditColumns, lookupColumns, uuidPk } from "../migration-helper";
 import { SCHEMA_NAMES } from "../../shared/constants/schemaNames";
 
 export class ProjectStatus1793293288121 implements MigrationInterface {
@@ -9,22 +9,7 @@ export class ProjectStatus1793293288121 implements MigrationInterface {
     await queryRunner.createTable(
       new Table({
         name: SCHEMA_NAMES.PROJECT_STATUS,
-        columns: [
-          uuidPk(),
-          {
-            name: "status_name",
-            type: "varchar",
-            length: "100",
-            isUnique: true,
-          },
-          {
-            name: "sort_order",
-            type: "int",
-            default: 0,
-            isUnique: true,
-          },
-          ...auditColumns(),
-        ],
+        columns: lookupColumns("status_name", true),
       }),
       true,
     );

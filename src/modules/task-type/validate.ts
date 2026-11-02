@@ -1,0 +1,54 @@
+import { body, param } from "express-validator";
+import {
+  atLeastOneOf,
+  listQueryValidation,
+  maxLength,
+  mustText,
+  mustUUID,
+  required,
+} from "../../shared/utils/validation.util";
+import { TASK_TYPE_COLUMNS, TASK_TYPE_FIELDS } from "./dto";
+
+const TYPE_NAME_MAX = 100;
+
+const typeNameField = (isRequired: boolean) => {
+  const chain = body("type_name");
+  if (!isRequired) chain.optional();
+  return chain
+    .isString()
+    .withMessage(mustText("Nama tipe project"))
+    .bail()
+    .trim()
+    .notEmpty()
+    .withMessage(required("Nama tipe project"))
+    .bail()
+    .isLength({ max: TYPE_NAME_MAX })
+    .withMessage(maxLength("nama tipe project", TYPE_NAME_MAX));
+};
+
+const sortOrderField = (isRequired: boolean) => {
+  const chain = body("sort_order");
+  if (!isRequired) chain.optional();
+  return chain
+    .isInt({ min: 0 })
+    .withMessage("sort_order harus berupa bilangan bulat non-negatif.")
+    .toInt();
+};
+
+export const primaryKeyValidation = [
+  param("id").isUUID().withMessage(mustUUID("ID tipe project")),
+];
+
+export const createValidation = [typeNameField(true), sortOrderField(true)];
+
+export const updateValidation = [
+  ...primaryKeyValidation,
+  atLeastOneOf(
+    TASK_TYPE_FIELDS,
+    "Minimal satu field tipe project harus diubah.",
+  ),
+  typeNameField(false),
+  sortOrderField(false),
+];
+
+export const queryListValidation = listQueryValidation(TASK_TYPE_COLUMNS);

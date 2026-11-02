@@ -25,11 +25,11 @@ export class ProjectTypeService {
   }
 
   public async fetchById(id: string): Promise<In_DTO_ProjectType> {
-    const projectType = await repository.findById(id);
-    if (!projectType) {
+    const result = await repository.findById(id);
+    if (!result) {
       throw notFoundError(LABEL);
     }
-    return projectType;
+    return result;
   }
 
   public async update(

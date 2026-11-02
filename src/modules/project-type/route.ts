@@ -3,23 +3,23 @@ import { authMiddleware } from "../../middleware/auth.middleware";
 import { validationMiddleware as validate } from "../../middleware/validation.middleware";
 import { projectTypeController as controller } from "./controller";
 import {
-  createProjectTypeValidation,
-  projectTypeIdValidation,
-  projectTypeListValidation,
-  updateProjectTypeValidation,
+  createValidation,
+  primaryKeyValidation,
+  queryListValidation,
+  updateValidation,
 } from "./validate";
 
 const router = Router().use(authMiddleware);
 
 router
   .route("/")
-  .get(validate(projectTypeListValidation), controller.fetchPagination)
-  .post(validate(createProjectTypeValidation), controller.store);
+  .get(validate(queryListValidation), controller.fetchPagination)
+  .post(validate(createValidation), controller.store);
 
 router
   .route("/:id")
-  .get(validate(projectTypeIdValidation), controller.fetchById)
-  .put(validate(updateProjectTypeValidation), controller.update)
-  .delete(validate(projectTypeIdValidation), controller.delete);
+  .get(validate(primaryKeyValidation), controller.fetchById)
+  .put(validate(updateValidation), controller.update)
+  .delete(validate(primaryKeyValidation), controller.delete);
 
 export default router;

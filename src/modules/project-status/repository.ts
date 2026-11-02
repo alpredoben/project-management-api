@@ -14,14 +14,13 @@ import {
 
 const SORT_COLUMNS: Record<T_ProjectStatusSortField, string> = {
   id: "ps.id",
-  status_name: "ps.project_status_name",
+  status_name: "ps.status_name",
   sort_order: "ps.sort_order",
   created_at: "ps.created_at",
   updated_at: "ps.updated_at",
 };
 
-const RETURNING =
-  "id, project_status_name AS status_name, sort_order, created_at, updated_at";
+const RETURNING = "id, status_name, sort_order, created_at, updated_at";
 
 export class ProjectStatusRepository {
   private get repository(): Repository<ProjectStatus> {
@@ -73,7 +72,6 @@ export class ProjectStatusRepository {
     return (raw as In_DTO_ProjectStatus[])[0];
   }
 
-  /** Update status aktif dan langsung mengembalikan barisnya (satu query). */
   public async update(
     id: string,
     patch: Partial<ProjectStatus>,

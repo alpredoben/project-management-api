@@ -27,12 +27,6 @@ export class ProjectTypeRepository {
       .getRawOne<In_DTO_ProjectType>();
   }
 
-  /**
-   * Mengecek bentrok nama (tanpa membedakan huruf besar/kecil) dan no. urut
-   * dalam SATU query. Field yang tidak diisi dilewati (`NULL` tidak pernah sama).
-   * Baris yang sudah di-soft-delete ikut dihitung karena unique constraint
-   * database tetap berlaku untuknya.
-   */
   public async findConflicts(
     { type_name, sort_order }: In_DTO_UpdateProjectType,
     exceptId?: string,

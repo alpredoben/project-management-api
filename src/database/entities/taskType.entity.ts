@@ -5,10 +5,13 @@ import { BaseAuditEntity } from "./base.entity";
 @Entity({ name: SCHEMA_NAMES.TASK_TYPES })
 export class TaskType extends BaseAuditEntity {
   @Column({
-    name: "task_type_name",
+    name: "type_name",
     type: "varchar",
     length: 100,
     unique: true,
   })
-  task_type_name!: string;
+  type_name!: string;
+
+  @Column({ type: "int", default: 0, unique: true })
+  sort_order!: number;
 }

@@ -7,14 +7,14 @@ export class TaskStatus1793293870295 implements MigrationInterface {
     await q.createTable(
       new Table({
         name: SCHEMA_NAMES.TASK_STATUS,
-        columns: lookupColumns("task_status_name", true),
+        columns: lookupColumns("status_name", true),
       }),
       true,
     );
 
     // Seed status task sesuai kebutuhan
     await q.query(`
-      INSERT INTO ${SCHEMA_NAMES.TASK_STATUS} (task_status_name, sort_order) VALUES
+      INSERT INTO ${SCHEMA_NAMES.TASK_STATUS} (status_name, sort_order) VALUES
         ('backlog',     1),
         ('to do',       2),
         ('in progress', 3),

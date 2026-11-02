@@ -11,10 +11,6 @@ import { PROJECT_TYPE_COLUMNS, PROJECT_TYPE_FIELDS } from "./dto";
 
 const TYPE_NAME_MAX = 100;
 
-export const projectTypeIdValidation = [
-  param("id").isUUID().withMessage(mustUUID("ID tipe project")),
-];
-
 const typeNameField = (isRequired: boolean) => {
   const chain = body("type_name");
   if (!isRequired) chain.optional();
@@ -39,13 +35,14 @@ const sortOrderField = (isRequired: boolean) => {
     .toInt();
 };
 
-export const createProjectTypeValidation = [
-  typeNameField(true),
-  sortOrderField(true),
+export const primaryKeyValidation = [
+  param("id").isUUID().withMessage(mustUUID("ID tipe project")),
 ];
 
-export const updateProjectTypeValidation = [
-  ...projectTypeIdValidation,
+export const createValidation = [typeNameField(true), sortOrderField(true)];
+
+export const updateValidation = [
+  ...primaryKeyValidation,
   atLeastOneOf(
     PROJECT_TYPE_FIELDS,
     "Minimal satu field tipe project harus diubah.",
@@ -54,5 +51,4 @@ export const updateProjectTypeValidation = [
   sortOrderField(false),
 ];
 
-export const projectTypeListValidation =
-  listQueryValidation(PROJECT_TYPE_COLUMNS);
+export const queryListValidation = listQueryValidation(PROJECT_TYPE_COLUMNS);

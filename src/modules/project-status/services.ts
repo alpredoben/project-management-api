@@ -32,11 +32,11 @@ export class ProjectStatusService {
   }
 
   public async fetchById(id: string): Promise<In_DTO_ProjectStatus> {
-    const projectStatus = await repository.findById(id);
-    if (!projectStatus) {
+    const result = await repository.findById(id);
+    if (!result) {
       throw notFoundError(LABEL);
     }
-    return projectStatus;
+    return result;
   }
 
   public async update(
