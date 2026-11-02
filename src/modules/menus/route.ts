@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { authMiddleware } from "../../middleware/auth.middleware";
-import { validationMiddleware } from "../../middleware/validation.middleware";
-import { menuController } from "./controller";
+import { validationMiddleware as validate } from "../../middleware/validation.middleware";
+import { menuController as controller } from "./controller";
 import {
   addRolePermissionMenuValidation,
   createMenuValidation,
@@ -12,35 +12,21 @@ import {
 
 const router = Router().use(authMiddleware);
 
-router.post(
-  "/",
-  validationMiddleware(createMenuValidation),
-  menuController.store,
-);
-router.get(
-  "/",
-  validationMiddleware(menuListValidation),
-  menuController.fetchPagination,
-);
+router
+  .route("/")
+  .get(validate(menuListValidation), controller.fetchPagination)
+  .post(validate(createMenuValidation), controller.store);
+
 router.post(
   "/role-permissions",
-  validationMiddleware(addRolePermissionMenuValidation),
-  menuController.addRolePermissionMenu,
+  validate(addRolePermissionMenuValidation),
+  controller.addRolePermissionMenu,
 );
-router.get(
-  "/:id",
-  validationMiddleware(menuIdValidation),
-  menuController.fetchById,
-);
-router.put(
-  "/:id",
-  validationMiddleware(updateMenuValidation),
-  menuController.update,
-);
-router.delete(
-  "/:id",
-  validationMiddleware(menuIdValidation),
-  menuController.delete,
-);
+
+router
+  .route("/:id")
+  .get(validate(menuIdValidation), controller.fetchById)
+  .put(validate(updateMenuValidation), controller.update)
+  .delete(validate(menuIdValidation), controller.delete);
 
 export default router;

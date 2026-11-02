@@ -1,5 +1,13 @@
-import { body, Meta, param, query } from "express-validator";
-import i18next from "i18next";
+import { body, param } from "express-validator";
+import {
+  atLeastOneOf,
+  listQueryValidation,
+  maxLength,
+  mustText,
+  mustUUID,
+  required,
+  t,
+} from "../../shared/utils/validation.util";
 import { USER_SORT_FIELDS, USER_UPDATABLE_FIELDS } from "./dto";
 
 const LIMITS = {
@@ -10,17 +18,6 @@ const LIMITS = {
   passwordMin: 8,
   passwordMax: 72,
 } as const;
-
-const t =
-  (key: string, params?: Record<string, string>) =>
-  (_value: unknown, { req }: Meta): string =>
-    String(req["t"]?.(key, params) ?? i18next.t(key, params));
-
-const mustText = (label: string) => t("error.default.mustText", { m: label });
-const required = (label: string) => t("error.default.required", { m: label });
-const maxLength = (label: string, max: number) =>
-  t("error.default.maxLength", { m: label, max: String(max) });
-const mustUUID = (label: string) => t("error.default.mustUUID", { m: label });
 
 export const userIdValidation = [
   param("id").isUUID().withMessage(mustUUID("ID user")),
@@ -104,11 +101,7 @@ export const createUserValidation = [
 
 export const updateUserValidation = [
   ...userIdValidation,
-  body()
-    .custom((_value, { req }) =>
-      USER_UPDATABLE_FIELDS.some((field) => req.body?.[field] !== undefined),
-    )
-    .withMessage("Minimal satu field user harus diubah."),
+  atLeastOneOf(USER_UPDATABLE_FIELDS, "Minimal satu field user harus diubah."),
   nameField(false),
   emailField(false),
   phoneField(),
@@ -130,20 +123,4 @@ export const addUserRoleValidation = [
   ...roleIdsField(true),
 ];
 
-export const userListValidation = [
-  query("page").optional().isInt({ min: 1 }),
-  query("limit").optional().isInt({ min: 1, max: 100 }),
-  query("sort_by")
-    .optional()
-    .isIn([...USER_SORT_FIELDS])
-    .withMessage(t("error.default.not_supported", { m: "sort_by" })),
-  query("order_by")
-    .optional()
-    .isIn(["ASC", "DESC", "asc", "desc"])
-    .withMessage("order_by harus ASC atau DESC."),
-  query("search")
-    .optional()
-    .isString()
-    .isLength({ max: LIMITS.search })
-    .withMessage(maxLength("pencarian", LIMITS.search)),
-];
+export const userListValidation = listQueryValidation(USER_SORT_FIELDS);

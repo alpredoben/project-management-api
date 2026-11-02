@@ -1,8 +1,11 @@
 import { randomUUID } from "crypto";
-import i18next from "i18next";
 import { minioService } from "../../pkg/minio";
 import { HTTP_STATUS } from "../../shared/constants";
-import { AppError } from "../../shared/utils/error.util";
+import {
+  AppError,
+  existsError,
+  notFoundError,
+} from "../../shared/utils/error.util";
 import { PasswordUtil } from "../../shared/utils/password.util";
 import { detectAvatarType } from "./lib/avatar-util";
 import { buildUsersWorkbook } from "./lib/excel-util";
@@ -30,7 +33,7 @@ export class UserService {
       this.validateRoles(role_ids),
     ]);
     if (emailTaken) {
-      throw this.emailConflict();
+      throw existsError("Email user");
     }
 
     const id = await repository.createWithRoles(
@@ -51,7 +54,7 @@ export class UserService {
   public async fetchById(id: string): Promise<In_DTO_UserDetails> {
     const user = await repository.findDetailById(id);
     if (!user) {
-      throw this.notFound();
+      throw notFoundError("User");
     }
     return {
       ...user,
@@ -67,7 +70,7 @@ export class UserService {
     audit: T_Audit,
   ): Promise<In_DTO_UserDetails> {
     if (payload.email && (await repository.isEmailTaken(payload.email, id))) {
-      throw this.emailConflict();
+      throw existsError("Email user");
     }
     await this.ensureFound(repository.update(id, { ...payload, ...audit }));
     return this.fetchById(id);
@@ -110,7 +113,7 @@ export class UserService {
       this.validateRoles(roleIds),
     ]);
     if (!userExists) {
-      throw this.notFound();
+      throw notFoundError("User");
     }
     await repository.addRoles(id, uniqueRoleIds, audit);
     return this.fetchById(id);
@@ -140,7 +143,7 @@ export class UserService {
     }
     const current = await repository.findAvatar(id);
     if (!current) {
-      throw this.notFound();
+      throw notFoundError("User");
     }
 
     const avatar = `avatars/${id}/${randomUUID()}.${imageType.extension}`;
@@ -179,37 +182,20 @@ export class UserService {
       uniqueRoleIds.length > 0 &&
       (await repository.countRolesByIds(uniqueRoleIds)) !== uniqueRoleIds.length
     ) {
-      throw new AppError(
-        i18next.t("error.default.not_found", { m: "Role" }),
-        HTTP_STATUS.NOT_FOUND,
-      );
+      throw notFoundError("Role");
     }
     return uniqueRoleIds;
   }
 
   private async ensureFound(operation: Promise<boolean>): Promise<void> {
     if (!(await operation)) {
-      throw this.notFound();
+      throw notFoundError("User");
     }
   }
 
   /** Hapus object MinIO secara best-effort; kegagalan sudah di-log oleh minioService. */
   private removeObject(path: string): Promise<void> {
     return minioService.deleteFile(path).catch(() => undefined);
-  }
-
-  private notFound(): AppError {
-    return new AppError(
-      i18next.t("error.default.not_found", { m: "User" }),
-      HTTP_STATUS.NOT_FOUND,
-    );
-  }
-
-  private emailConflict(): AppError {
-    return new AppError(
-      i18next.t("error.default.exists", { m: "Email user" }),
-      HTTP_STATUS.CONFLICT,
-    );
   }
 }
 

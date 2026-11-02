@@ -7,7 +7,7 @@ export class ProjectTypes1793293506394 implements MigrationInterface {
     await q.createTable(
       new Table({
         name: SCHEMA_NAMES.PROJECT_TYPES,
-        columns: lookupColumns("project_type_name"),
+        columns: lookupColumns("type_name"),
       }),
       true,
     );

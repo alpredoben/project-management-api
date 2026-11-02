@@ -4,7 +4,8 @@ import { Role } from "../../database/entities/role.entity";
 import { User } from "../../database/entities/user.entity";
 import { UserRole } from "../../database/entities/userRole.entity";
 import { SCHEMA_NAMES } from "../../shared/constants/schemaNames";
-import { generatePaginationMeta } from "../../shared/utils/pagination.util";
+import { toPaginationResult } from "../../shared/utils/pagination.util";
+import { escapeLike } from "../../shared/utils/sql.util";
 import {
   In_DTO_UserExportRow,
   In_DTO_UserListItem,
@@ -12,18 +13,7 @@ import {
   In_DTO_UserListResult,
   In_DTO_UserRecord,
   T_Audit,
-  T_UserSortField,
 } from "./dto";
-
-const SORT_COLUMNS: Record<T_UserSortField, string> = {
-  id: "u.id",
-  name: "u.name",
-  email: "u.email",
-  phone: "u.phone",
-  is_active: "u.is_active",
-  created_at: "u.created_at",
-  updated_at: "u.updated_at",
-};
 
 /**
  * Fragmen SQL: role user diagregasi di database (sub-query berkorelasi),
@@ -47,8 +37,6 @@ const STATUS = `CASE WHEN u.is_active THEN 'active' ELSE 'not active' END`;
 /** Mencegah formula injection di spreadsheet: awalan `= + - @` diberi tanda kutip. */
 const safeSpreadsheetText = (expression: string): string =>
   `regexp_replace(COALESCE(${expression}, ''), '^([=+@-])', '''\\1')`;
-
-const escapeLike = (value: string): string => value.replace(/[\\%_]/g, "\\$&");
 
 export class UserRepository {
   private get repository(): Repository<User> {
@@ -167,7 +155,7 @@ export class UserRepository {
     query: In_DTO_UserListQuery,
   ): Promise<In_DTO_UserListResult> {
     const { page, limit, sort_by, order_by, search } = query;
-    const sortColumn = SORT_COLUMNS[sort_by];
+    const sortColumn = `u.${sort_by}`;
 
     const [data, totalItems] = await Promise.all([
       this.applySearch(this.listColumns(), search)
@@ -183,13 +171,7 @@ export class UserRepository {
       ).getCount(),
     ]);
 
-    return {
-      data,
-      meta: {
-        pagination: generatePaginationMeta(page, limit, totalItems),
-        total_rows: totalItems,
-      },
-    };
+    return toPaginationResult(data, page, limit, totalItems);
   }
 
   /** Seluruh user sesuai filter/sort (tanpa paginasi) untuk export. */
@@ -206,7 +188,7 @@ export class UserRepository {
       .addSelect(safeSpreadsheetText("u.phone"), "phone")
       .addSelect(STATUS, "status")
       .addSelect(safeSpreadsheetText(ROLES_TEXT), "roles")
-      .orderBy(SORT_COLUMNS[query.sort_by], query.order_by)
+      .orderBy(`u.${query.sort_by}`, query.order_by)
       .addOrderBy("u.id", "ASC")
       .getRawMany<In_DTO_UserExportRow>();
   }
@@ -228,7 +210,7 @@ export class UserRepository {
 
   /** Nomor urut dihitung di database agar konsisten dengan sort dan halaman. */
   private rowNumber({ sort_by, order_by }: In_DTO_UserListQuery): string {
-    return `CAST(ROW_NUMBER() OVER (ORDER BY ${SORT_COLUMNS[sort_by]} ${order_by}, u.id ASC) AS int)`;
+    return `CAST(ROW_NUMBER() OVER (ORDER BY u.${sort_by} ${order_by}, u.id ASC) AS int)`;
   }
 
   private applySearch(

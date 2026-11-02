@@ -1,4 +1,7 @@
-import { In_API_PaginationMeta } from "../../interfaces/responseApi.interface";
+import {
+  In_API_AttributMeta,
+  In_API_PaginationMeta,
+} from "../../interfaces/responseApi.interface";
 
 export interface In_PaginationQuery {
   page?: number | string;
@@ -56,3 +59,16 @@ export const generatePaginationMeta = (
     has_previous_page: currentPage > 1,
   };
 };
+
+export const toPaginationResult = <T>(
+  data: T[],
+  currentPage: number,
+  perPage: number,
+  totalItems: number,
+): { data: T[]; meta: In_API_AttributMeta } => ({
+  data,
+  meta: {
+    pagination: generatePaginationMeta(currentPage, perPage, totalItems),
+    total_rows: totalItems,
+  },
+});

@@ -1,4 +1,5 @@
 import { BaseAuditEntity } from "../../database/entities";
+import { In_DTO_ListQuery } from "../../interfaces/dto.interface";
 import { In_API_AttributMeta } from "../../interfaces/responseApi.interface";
 
 export const USER_SORT_FIELDS = [
@@ -14,17 +15,10 @@ export const USER_SORT_FIELDS = [
 export const USER_UPDATABLE_FIELDS = ["name", "email", "phone"] as const;
 
 export type T_UserSortField = (typeof USER_SORT_FIELDS)[number];
-export type T_OrderDirection = "ASC" | "DESC";
 export type T_Audit = Partial<BaseAuditEntity>;
 
-/** Query list user yang sudah dinormalisasi (lihat `parseListQuery` di controller). */
-export interface In_DTO_UserListQuery {
-  page: number;
-  limit: number;
-  sort_by: T_UserSortField;
-  order_by: T_OrderDirection;
-  search: string;
-}
+/** Query list user yang sudah dinormalisasi (lihat `parseListQuery`). */
+export type In_DTO_UserListQuery = In_DTO_ListQuery<T_UserSortField>;
 
 export interface In_DTO_CreateUser {
   name: string;
@@ -82,10 +76,4 @@ export interface In_DTO_UserExportRow {
   phone: string;
   status: string;
   roles: string;
-}
-
-export interface In_AvatarImageType {
-  mimeType: string;
-  extension: string;
-  matches: (buffer: Buffer) => boolean;
 }

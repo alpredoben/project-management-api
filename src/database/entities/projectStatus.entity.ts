@@ -5,13 +5,13 @@ import { BaseAuditEntity } from "./base.entity";
 @Entity({ name: SCHEMA_NAMES.PROJECT_STATUS })
 export class ProjectStatus extends BaseAuditEntity {
   @Column({
-    name: "project_status_name",
+    name: "status_name",
     type: "varchar",
     length: 100,
     unique: true,
   })
-  project_status_name!: string;
+  status_name!: string;
 
-  @Column({ type: "int", default: 0 })
+  @Column({ type: "int", default: 0, unique: true })
   sort_order!: number;
 }

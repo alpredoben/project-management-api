@@ -1,219 +1,186 @@
-import { In, IsNull, Not, Repository } from "typeorm";
+import { In, IsNull, Repository, SelectQueryBuilder } from "typeorm";
 import { OpenDataSource } from "../../database/data-source";
 import { Menu } from "../../database/entities/menu.entity";
 import { Permission } from "../../database/entities/permission.entity";
+import { Role } from "../../database/entities/role.entity";
 import { RoleMenuPermission } from "../../database/entities/roleMenuPermission.entity";
 import { RolePermission } from "../../database/entities/rolePermission.entity";
-import { Role } from "../../database/entities/role.entity";
-import { In_RESULT_Pagination } from "../../interfaces/dto.interface";
-import { PAGINATION_PROPERTIES } from "../../shared/constants";
-import { generatePaginationMeta } from "../../shared/utils/pagination.util";
-import {
-  DEFAULT_SORT_COLUMN,
-  In_DTO_MenuListQuery,
-  T_MenuSortField,
-} from "./dto";
+import { SCHEMA_NAMES } from "../../shared/constants/schemaNames";
+import { toPaginationResult } from "../../shared/utils/pagination.util";
+import { escapeLike } from "../../shared/utils/sql.util";
+import { In_DTO_MenuListQuery } from "./dto";
+
+type T_Audit = Partial<Menu>;
+
+/** Mengecek apakah `ancestor` adalah leluhur (atau sama dengan) `menu` dengan satu recursive CTE. */
+const IS_ANCESTOR_SQL = `
+  WITH RECURSIVE ancestors AS (
+    SELECT id, parent_id FROM ${SCHEMA_NAMES.MENUS} WHERE id = $1
+    UNION
+    SELECT m.id, m.parent_id
+      FROM ${SCHEMA_NAMES.MENUS} m
+     INNER JOIN ancestors a ON m.id = a.parent_id
+  )
+  SELECT EXISTS (SELECT 1 FROM ancestors WHERE id = $2) AS "found"`;
 
 export class MenuRepository {
   private get repository(): Repository<Menu> {
     return OpenDataSource.getRepository(Menu);
   }
 
-  public checkOrderNumberExists(payload: {
-    order_number: number;
-    parent_id?: string | null;
-    id?: string | null;
-  }): Promise<boolean> {
-    let baseConditions: any[];
-
-    if (payload.parent_id == null) {
-      baseConditions = [
-        { order_number: payload.order_number },
-        { parent_id: IsNull() },
-      ];
-    } else {
-      baseConditions = [
-        { order_number: payload.order_number },
-        { parent_id: payload.parent_id },
-      ];
-    }
-
-    const whereConditions = baseConditions.map((condition) => {
-      const newCondition = { ...condition };
-      if (payload.id != null) {
-        newCondition.id = Not(payload.id);
-      }
-      return newCondition;
-    });
-
-    const exists = this.repository.exists({
-      where: whereConditions,
-    });
-
-    return exists;
-  }
-
-  public create(menu: Partial<Menu>): Promise<Menu> {
-    return this.repository.save(this.repository.create(menu));
-  }
-
   public findById(id: string): Promise<Menu | null> {
     return this.repository.findOneBy({ id });
   }
 
-  public findBySlug(slug: string): Promise<Menu | null> {
-    return this.repository
+  public exists(id: string): Promise<boolean> {
+    return this.repository.existsBy({ id });
+  }
+
+  public create(payload: Partial<Menu>): Promise<Menu> {
+    return this.repository.save(this.repository.create(payload));
+  }
+
+  /** Slug unik termasuk milik menu yang sudah di-soft-delete. */
+  public isSlugTaken(slug: string, exceptId?: string): Promise<boolean> {
+    const builder = this.repository
       .createQueryBuilder("menu")
       .withDeleted()
-      .where("menu.slug = :slug", { slug })
-      .getOne();
+      .where("menu.slug = :slug", { slug });
+    return this.excluding(builder, exceptId).getExists();
   }
 
-  public async update(
-    id: string,
-    payload: Partial<Menu>,
-  ): Promise<Menu | null> {
-    const result = await this.repository.update({ id }, payload);
-    if (result.affected !== 1) {
-      return null;
-    }
-    return this.findById(id);
+  /** No. urut harus unik di antara menu dengan parent yang sama (`null` = menu root). */
+  public isOrderNumberTaken(
+    orderNumber: number,
+    parentId: string | null,
+    exceptId?: string,
+  ): Promise<boolean> {
+    const builder = this.repository
+      .createQueryBuilder("menu")
+      .where("menu.order_number = :orderNumber", { orderNumber })
+      .andWhere("menu.parent_id IS NOT DISTINCT FROM :parentId", { parentId });
+    return this.excluding(builder, exceptId).getExists();
   }
 
-  public async delete(id: string, payload: Partial<Menu>): Promise<boolean> {
-    const result = await this.repository.update({ id }, payload);
-    return result.affected === 1;
+  /** `true` bila menempatkan `menuId` di bawah `parentId` akan membentuk siklus. */
+  public async wouldCreateCycle(
+    menuId: string,
+    parentId: string,
+  ): Promise<boolean> {
+    const [{ found }] = await OpenDataSource.query<[{ found: boolean }]>(
+      IS_ANCESTOR_SQL,
+      [parentId, menuId],
+    );
+    return found;
   }
 
-  public findRoleById(id: string): Promise<Role | null> {
-    return OpenDataSource.getRepository(Role).findOneBy({ id });
+  /** Update menu aktif dan langsung mengembalikan barisnya (satu query). */
+  public async update(id: string, patch: Partial<Menu>): Promise<Menu | null> {
+    const { raw } = await this.repository
+      .createQueryBuilder()
+      .update()
+      .set(patch)
+      .where("id = :id AND deleted_at IS NULL", { id })
+      .returning("*")
+      .execute();
+    return (raw as Menu[])[0] ?? null;
   }
 
-  public findPermissionIdsByIds(ids: string[]): Promise<Permission[]> {
-    return OpenDataSource.getRepository(Permission).findBy({ id: In(ids) });
+  public async softDelete(id: string, patch: T_Audit): Promise<boolean> {
+    const { affected } = await this.repository.update(
+      { id, deleted_at: IsNull() },
+      patch,
+    );
+    return Boolean(affected);
   }
 
-  public async findAssignedPermissionIds(
+  public roleExists(id: string): Promise<boolean> {
+    return OpenDataSource.getRepository(Role).existsBy({ id });
+  }
+
+  public countPermissionsByIds(ids: string[]): Promise<number> {
+    return OpenDataSource.getRepository(Permission).countBy({ id: In(ids) });
+  }
+
+  public countRolePermissions(
     roleId: string,
     permissionIds: string[],
-  ): Promise<string[]> {
-    const assignments = await OpenDataSource.getRepository(RolePermission)
-      .createQueryBuilder("rolePermission")
-      .select("rolePermission.permission_id", "permission_id")
-      .where("rolePermission.role_id = :roleId", { roleId })
-      .andWhere("rolePermission.permission_id IN (:...permissionIds)", {
-        permissionIds,
-      })
-      .getRawMany<{ permission_id: string }>();
-    return assignments.map(({ permission_id }) => permission_id);
+  ): Promise<number> {
+    return OpenDataSource.getRepository(RolePermission).countBy({
+      role_id: roleId,
+      permission_id: In(permissionIds),
+    });
   }
 
-  public async addRolePermissionMenu(
+  /**
+   * Upsert dalam satu statement atomik (memakai unique role+menu+permission):
+   * assignment baru di-insert, yang pernah di-soft-delete dipulihkan.
+   */
+  public async upsertRolePermissions(
     roleId: string,
     menuId: string,
     permissionIds: string[],
     audit: Partial<RoleMenuPermission>,
   ): Promise<RoleMenuPermission[]> {
-    const { created_at, created_by, ...updateAudit } = audit;
-    return OpenDataSource.transaction(async (manager) => {
-      const assignmentRepository = manager.getRepository(RoleMenuPermission);
-      const existing = await assignmentRepository
-        .createQueryBuilder("assignment")
-        .withDeleted()
-        .where("assignment.role_id = :roleId", { roleId })
-        .andWhere("assignment.menu_id = :menuId", { menuId })
-        .andWhere("assignment.permission_id IN (:...permissionIds)", {
-          permissionIds,
-        })
-        .getMany();
-      const existingIds = new Set(
-        existing.map((assignment) => assignment.permission_id),
-      );
-      const restored = existing
-        .filter((assignment) => assignment.deleted_at)
-        .map((assignment) =>
-          assignmentRepository.merge(assignment, updateAudit, {
-            deleted_at: null,
-            deleted_by: null,
-          }),
-        );
-      const newAssignments = permissionIds
-        .filter((permissionId) => !existingIds.has(permissionId))
-        .map((permission_id) =>
-          assignmentRepository.create({
-            role_id: roleId,
-            menu_id: menuId,
-            permission_id,
-            created_at,
-            created_by,
-            ...updateAudit,
-          }),
-        );
-
-      if (restored.length > 0 || newAssignments.length > 0) {
-        await assignmentRepository.save([...restored, ...newAssignments]);
-      }
-
-      return assignmentRepository.findBy({
-        role_id: roleId,
-        menu_id: menuId,
-        permission_id: In(permissionIds),
-      });
-    });
+    const { raw } = await OpenDataSource.createQueryBuilder()
+      .insert()
+      .into(RoleMenuPermission)
+      .values(
+        permissionIds.map((permission_id) => ({
+          role_id: roleId,
+          menu_id: menuId,
+          permission_id,
+          ...audit,
+          deleted_at: null,
+          deleted_by: null,
+        })),
+      )
+      .orUpdate(
+        ["deleted_at", "deleted_by", "updated_at", "updated_by"],
+        ["role_id", "menu_id", "permission_id"],
+      )
+      .returning("*")
+      .execute();
+    return raw as RoleMenuPermission[];
   }
 
-  public async fetchPagination(
-    query: In_DTO_MenuListQuery,
-  ): Promise<In_RESULT_Pagination> {
-    const currentPage =
-      Number(query?.page) > 0
-        ? Math.floor(Number(query.page))
-        : PAGINATION_PROPERTIES.DEFAULT_PAGE;
-    const perPage =
-      Number(query?.limit) > 0
-        ? Math.min(
-            Math.floor(Number(query.limit)),
-            PAGINATION_PROPERTIES.MAX_LIMIT,
-          )
-        : PAGINATION_PROPERTIES.DEFAULT_LIMIT;
-    const skip = (currentPage - 1) * perPage;
-    const sortKey = String(query?.sort_by ?? "");
-    const sortColumn = Object.prototype.hasOwnProperty.call(
-      DEFAULT_SORT_COLUMN,
-      sortKey,
-    )
-      ? DEFAULT_SORT_COLUMN[sortKey as T_MenuSortField]
-      : DEFAULT_SORT_COLUMN.created_at;
-    const orderBy: "ASC" | "DESC" =
-      String(query?.order_by ?? "").toUpperCase() === "ASC" ? "ASC" : "DESC";
+  /** Daftar menu + total: 2 query paralel. */
+  public async fetchPagination(query: In_DTO_MenuListQuery) {
+    const { page, limit, sort_by, order_by, search } = query;
+    const [data, totalItems] = await Promise.all([
+      this.applySearch(this.repository.createQueryBuilder("menu"), search)
+        .orderBy(`menu.${sort_by}`, order_by)
+        .addOrderBy("menu.id", "ASC")
+        .offset((page - 1) * limit)
+        .limit(limit)
+        .getMany(),
+      this.applySearch(
+        this.repository.createQueryBuilder("menu"),
+        search,
+      ).getCount(),
+    ]);
+    return toPaginationResult(data, page, limit, totalItems);
+  }
 
-    const builder = this.repository.createQueryBuilder("menu");
-    const search = query?.search?.toString().trim();
-    if (search) {
-      builder.andWhere(
-        `(
-          LOWER(menu.name) LIKE LOWER(:search) OR
-          LOWER(menu.slug) LIKE LOWER(:search) OR
-          LOWER(menu.path) LIKE LOWER(:search)
-        )`,
-        { search: `%${search}%` },
-      );
-    }
+  private excluding(
+    builder: SelectQueryBuilder<Menu>,
+    exceptId?: string,
+  ): SelectQueryBuilder<Menu> {
+    return exceptId
+      ? builder.andWhere("menu.id <> :exceptId", { exceptId })
+      : builder;
+  }
 
-    builder.orderBy(sortColumn, orderBy);
-    if (sortColumn !== DEFAULT_SORT_COLUMN.id) {
-      builder.addOrderBy(DEFAULT_SORT_COLUMN.id, "ASC");
-    }
-    builder.skip(skip).take(perPage);
-
-    const [data, totalItems] = await builder.getManyAndCount();
-    return {
-      data,
-      meta: {
-        pagination: generatePaginationMeta(currentPage, perPage, totalItems),
-        total_rows: totalItems,
-      },
-    } as In_RESULT_Pagination;
+  private applySearch(
+    builder: SelectQueryBuilder<Menu>,
+    search: string,
+  ): SelectQueryBuilder<Menu> {
+    return search
+      ? builder.andWhere(
+          "(menu.name ILIKE :search OR menu.slug ILIKE :search OR menu.path ILIKE :search)",
+          { search: `%${escapeLike(search)}%` },
+        )
+      : builder;
   }
 }
 

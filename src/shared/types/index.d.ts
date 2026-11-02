@@ -1,5 +1,5 @@
-import { In_AUTH_JwtPayload } from '../../interfaces/auth.interface';
-import { TFunction } from 'i18next';
+import { In_AUTH_JwtPayload } from "../../interfaces/auth.interface";
+import { TFunction } from "i18next";
 
 declare global {
   namespace Express {

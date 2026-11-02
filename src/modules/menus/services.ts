@@ -1,174 +1,174 @@
 import { Menu } from "../../database/entities/menu.entity";
 import { RoleMenuPermission } from "../../database/entities/roleMenuPermission.entity";
-import { In_RESULT_Pagination } from "../../interfaces/dto.interface";
-import { In_ENTITY_Menu } from "../../interfaces/entity.interface";
 import { HTTP_STATUS } from "../../shared/constants";
-import { AppError } from "../../shared/utils/error.util";
-import { In_DTO_AddRolePermissionMenu, In_DTO_MenuListQuery } from "./dto";
+import {
+  AppError,
+  existsError,
+  notFoundError,
+} from "../../shared/utils/error.util";
+import { createSlug } from "../../shared/utils/helper";
+import {
+  In_DTO_AddRolePermissionMenu,
+  In_DTO_CreateMenu,
+  In_DTO_MenuListQuery,
+  In_DTO_UpdateMenu,
+} from "./dto";
 import { repository } from "./repository";
-import i18next from "i18next";
+
+type T_Audit = Partial<Menu>;
 
 export class MenuService {
-  public async store(payload: Partial<In_ENTITY_Menu>): Promise<Menu> {
-    if (await repository.findBySlug(payload.slug as string)) {
-      throw new AppError(
-        i18next.t("error.default.exists", { m: "Slug menu" }),
-        HTTP_STATUS.CONFLICT,
-      );
-    }
+  public async store(input: In_DTO_CreateMenu, audit: T_Audit): Promise<Menu> {
+    const {
+      name,
+      path,
+      icon = null,
+      parent_id = null,
+      order_number = 0,
+    } = input;
+    const slug: string = createSlug(name);
 
-    await this.validateParent(payload.parent_id);
+    await Promise.all([
+      this.assertSlugFree(slug),
+      this.assertParentValid(parent_id),
+      this.assertOrderFree(order_number, parent_id),
+    ]);
 
-    const existOrderNumber = await repository.checkOrderNumberExists({
-      order_number: Number(payload.order_number),
-      parent_id: payload.parent_id,
+    return repository.create({
+      name,
+      slug,
+      path,
+      icon,
+      parent_id,
+      order_number,
+      ...audit,
     });
-
-    if (existOrderNumber) {
-      throw new AppError(
-        i18next.t("error.default.exists", { m: "No. order/urut" }),
-        HTTP_STATUS.CONFLICT,
-      );
-    }
-
-    return repository.create(payload);
   }
 
   public async findById(id: string): Promise<Menu> {
     const menu = await repository.findById(id);
     if (!menu) {
-      throw new AppError(
-        i18next.t("error.default.not_found", { m: "Menu" }),
-        HTTP_STATUS.NOT_FOUND,
-      );
+      throw notFoundError("Menu");
     }
     return menu;
   }
 
   public async update(
     id: string,
-    payload: Partial<In_ENTITY_Menu>,
+    input: In_DTO_UpdateMenu,
+    audit: T_Audit,
   ): Promise<Menu> {
     const menu = await this.findById(id);
-    if (payload.slug && payload.slug !== menu.slug) {
-      const existing = await repository.findBySlug(payload.slug);
-      if (existing && existing.id !== menu.id) {
-        throw new AppError(
-          i18next.t("error.default.exists", { m: "Slug menu" }),
-          HTTP_STATUS.CONFLICT,
-        );
-      }
-    }
+    const slug = input.name === undefined ? undefined : createSlug(input.name);
+    const parentId =
+      input.parent_id === undefined
+        ? (menu.parent_id ?? null)
+        : input.parent_id;
+    const orderNumber = input.order_number ?? menu.order_number;
+    const placementChanged =
+      parentId !== (menu.parent_id ?? null) ||
+      orderNumber !== menu.order_number;
 
-    if (payload.parent_id !== undefined) {
-      if (payload.parent_id === menu.id) {
-        throw new AppError(
-          "Menu tidak dapat menjadi parent dirinya sendiri.",
-          HTTP_STATUS.BAD_REQUEST,
-        );
-      }
-      await this.validateParent(payload.parent_id);
-    }
+    await Promise.all([
+      slug && slug !== menu.slug ? this.assertSlugFree(slug, id) : undefined,
+      input.parent_id !== undefined
+        ? this.assertParentValid(input.parent_id, id)
+        : undefined,
+      placementChanged
+        ? this.assertOrderFree(orderNumber, parentId, id)
+        : undefined,
+    ]);
 
-    // Exist order number validation
-    const existOrderNumber = await repository.checkOrderNumberExists({
-      order_number: Number(payload.order_number),
-      parent_id: payload.parent_id,
+    const updated = await repository.update(id, {
+      ...input,
+      ...(slug && { slug }),
+      ...audit,
     });
-
-    if (existOrderNumber) {
-      throw new AppError(
-        i18next.t("error.default.exists", { m: "No. order/urut" }),
-        HTTP_STATUS.CONFLICT,
-      );
-    }
-
-    const updated = await repository.update(menu.id, payload);
     if (!updated) {
-      throw new AppError(
-        i18next.t("error.default.updated", { m: "Menu" }),
-        HTTP_STATUS.NOT_FOUND,
-      );
+      throw notFoundError("Menu");
     }
     return updated;
   }
 
-  public async delete(
-    id: string,
-    payload: Partial<In_ENTITY_Menu>,
-  ): Promise<boolean> {
-    const menu = await this.findById(id);
-    const deleted = await repository.delete(menu.id, payload);
-    if (!deleted) {
-      throw new AppError(
-        i18next.t("error.default.deleted", { m: "Menu" }),
-        HTTP_STATUS.NOT_FOUND,
-      );
+  public async delete(id: string, audit: T_Audit): Promise<void> {
+    if (!(await repository.softDelete(id, audit))) {
+      throw notFoundError("Menu");
     }
-    return deleted;
   }
 
-  public async fetchPagination(
-    query: In_DTO_MenuListQuery,
-  ): Promise<In_RESULT_Pagination> {
+  public fetchPagination(query: In_DTO_MenuListQuery) {
     return repository.fetchPagination(query);
   }
 
+  /** Memberi permission pada menu untuk sebuah role; permission harus sudah di-assign ke role. */
   public async addRolePermissionMenu(
-    payload: In_DTO_AddRolePermissionMenu,
+    { role_id, menu_id, permissions_ids }: In_DTO_AddRolePermissionMenu,
     audit: Partial<RoleMenuPermission>,
   ): Promise<RoleMenuPermission[]> {
-    const [role, menu] = await Promise.all([
-      repository.findRoleById(payload.role_id),
-      repository.findById(payload.menu_id),
-    ]);
-    if (!role) {
-      throw new AppError(
-        i18next.t("error.default.not_found", { m: "Role" }),
-        HTTP_STATUS.NOT_FOUND,
-      );
-    }
-    if (!menu) {
-      throw new AppError(
-        i18next.t("error.default.not_found", { m: "Menu" }),
-        HTTP_STATUS.NOT_FOUND,
-      );
-    }
+    const permissionIds = [...new Set(permissions_ids)];
+    const [roleExists, menuExists, permissionCount, assignedCount] =
+      await Promise.all([
+        repository.roleExists(role_id),
+        repository.exists(menu_id),
+        repository.countPermissionsByIds(permissionIds),
+        repository.countRolePermissions(role_id, permissionIds),
+      ]);
 
-    const permissionIds = [...new Set(payload.permissions_ids)];
-    const [permissions, assignedPermissionIds] = await Promise.all([
-      repository.findPermissionIdsByIds(permissionIds),
-      repository.findAssignedPermissionIds(role.id, permissionIds),
-    ]);
-    if (permissions.length !== permissionIds.length) {
-      throw new AppError(
-        i18next.t("error.default.not_found", { m: "Permission" }),
-        HTTP_STATUS.NOT_FOUND,
-      );
+    if (!roleExists) throw notFoundError("Role");
+    if (!menuExists) throw notFoundError("Menu");
+    if (permissionCount !== permissionIds.length) {
+      throw notFoundError("Permission");
     }
-    if (assignedPermissionIds.length !== permissionIds.length) {
+    if (assignedCount !== permissionIds.length) {
       throw new AppError(
         "Semua permission harus sudah di-assign ke role.",
         HTTP_STATUS.BAD_REQUEST,
       );
     }
 
-    return repository.addRolePermissionMenu(
-      role.id,
-      menu.id,
+    return repository.upsertRolePermissions(
+      role_id,
+      menu_id,
       permissionIds,
       audit,
     );
   }
 
-  private async validateParent(parentId?: string | null): Promise<void> {
+  private async assertSlugFree(slug: string, exceptId?: string): Promise<void> {
+    if (await repository.isSlugTaken(slug, exceptId)) {
+      throw existsError("Slug menu");
+    }
+  }
+
+  private async assertOrderFree(
+    orderNumber: number,
+    parentId: string | null,
+    exceptId?: string,
+  ): Promise<void> {
+    if (await repository.isOrderNumberTaken(orderNumber, parentId, exceptId)) {
+      throw existsError("No. order/urut");
+    }
+  }
+
+  /** Parent harus ada dan (saat update) tidak boleh membentuk siklus. `null` = jadikan root. */
+  private async assertParentValid(
+    parentId: string | null,
+    menuId?: string,
+  ): Promise<void> {
     if (!parentId) {
       return;
     }
-    if (!(await repository.findById(parentId))) {
+    const [parentExists, cyclic] = await Promise.all([
+      repository.exists(parentId),
+      menuId ? repository.wouldCreateCycle(menuId, parentId) : false,
+    ]);
+    if (!parentExists) {
+      throw notFoundError("Parent menu");
+    }
+    if (cyclic) {
       throw new AppError(
-        i18next.t("error.default.not_found", { m: "Parent menu" }),
-        HTTP_STATUS.NOT_FOUND,
+        "Menu tidak dapat menjadi parent dirinya sendiri atau turunannya.",
+        HTTP_STATUS.BAD_REQUEST,
       );
     }
   }

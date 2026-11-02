@@ -1,227 +1,56 @@
-import { NextFunction, Request, Response } from "express";
 import { HTTP_STATUS } from "../../shared/constants";
-import { In_ENTITY_Menu } from "../../interfaces/entity.interface";
-import { ResponseAPI } from "../../shared/utils/response-api.util";
-import { getPageAndLimit } from "../../shared/utils/pagination.util";
 import {
-  createSlug,
-  getStringMessage,
-  makeBaseAudit,
-} from "../../shared/utils/helper";
-import {
-  In_DTO_AddRolePermissionMenu,
-  In_DTO_MenuListQuery,
-  MENU_SORT_FIELDS,
-  T_MenuSortField,
-} from "./dto";
+  handle,
+  handleList,
+  idParam,
+  pick,
+} from "../../shared/utils/controller.util";
+import { makeBaseAudit } from "../../shared/utils/helper";
+import { MENU_FIELDS, MENU_SORT_FIELDS } from "./dto";
 import { service } from "./services";
 
 export class MenuController {
-  public async fetchById(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const menu = await service.findById(req.params["id"] as string);
-      ResponseAPI.success(
-        res,
-        HTTP_STATUS.OK,
-        getStringMessage(
-          req,
-          "success.default.retrieved",
-          "Menu berhasil diambil.",
-        ),
-        menu,
-      );
-    } catch (error) {
-      next(error);
-    }
-  }
+  public store = handle(HTTP_STATUS.CREATED, "created", "Menu", (req) =>
+    service.store(req.body, makeBaseAudit(req, "create")),
+  );
 
-  public async store(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const payload: Partial<In_ENTITY_Menu> = {
-        name: req.body.name.trim(),
-        slug: createSlug(req.body.name),
-        path: req.body.path.trim(),
-        icon: req.body.icon?.trim() || null,
-        parent_id: req.body.parent_id || null,
-        order_number: req.body.order_number ?? 0,
-        ...makeBaseAudit(req, "create"),
-      };
-      const menu = await service.store(payload);
-      ResponseAPI.success(
-        res,
-        HTTP_STATUS.CREATED,
-        getStringMessage(
-          req,
-          "success.default.created",
-          "Menu berhasil dibuat.",
-        ),
-        menu,
-      );
-    } catch (error) {
-      next(error);
-    }
-  }
+  public fetchById = handle(HTTP_STATUS.OK, "retrieved", "Menu", (req) =>
+    service.findById(idParam(req)),
+  );
 
-  public async update(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const payload: Partial<In_ENTITY_Menu> = {
-        ...(typeof req.body.name === "string"
-          ? {
-              name: req.body.name.trim(),
-              slug: createSlug(req.body.name),
-            }
-          : {}),
-        ...(typeof req.body.path === "string"
-          ? { path: req.body.path.trim() }
-          : {}),
-        ...(req.body.icon !== undefined
-          ? { icon: req.body.icon?.trim() || null }
-          : {}),
-        ...(req.body.parent_id !== undefined
-          ? { parent_id: req.body.parent_id || null }
-          : {}),
-        ...(req.body.order_number !== undefined
-          ? { order_number: req.body.order_number }
-          : {}),
-        ...makeBaseAudit(req, "update"),
-      };
-      const menu = await service.update(req.params["id"] as string, payload);
-      ResponseAPI.success(
-        res,
-        HTTP_STATUS.OK,
-        getStringMessage(
-          req,
-          "success.default.updated",
-          "Menu berhasil diperbarui.",
-        ),
-        menu,
-      );
-    } catch (error) {
-      next(error);
-    }
-  }
+  public update = handle(HTTP_STATUS.OK, "updated", "Menu", (req) =>
+    service.update(
+      idParam(req),
+      pick(req.body, MENU_FIELDS),
+      makeBaseAudit(req, "update"),
+    ),
+  );
 
-  public async delete(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      await service.delete(
-        req.params["id"] as string,
-        makeBaseAudit(req, "delete"),
-      );
-      ResponseAPI.success(
-        res,
-        HTTP_STATUS.OK,
-        getStringMessage(
-          req,
-          "success.default.deleted",
-          "Menu berhasil dihapus.",
-        ),
-      );
-    } catch (error) {
-      next(error);
-    }
-  }
+  public delete = handle(HTTP_STATUS.OK, "deleted", "Menu", (req) =>
+    service.delete(idParam(req), makeBaseAudit(req, "delete")),
+  );
 
-  public async addRolePermissionMenu(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    const payload: In_DTO_AddRolePermissionMenu = {
-      role_id: req.body.role_id,
-      menu_id: req.body.menu_id,
-      permissions_ids: req.body.permissions_ids,
-    };
-    try {
-      const assignments = await service.addRolePermissionMenu(
-        payload,
+  public addRolePermissionMenu = handle(
+    HTTP_STATUS.OK,
+    "updated",
+    "Permission menu",
+    (req) =>
+      service.addRolePermissionMenu(
+        {
+          role_id: req.body.role_id,
+          menu_id: req.body.menu_id,
+          permissions_ids: req.body.permissions_ids,
+        },
         makeBaseAudit(req, "create"),
-      );
-      ResponseAPI.success(
-        res,
-        HTTP_STATUS.OK,
-        getStringMessage(
-          req,
-          "success.default.updated",
-          "Permission berhasil ditambahkan ke menu untuk role.",
-        ),
-        assignments,
-      );
-    } catch (error) {
-      next(error);
-    }
-  }
+      ),
+  );
 
-  public fetchPagination = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    try {
-      const result = await service.fetchPagination(this.generateFilter(req));
-      ResponseAPI.successPagination(
-        res,
-        HTTP_STATUS.OK,
-        getStringMessage(
-          req,
-          "success.default.retrieved",
-          "Daftar menu berhasil diambil.",
-        ),
-        result.data,
-        result.meta,
-      );
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  private isMenuSortBy(value: unknown): value is T_MenuSortField {
-    return (
-      typeof value === "string" &&
-      (new Set(MENU_SORT_FIELDS) as ReadonlySet<string>).has(value)
-    );
-  }
-
-  private generateFilter(req: Request): In_DTO_MenuListQuery {
-    const pagination = getPageAndLimit({
-      page:
-        typeof req.query["page"] === "string" ? req.query["page"] : undefined,
-      limit:
-        typeof req.query["limit"] === "string"
-          ? req.query["limit"]
-          : undefined,
-    });
-    return {
-      page: pagination.currentPage,
-      limit: pagination.perPage,
-      sort_by:
-        typeof req.query["sort_by"] === "string" &&
-        this.isMenuSortBy(req.query["sort_by"])
-          ? req.query["sort_by"]
-          : "created_at",
-      order_by:
-        String(req.query["order_by"]).toUpperCase() === "ASC" ? "ASC" : "DESC",
-      search:
-        typeof req.query["search"] === "string"
-          ? req.query["search"].trim()
-          : "",
-    };
-  }
+  public fetchPagination = handleList(
+    "Menu",
+    MENU_SORT_FIELDS,
+    "created_at",
+    (query) => service.fetchPagination(query),
+  );
 }
 
 export const menuController = new MenuController();

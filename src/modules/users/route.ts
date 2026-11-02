@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authMiddleware } from "../../middleware/auth.middleware";
 import { validationMiddleware as validate } from "../../middleware/validation.middleware";
 import { avatarUpload } from "./lib/avatar-util";
-import { userController } from "./controller";
+import { userController as controller } from "./controller";
 import {
   addUserRoleValidation,
   changePasswordValidation,
@@ -16,38 +16,38 @@ const router = Router().use(authMiddleware);
 
 router
   .route("/")
-  .get(validate(userListValidation), userController.fetchPagination)
-  .post(validate(createUserValidation), userController.store);
+  .get(validate(userListValidation), controller.fetchPagination)
+  .post(validate(createUserValidation), controller.store);
 
 // Harus berada di atas "/:id" agar "export" tidak dianggap sebagai id.
-router.get("/export", validate(userListValidation), userController.exportUsers);
+router.get("/export", validate(userListValidation), controller.exportUsers);
 
 router
   .route("/:id")
-  .get(validate(userIdValidation), userController.fetchById)
-  .put(validate(updateUserValidation), userController.update)
-  .delete(validate(userIdValidation), userController.delete);
+  .get(validate(userIdValidation), controller.fetchById)
+  .put(validate(updateUserValidation), controller.update)
+  .delete(validate(userIdValidation), controller.delete);
 
 router.post(
   "/:id/roles",
   validate(addUserRoleValidation),
-  userController.addUserRole,
+  controller.addUserRole,
 );
 router.put(
   "/:id/password",
   validate(changePasswordValidation),
-  userController.changePassword,
+  controller.changePassword,
 );
 router.post(
   "/:id/avatar",
   validate(userIdValidation),
   avatarUpload,
-  userController.changeAvatar,
+  controller.changeAvatar,
 );
 router.patch(
   "/:id/unactivate",
   validate(userIdValidation),
-  userController.unactivated,
+  controller.unactivated,
 );
 
 export default router;
