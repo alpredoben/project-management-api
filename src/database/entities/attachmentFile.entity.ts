@@ -1,6 +1,7 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { SCHEMA_NAMES } from "../../shared/constants/schemaNames";
 import { BaseAuditEntity } from "./base.entity";
+import { User } from "./user.entity";
 
 @Entity({ name: SCHEMA_NAMES.ATTACHMENT_FILES })
 export class AttachmentFile extends BaseAuditEntity {
@@ -74,4 +75,9 @@ export class AttachmentFile extends BaseAuditEntity {
 
   @Column({ name: "last_downloaded_at", type: "timestamp", nullable: true })
   last_downloaded_at?: Date | null;
+
+  // reference_id is polymorphic (depends on attachment_type), so it has no FK relation
+  @ManyToOne(() => User, (user) => user.uploaded_files)
+  @JoinColumn({ name: "uploaded_by_user_id" })
+  uploaded_by?: User;
 }

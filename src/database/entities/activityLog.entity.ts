@@ -1,6 +1,9 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { SCHEMA_NAMES } from "../../shared/constants/schemaNames";
 import { BaseAuditEntity } from "./base.entity";
+import { User } from "./user.entity";
+import { Project } from "./projects.entity";
+import { Task } from "./tasks.entity";
 
 @Entity({ name: SCHEMA_NAMES.ACTIVITY_LOGS })
 export class ActivityLog extends BaseAuditEntity {
@@ -71,4 +74,25 @@ export class ActivityLog extends BaseAuditEntity {
     default: () => "CURRENT_TIMESTAMP",
   })
   occurred_at!: Date;
+
+  @ManyToOne(() => User, (user) => user.activity_logs, {
+    nullable: true,
+    onDelete: "SET NULL",
+  })
+  @JoinColumn({ name: "actor_user_id" })
+  actor?: User | null;
+
+  @ManyToOne(() => Project, (project) => project.activity_logs, {
+    nullable: true,
+    onDelete: "SET NULL",
+  })
+  @JoinColumn({ name: "project_id" })
+  project?: Project | null;
+
+  @ManyToOne(() => Task, (task) => task.activity_logs, {
+    nullable: true,
+    onDelete: "SET NULL",
+  })
+  @JoinColumn({ name: "task_id" })
+  task?: Task | null;
 }

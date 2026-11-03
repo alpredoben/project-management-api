@@ -1,6 +1,16 @@
-import { Column, Entity, Unique } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  Unique,
+} from "typeorm";
 import { SCHEMA_NAMES } from "../../shared/constants/schemaNames";
 import { BaseAuditEntity } from "./base.entity";
+import { Task } from "./tasks.entity";
+import { User } from "./user.entity";
+import { TaskLike } from "./taskLike.entity";
 
 @Entity({ name: SCHEMA_NAMES.TASK_PROGRESS_LOGS })
 @Unique(["id", "task_id"])
@@ -22,4 +32,17 @@ export class TaskProgressLog extends BaseAuditEntity {
 
   @Column({ type: "smallint", nullable: true })
   progress_percent?: number | null;
+
+  @ManyToOne(() => Task, (task) => task.progress_logs, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "task_id" })
+  task?: Task;
+
+  @ManyToOne(() => User, (user) => user.task_progress_logs, {
+    onDelete: "CASCADE",
+  })
+  @JoinColumn({ name: "member_id" })
+  member?: User;
+
+  @OneToMany(() => TaskLike, (like) => like.progress_log)
+  likes?: TaskLike[];
 }

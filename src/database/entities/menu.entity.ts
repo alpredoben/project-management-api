@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { SCHEMA_NAMES } from "../../shared/constants/schemaNames";
 import { BaseAuditEntity } from "./base.entity";
+import { RoleMenuPermission } from "./roleMenuPermission.entity";
 
 @Entity({ name: SCHEMA_NAMES.MENUS })
 export class Menu extends BaseAuditEntity {
@@ -31,4 +32,10 @@ export class Menu extends BaseAuditEntity {
 
   @OneToMany(() => Menu, (menu) => menu.parent)
   childrens?: Menu[];
+
+  @OneToMany(
+    () => RoleMenuPermission,
+    (roleMenuPermission) => roleMenuPermission.menu,
+  )
+  role_menu_permissions?: RoleMenuPermission[];
 }

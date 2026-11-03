@@ -1,6 +1,7 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import { SCHEMA_NAMES } from "../../shared/constants/schemaNames";
 import { BaseAuditEntity } from "./base.entity";
+import { Task } from "./tasks.entity";
 
 @Entity({ name: SCHEMA_NAMES.TASK_TYPES })
 export class TaskType extends BaseAuditEntity {
@@ -14,4 +15,7 @@ export class TaskType extends BaseAuditEntity {
 
   @Column({ type: "int", default: 0, unique: true })
   sort_order!: number;
+
+  @OneToMany(() => Task, (task) => task.task_type)
+  tasks?: Task[];
 }

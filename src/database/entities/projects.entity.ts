@@ -4,20 +4,25 @@ import { BaseAuditEntity } from "./base.entity";
 import { ProjectType } from "./projectType.entity";
 import { ProjectStatus } from "./projectStatus.entity";
 import { User } from "./user.entity";
+import { ProjectCollaborator } from "./projectCollaborator.entity";
+import { Task } from "./tasks.entity";
+import { ActivityLog } from "./activityLog.entity";
 
 @Entity({ name: SCHEMA_NAMES.PROJECTS })
 export class Project extends BaseAuditEntity {
   @Column({ name: "project_type_id", type: "uuid", nullable: true })
   project_type_id?: string | null;
 
-  @ManyToOne(() => ProjectType, { nullable: true })
+  @ManyToOne(() => ProjectType, (type) => type.projects, { nullable: true })
   @JoinColumn({ name: "project_type_id" })
   project_type?: ProjectType | null;
 
   @Column({ name: "project_status_id", type: "uuid", nullable: true })
   project_status_id?: string | null;
 
-  @ManyToOne(() => ProjectStatus, { nullable: true })
+  @ManyToOne(() => ProjectStatus, (status) => status.projects, {
+    nullable: true,
+  })
   @JoinColumn({ name: "project_status_id" })
   project_status?: ProjectStatus | null;
 
@@ -33,7 +38,7 @@ export class Project extends BaseAuditEntity {
   @Column({ name: "owner_id", type: "uuid", nullable: true })
   owner_id?: string | null;
 
-  @ManyToOne(() => User, { nullable: true })
+  @ManyToOne(() => User, (user) => user.projects, { nullable: true })
   @JoinColumn({ name: "owner_id" })
   owner?: User | null;
 
@@ -58,4 +63,14 @@ export class Project extends BaseAuditEntity {
 
   @Column({ type: "date", nullable: true })
   end_date?: Date | null;
+
+  // Has Many Through: Project -> ProjectCollaborator -> User
+  @OneToMany(() => ProjectCollaborator, (collaborator) => collaborator.project)
+  collaborators?: ProjectCollaborator[];
+
+  @OneToMany(() => Task, (task) => task.project)
+  tasks?: Task[];
+
+  @OneToMany(() => ActivityLog, (log) => log.project)
+  activity_logs?: ActivityLog[];
 }

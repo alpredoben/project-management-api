@@ -1,6 +1,7 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { SCHEMA_NAMES } from "../../shared/constants/schemaNames";
 import { BaseAuditEntity } from "./base.entity";
+import { User } from "./user.entity";
 
 @Entity({ name: SCHEMA_NAMES.NOTIFICATIONS })
 export class Notification extends BaseAuditEntity {
@@ -56,4 +57,17 @@ export class Notification extends BaseAuditEntity {
 
   @Column({ name: "expires_at", type: "timestamp", nullable: true })
   expires_at?: Date | null;
+
+  @ManyToOne(() => User, (user) => user.sent_notifications, {
+    nullable: true,
+    onDelete: "SET NULL",
+  })
+  @JoinColumn({ name: "sender_user_id" })
+  sender?: User | null;
+
+  @ManyToOne(() => User, (user) => user.received_notifications, {
+    onDelete: "CASCADE",
+  })
+  @JoinColumn({ name: "recipient_user_id" })
+  recipient?: User;
 }

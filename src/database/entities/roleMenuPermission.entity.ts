@@ -23,7 +23,9 @@ export class RoleMenuPermission extends BaseAuditEntity {
   @JoinColumn({ name: "role_id" })
   role?: Role;
 
-  @ManyToOne(() => Menu, { onDelete: "CASCADE" })
+  @ManyToOne(() => Menu, (menu) => menu.role_menu_permissions, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "menu_id" })
   menu?: Menu;
 
