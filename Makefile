@@ -1,5 +1,7 @@
-.PHONY: dev-network dev-check-env dev-up-dev dev-restart \
-	dev-logs-dev dev-down-dev dev-down-all-dev dev-status-dev clean-images help
+.PHONY: dev-network dev-check-env dev-up dev-restart \
+    dev-logs dev-down dev-down-all dev-status dev-build-no-cache \
+    dev-compose-migrate dev-compose-migrate-revert dev-local-migrate \
+    clean-images help
 
 
 # SERVICE NAME
@@ -41,6 +43,15 @@ dev-check-env:
 dev-up: dev-check-env dev-network
 	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) up -d --force-recreate
 
+# Build development image without cache
+dev-build-no-cache: dev-check-env dev-network
+	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) build --no-cache
+
+# Build and start development infrastructure without cache
+dev-up-no-cache: dev-check-env dev-network
+	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) build --no-cache
+	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) up -d --force-recreate
+
 dev-restart: dev-check-env
 	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) up -d --force-recreate 
 
@@ -64,20 +75,27 @@ dev-compose-migrate:
 dev-compose-migrate-revert:
 	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) exec $(SERVICE_DEV_NAME) npm run migration:revert
 
+# Run Seeder 
+dev-compose-seed:
+	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) exec $(SERVICE_DEV_NAME) npm run seed
+
 dev-local-migrate:
 	npm run migration:run
+	
 
 clean-images:
 	docker image prune -f
 
 help:
 	@echo "Infrastruktur Development:"
-	@echo "  make dev-network-dev       - Inspeksi dan membuat jaringan warehouse baru bernama $(NETWORK_DEV) pada lingkungan development"
-	@echo "  make dev-check-env         - Cek ketersediaan file environment warehouse pada lingkungan development"
-	@echo "  make dev-up-dev            - Jalankan seluruh infrastruktur warehouse pada lingkungan development"
-	@echo "  make dev-restart           - Restart infrastruktur warehouse pada lingkungan development"
-	@echo "  make dev-logs              - Log infrastruktur warehouse pada lingkungan development"
-	@echo "  make dev-down              - Matikan infrastruktur warehouse pada lingkungan development"
-	@echo "  make dev-down-all          - Matikan dan hapus seluruh volume infrastruktur warehouse pada lingkungan development"
-	@echo "  make dev-status            - Tampilkan status container dan image Infrastruktur warehouse yang aktif pada lingkungan development "
-	@echo "  make clean-images      	- Hapus image docker lama yang menumpuk"
+	@echo "  make dev-network           - Inspeksi dan membuat jaringan baru bernama $(NETWORK_DEV) pada lingkungan development"
+	@echo "  make dev-check-env         - Cek ketersediaan file environment pada lingkungan development"
+	@echo "  make dev-up                - Jalankan seluruh infrastruktur pada lingkungan development"
+	@echo "  make dev-build-no-cache    - Build ulang image docker tanpa cache pada lingkungan development"
+	@echo "  make dev-up-no-cache       - Build tanpa cache dan jalankan ulang seluruh infrastruktur development"
+	@echo "  make dev-restart           - Restart infrastruktur pada lingkungan development"
+	@echo "  make dev-logs              - Log infrastruktur pada lingkungan development"
+	@echo "  make dev-down              - Matikan infrastruktur pada lingkungan development"
+	@echo "  make dev-down-all          - Matikan dan hapus seluruh volume infrastruktur pada lingkungan development"
+	@echo "  make dev-status            - Tampilkan status container dan image infrastruktur yang aktif"
+	@echo "  make clean-images          - Hapus image docker lama yang menumpuk"

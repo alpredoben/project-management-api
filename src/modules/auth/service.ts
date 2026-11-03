@@ -24,15 +24,20 @@ const unauthorized = (
 const profileFor = (
   user: User,
   roles: In_AUTH_UserProfile["roles"],
-  roleMenuPermissions: In_AUTH_UserProfile["role_menu_permissions"],
+  permissions: In_AUTH_UserProfile["permissions"],
+  roleMenuPermission: In_AUTH_UserProfile["role_menu_permission"],
 ): In_AUTH_UserProfile => ({
   id: user.id,
   name: user.name ?? null,
   email: user.email,
   phone: user.phone ?? null,
+  avatar: user.avatar ?? null,
   is_active: user.is_active,
+  is_login: user.is_login,
+  last_login_at: user.last_login_at ?? null,
   roles,
-  role_menu_permissions: roleMenuPermissions,
+  permissions,
+  role_menu_permission: roleMenuPermission,
 });
 
 const hashRefreshToken = (token: string): string =>
@@ -169,11 +174,16 @@ export class AuthService {
       );
     }
 
-    const [roles, roleMenuPermissions] = await Promise.all([
-      repository.findRoles(user.id),
+    const [rolePermissions, roleMenuPermission] = await Promise.all([
+      repository.findRolePermissions(user.id),
       repository.findRoleMenuPermissions(user.id),
     ]);
-    return profileFor(user, roles, roleMenuPermissions);
+    return profileFor(
+      user,
+      rolePermissions.roles,
+      rolePermissions.permissions,
+      roleMenuPermission,
+    );
   }
 }
 

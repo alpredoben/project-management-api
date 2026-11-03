@@ -67,7 +67,12 @@
       "success": { "type": "boolean", "example": true },
       "message": { "type": "string", "example": "Data berhasil diambil." },
       "data": { "type": "array", "items": { "type": "object" } },
-      "meta": { "type": "object", "nullable": true }
+      "meta": { "type": "object", "nullable": true },
+      "timestamp": {
+        "type": "string",
+        "format": "date-time",
+        "example": "2026-08-12T10:02:04Z"
+      }
     }
   },
   "In_SuccessBinaryResponse": {

@@ -1,0 +1,109 @@
+{
+  "/project-status": {
+    "get": {
+      "tags": ["Project Status"],
+      "summary": "List project statuses",
+      "operationId": "getProjectStatuses",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "page", "in": "query", "schema": { "type": "integer", "minimum": 1, "default": 1 } },
+        { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 10 } },
+        { "name": "sort_by", "in": "query", "schema": { "type": "string", "enum": ["id", "status_name", "sort_order", "created_at", "updated_at"] } },
+        { "name": "order_by", "in": "query", "schema": { "type": "string", "enum": ["ASC", "DESC"] } },
+        { "name": "search", "in": "query", "schema": { "type": "string" } }
+      ],
+      "responses": {
+        "200": { "description": "Paginated project statuses.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProjectStatusListResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    },
+    "post": {
+      "tags": ["Project Status"],
+      "summary": "Create a project status",
+      "operationId": "createProjectStatus",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ProjectStatusInput" },
+            "examples": { "create": { "summary": "Create status", "value": { "status_name": "In Progress", "sort_order": 1 } } }
+          }
+        }
+      },
+      "responses": {
+        "201": { "description": "Project status created.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProjectStatusResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "409": { "description": "Status name or order already exists.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "422": { "description": "Request validation failed.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    }
+  },
+  "/project-status/dropdown": {
+    "get": {
+      "tags": ["Project Status"],
+      "summary": "Get project status dropdown options",
+      "operationId": "getProjectStatusDropdown",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "page", "in": "query", "schema": { "type": "integer", "minimum": 1, "default": 1 } },
+        { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 10 } },
+        { "name": "sort_by", "in": "query", "schema": { "type": "string", "enum": ["status_name"] } },
+        { "name": "order_by", "in": "query", "schema": { "type": "string", "enum": ["ASC", "DESC"] } },
+        { "name": "search", "in": "query", "schema": { "type": "string" } }
+      ],
+      "responses": {
+        "200": { "description": "Project status options.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProjectStatusListResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    }
+  },
+  "/project-status/{id}": {
+    "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+    "get": {
+      "tags": ["Project Status"],
+      "summary": "Get a project status",
+      "operationId": "getProjectStatusById",
+      "security": [{ "bearerAuth": [] }],
+      "responses": {
+        "200": { "description": "Project status detail.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProjectStatusResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "404": { "description": "Project status not found.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    },
+    "put": {
+      "tags": ["Project Status"],
+      "summary": "Update a project status",
+      "operationId": "updateProjectStatus",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdateProjectStatusInput" },
+            "examples": { "update": { "summary": "Change status sort order", "value": { "status_name": "In Progress", "sort_order": 2 } } }
+          }
+        }
+      },
+      "responses": {
+        "200": { "description": "Project status updated.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProjectStatusResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "404": { "description": "Project status not found.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "409": { "description": "Status name or order already exists.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "422": { "description": "Request validation failed.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    },
+    "delete": {
+      "tags": ["Project Status"],
+      "summary": "Delete a project status",
+      "operationId": "deleteProjectStatus",
+      "security": [{ "bearerAuth": [] }],
+      "responses": {
+        "200": { "description": "Project status deleted.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_SuccessResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "409": { "description": "Project status is in use.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "404": { "description": "Project status not found.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    }
+  }
+}

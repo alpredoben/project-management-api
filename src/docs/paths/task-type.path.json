@@ -1,0 +1,90 @@
+{
+  "/task-type": {
+    "get": {
+      "tags": ["Task Type"],
+      "summary": "List task types",
+      "operationId": "getTaskTypes",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "page", "in": "query", "schema": { "type": "integer", "minimum": 1, "default": 1 } },
+        { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 10 } },
+        { "name": "sort_by", "in": "query", "schema": { "type": "string", "enum": ["id", "type_name", "sort_order", "created_at", "updated_at"] } },
+        { "name": "order_by", "in": "query", "schema": { "type": "string", "enum": ["ASC", "DESC"] } },
+        { "name": "search", "in": "query", "schema": { "type": "string" } }
+      ],
+      "responses": {
+        "200": { "description": "Paginated task types.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TaskTypeListResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    },
+    "post": {
+      "tags": ["Task Type"],
+      "summary": "Create a task type",
+      "operationId": "createTaskType",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/TaskTypeInput" },
+            "examples": { "create": { "summary": "Create task type", "value": { "type_name": "Development", "sort_order": 1 } } }
+          }
+        }
+      },
+      "responses": {
+        "201": { "description": "Task type created.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TaskTypeResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "409": { "description": "Type name or order already exists.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "422": { "description": "Request validation failed.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    }
+  },
+  "/task-type/{id}": {
+    "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+    "get": {
+      "tags": ["Task Type"],
+      "summary": "Get a task type",
+      "operationId": "getTaskTypeById",
+      "security": [{ "bearerAuth": [] }],
+      "responses": {
+        "200": { "description": "Task type detail.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TaskTypeResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "404": { "description": "Task type not found.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    },
+    "put": {
+      "tags": ["Task Type"],
+      "summary": "Update a task type",
+      "operationId": "updateTaskType",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdateTaskTypeInput" },
+            "examples": { "update": { "summary": "Update task type", "value": { "type_name": "Development", "sort_order": 2 } } }
+          }
+        }
+      },
+      "responses": {
+        "200": { "description": "Task type updated.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TaskTypeResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "404": { "description": "Task type not found.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "409": { "description": "Type name or order already exists.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "422": { "description": "Request validation failed.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    },
+    "delete": {
+      "tags": ["Task Type"],
+      "summary": "Delete a task type",
+      "operationId": "deleteTaskType",
+      "security": [{ "bearerAuth": [] }],
+      "responses": {
+        "200": { "description": "Task type deleted.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_SuccessResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "409": { "description": "Task type is in use.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "404": { "description": "Task type not found.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    }
+  }
+}

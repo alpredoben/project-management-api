@@ -1,0 +1,120 @@
+{
+  "/projects": {
+    "get": {
+      "tags": ["Projects"],
+      "summary": "List projects",
+      "operationId": "getProjects",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "page", "in": "query", "schema": { "type": "integer", "minimum": 1, "default": 1 } },
+        { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 10 } },
+        { "name": "sort_by", "in": "query", "schema": { "type": "string", "enum": ["id", "project_code", "project_name", "max_contributors", "start_date", "end_date", "created_at", "updated_at"] } },
+        { "name": "order_by", "in": "query", "schema": { "type": "string", "enum": ["ASC", "DESC"] } },
+        { "name": "search", "in": "query", "schema": { "type": "string" } },
+        { "name": "project_type_id", "in": "query", "schema": { "type": "string", "format": "uuid" } },
+        { "name": "project_status_id", "in": "query", "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "responses": {
+        "200": { "description": "Paginated projects.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProjectListResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "422": { "description": "Invalid query parameter.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    },
+    "post": {
+      "tags": ["Projects"],
+      "summary": "Create a project",
+      "operationId": "createProject",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ProjectInput" },
+            "examples": {
+              "create": {
+                "summary": "Create project",
+                "value": {
+                  "project_type_id": "a5f728e0-0be4-4fa2-9fa5-6dca3b9159e2",
+                  "project_status_id": "3cb1dd90-27ea-4b54-a6cb-f8711020aef8",
+                  "project_code": "PRJ-2026-001",
+                  "project_name": "Grid Modernization",
+                  "description": "Modernize regional grid infrastructure.",
+                  "owner_id": "67a2e8de-4129-4db4-b6ef-02350c59ebaa",
+                  "parent_id": null,
+                  "max_contributors": 8,
+                  "start_date": "2026-11-02",
+                  "end_date": "2027-06-30"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": { "description": "Project created.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProjectResponse" } } } },
+        "400": { "description": "Invalid project parent or date range.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "404": { "description": "Referenced type, status, owner, or parent not found.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "409": { "description": "Project code already exists.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "422": { "description": "Request validation failed.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    }
+  },
+  "/projects/{id}": {
+    "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+    "get": {
+      "tags": ["Projects"],
+      "summary": "Get a project",
+      "operationId": "getProjectById",
+      "security": [{ "bearerAuth": [] }],
+      "responses": {
+        "200": { "description": "Project detail.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProjectResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "404": { "description": "Project not found.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    },
+    "put": {
+      "tags": ["Projects"],
+      "summary": "Update a project",
+      "operationId": "updateProject",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdateProjectInput" },
+            "examples": {
+              "update": {
+                "summary": "Update project fields",
+                "value": {
+                  "project_name": "Grid Modernization Phase 1",
+                  "project_status_id": "3cb1dd90-27ea-4b54-a6cb-f8711020aef8",
+                  "end_date": "2027-08-31"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": { "description": "Project updated.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProjectResponse" } } } },
+        "400": { "description": "Invalid project parent or date range.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "404": { "description": "Project or referenced relation not found.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "409": { "description": "Project code already exists.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "422": { "description": "Request validation failed.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    },
+    "delete": {
+      "tags": ["Projects"],
+      "summary": "Delete a project",
+      "operationId": "deleteProject",
+      "security": [{ "bearerAuth": [] }],
+      "responses": {
+        "200": { "description": "Project deleted.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_SuccessResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "404": { "description": "Project not found.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    }
+  }
+}

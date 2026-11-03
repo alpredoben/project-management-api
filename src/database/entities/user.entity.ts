@@ -2,6 +2,7 @@ import { Column, Entity, OneToMany } from "typeorm";
 import { SCHEMA_NAMES } from "../../shared/constants/schemaNames";
 import { BaseAuditEntity } from "./base.entity";
 import { Project } from "./projects.entity";
+import { UserRole } from "./userRole.entity";
 
 @Entity({ name: SCHEMA_NAMES.USERS })
 export class User extends BaseAuditEntity {
@@ -34,4 +35,7 @@ export class User extends BaseAuditEntity {
 
   @OneToMany(() => Project, (project) => project.owner)
   projects?: Project[];
+
+  @OneToMany(() => UserRole, (userRole) => userRole.user)
+  user_roles?: UserRole[];
 }

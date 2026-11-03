@@ -16,7 +16,8 @@
     "migration:create": "node scripts/migration.js create",
     "migration:generate": "node scripts/migration.js generate",
     "migration:run": "npm run typeorm -- migration:run -d ./src/database/data-source.ts",
-    "migration:revert": "npm run typeorm -- migration:revert -d ./src/database/data-source.ts"
+    "migration:revert": "npm run typeorm -- migration:revert -d ./src/database/data-source.ts",
+    "seed": "tsx ./src/database/seeders/index.ts"
   },
   "keywords": [
     "index",

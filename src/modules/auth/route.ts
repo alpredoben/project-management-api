@@ -1,45 +1,18 @@
-import { Router } from 'express';
-import { authController } from './controller';
-import { authMiddleware } from '../../middleware/auth.middleware';
-import { validationMiddleware } from '../../middleware/validation.middleware';
-import { loginValidation, refreshTokenValidation } from './validate';
+import { Router } from "express";
+import { authController as controller } from "./controller";
+import { authMiddleware } from "../../middleware/auth.middleware";
+import { validationMiddleware as validate } from "../../middleware/validation.middleware";
+import { loginValidation, refreshTokenValidation } from "./validate";
 
 const router = Router();
 
-/**
- * @route   POST /api/v1/auth/login
- * @access  Public
- */
+router.post("/login", validate(loginValidation), controller.login);
 router.post(
-  '/login',
-  validationMiddleware(loginValidation),
-  authController.login
+  "/refresh-token",
+  validate(refreshTokenValidation),
+  controller.refreshToken,
 );
-
-/**
- * @route   POST /api/v1/auth/refresh-token
- * @access  Public
- */
-router.post(
-  '/refresh-token',
-  validationMiddleware(refreshTokenValidation),
-  authController.refreshToken
-);
-
-/**
- * @route   POST /api/v1/auth/logout
- * @access  Private (membutuhkan middleware auth)
- */
-router.post(
-  '/logout',
-  authMiddleware,
-  authController.logout
-);
-
-/**
- * @route   GET /api/v1/auth/me
- * @access  Private
- */
-router.get('/me', authMiddleware, authController.getMe);
+router.post("/logout", authMiddleware, controller.logout);
+router.get("/me", authMiddleware, controller.getMe);
 
 export default router;

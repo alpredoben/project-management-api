@@ -1,42 +1,55 @@
-import {
-  In_ENTITY_Menu,
-  In_ENTITY_Permission,
-  In_ENTITY_Role,
-  In_ENTITY_User,
-} from "./entity.interface";
+import { Permission } from "../database/entities";
+import type { Menu } from "../database/entities/menu.entity";
+import type { Role } from "../database/entities/role.entity";
 
 export type In_AUTH_TokenType = "access" | "refresh";
 
-export interface In_AUTH_JwtPayload extends Pick<
-  In_ENTITY_User,
-  "id" | "email" | "name"
-> {
+export interface In_AUTH_JwtPayload {
+  id: string;
+  email: string;
+  name?: string | null;
   token_type: In_AUTH_TokenType;
   remember_me?: boolean;
 }
 
-export interface In_AUTH_UserProfile extends Pick<
-  In_ENTITY_User,
-  "id" | "name" | "email" | "phone" | "is_active"
+export interface In_AUTH_Permission extends Pick<
+  Permission,
+  "id" | "name" | "slug"
+> {}
+
+export interface In_AUTH_Role extends Pick<Role, "id" | "name" | "slug"> {
+  permissions: In_AUTH_Permission[];
+}
+
+export interface In_AUTH_MenuParent extends Omit<
+  Partial<Menu>,
+  "parent" | "childrens"
 > {
-  roles: Pick<In_ENTITY_Role, "id" | "name" | "slug">[];
-  role_menu_permissions:
-    | [
-        {
-          permission: Pick<In_ENTITY_Permission, "id" | "name" | "slug">;
-          menu: Pick<
-            In_ENTITY_Menu,
-            | "id"
-            | "slug"
-            | "name"
-            | "icon"
-            | "parent_id"
-            | "order_number"
-            | "path"
-          >;
-        },
-      ]
-    | [];
+  parent: In_AUTH_MenuParent | null;
+  children: In_AUTH_MenuParent[];
+}
+
+export type In_AUTH_Menu = Omit<In_AUTH_MenuParent, "children"> & {
+  children: In_AUTH_Menu[];
+};
+
+export interface In_AUTH_RoleMenuPermission {
+  role: Pick<In_AUTH_Role, "id" | "name" | "slug">;
+  menu: In_AUTH_Menu;
+}
+
+export interface In_AUTH_UserProfile {
+  id: string;
+  name: string | null;
+  email: string;
+  phone: string | null;
+  avatar: string | null;
+  is_active: boolean;
+  is_login: boolean;
+  last_login_at: Date | null;
+  roles: In_AUTH_Role[];
+  permissions: In_AUTH_Permission[];
+  role_menu_permission: In_AUTH_RoleMenuPermission[];
 }
 
 export interface In_AUTH_SignInResponse {

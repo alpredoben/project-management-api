@@ -1,0 +1,88 @@
+{
+  "/permissions": {
+    "get": {
+      "tags": ["Permissions"],
+      "summary": "List permissions",
+      "operationId": "getPermissions",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "page", "in": "query", "schema": { "type": "integer", "minimum": 1, "default": 1 } },
+        { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 10 } },
+        { "name": "sort_by", "in": "query", "schema": { "type": "string", "enum": ["id", "name", "slug", "created_at", "updated_at"] } },
+        { "name": "order_by", "in": "query", "schema": { "type": "string", "enum": ["ASC", "DESC"] } },
+        { "name": "search", "in": "query", "schema": { "type": "string" } }
+      ],
+      "responses": {
+        "200": { "description": "Paginated permissions.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PermissionListResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    },
+    "post": {
+      "tags": ["Permissions"],
+      "summary": "Create a permission",
+      "operationId": "createPermission",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/PermissionInput" },
+            "examples": { "create": { "summary": "Create permission", "value": { "name": "View Projects" } } }
+          }
+        }
+      },
+      "responses": {
+        "201": { "description": "Permission created.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PermissionResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "409": { "description": "Permission name already exists.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "422": { "description": "Request validation failed.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    }
+  },
+  "/permissions/{id}": {
+    "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+    "get": {
+      "tags": ["Permissions"],
+      "summary": "Get a permission",
+      "operationId": "getPermissionById",
+      "security": [{ "bearerAuth": [] }],
+      "responses": {
+        "200": { "description": "Permission detail.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PermissionResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "404": { "description": "Permission not found.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    },
+    "put": {
+      "tags": ["Permissions"],
+      "summary": "Update a permission",
+      "operationId": "updatePermission",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdatePermissionInput" },
+            "examples": { "update": { "summary": "Rename permission", "value": { "name": "View Projects" } } }
+          }
+        }
+      },
+      "responses": {
+        "200": { "description": "Permission updated.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PermissionResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "404": { "description": "Permission not found.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "422": { "description": "Request validation failed.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    },
+    "delete": {
+      "tags": ["Permissions"],
+      "summary": "Delete a permission",
+      "operationId": "deletePermission",
+      "security": [{ "bearerAuth": [] }],
+      "responses": {
+        "200": { "description": "Permission deleted.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_SuccessResponse" } } } },
+        "401": { "description": "Authentication required.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } },
+        "404": { "description": "Permission not found.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/In_ErrorResponse" } } } }
+      }
+    }
+  }
+}

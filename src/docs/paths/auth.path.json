@@ -11,16 +11,6 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/LoginDto"
-            },
-            "examples": {
-              "login": {
-                "summary": "Login request",
-                "value": {
-                  "email": "user@example.com",
-                  "password": "your-password",
-                  "remember_me": false
-                }
-              }
             }
           }
         }

@@ -6,22 +6,22 @@
       "email": {
         "type": "string",
         "format": "email",
-        "description": "User email address. Leading/trailing whitespace is trimmed and the address is normalized to lowercase.",
-        "example": "user@example.com"
+        "example": "admin@example.com",
+        "default": "admin@example.com"
       },
       "password": {
         "type": "string",
-        "description": "Plain-text password sent over HTTPS. The server verifies it against the stored password hash.",
         "format": "password",
         "writeOnly": true,
-        "example": "your-password"
+        "example": "c0mplexP@ssw0rd",
+        "default": "c0mplexP@ssw0rd"
       },
-      "remember_me": {
-        "type": "boolean",
-        "description": "When true, issues longer-lived access and refresh tokens.",
-        "default": false,
-        "example": false
-      }
+      "remember_me": { "type": "boolean", "default": false, "example": false }
+    },
+    "example": {
+      "email": "admin@example.com",
+      "password": "c0mplexP@ssw0rd",
+      "remember_me": false
     }
   },
   "RefreshTokenDto": {
@@ -30,10 +30,95 @@
     "properties": {
       "refreshToken": {
         "type": "string",
-        "description": "Refresh JWT returned by login or the previous successful refresh. Each token is single-use.",
         "minLength": 1,
-        "example": "eyJhbGciOi..."
+        "example": "eyJ...refresh-token"
       }
+    },
+    "example": { "refreshToken": "eyJ...refresh-token" }
+  },
+  "AuthPermission": {
+    "type": "object",
+    "required": ["id", "name", "slug"],
+    "properties": {
+      "id": { "type": "string", "format": "uuid" },
+      "name": { "type": "string", "example": "View Projects" },
+      "slug": { "type": "string", "example": "view-projects" }
+    }
+  },
+  "AuthRole": {
+    "type": "object",
+    "required": ["id", "name", "slug", "permissions"],
+    "properties": {
+      "id": { "type": "string", "format": "uuid" },
+      "name": { "type": "string", "example": "Project Manager" },
+      "slug": {
+        "type": "string",
+        "nullable": true,
+        "example": "project-manager"
+      },
+      "permissions": {
+        "type": "array",
+        "items": { "$ref": "#/components/schemas/AuthPermission" }
+      }
+    }
+  },
+  "AuthMenuParent": {
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "slug",
+      "icon",
+      "order_number",
+      "parent",
+      "children"
+    ],
+    "properties": {
+      "id": { "type": "string", "format": "uuid" },
+      "name": { "type": "string" },
+      "slug": { "type": "string" },
+      "path": { "type": "string" },
+      "icon": { "type": "string", "nullable": true },
+      "parent_id": { "type": "string", "format": "uuid", "nullable": true },
+      "order_number": { "type": "integer" },
+      "parent": {
+        "nullable": true,
+        "allOf": [{ "$ref": "#/components/schemas/AuthMenuParent" }]
+      },
+      "children": {
+        "type": "array",
+        "items": { "$ref": "#/components/schemas/AuthMenuParent" }
+      }
+    }
+  },
+  "AuthMenu": {
+    "allOf": [
+      { "$ref": "#/components/schemas/AuthMenuParent" },
+      {
+        "type": "object",
+        "properties": {
+          "children": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/AuthMenu" }
+          }
+        }
+      }
+    ]
+  },
+  "AuthRoleMenuPermission": {
+    "type": "object",
+    "required": ["role", "menu"],
+    "properties": {
+      "role": {
+        "type": "object",
+        "required": ["id", "name", "slug"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "slug": { "type": "string", "nullable": true }
+        }
+      },
+      "menu": { "$ref": "#/components/schemas/AuthMenu" }
     }
   },
   "AuthUserProfile": {
@@ -43,21 +128,17 @@
       "name",
       "email",
       "phone",
+      "avatar",
       "is_active",
+      "is_login",
+      "last_login_at",
       "roles",
-      "role_menu_permissions"
+      "permissions",
+      "role_menu_permission"
     ],
     "properties": {
-      "id": {
-        "type": "string",
-        "format": "uuid",
-        "example": "67a2e8de-4129-4db4-b6ef-02350c59ebaa"
-      },
-      "name": {
-        "type": "string",
-        "nullable": true,
-        "example": "Example User"
-      },
+      "id": { "type": "string", "format": "uuid" },
+      "name": { "type": "string", "nullable": true, "example": "Example User" },
       "email": {
         "type": "string",
         "format": "email",
@@ -68,68 +149,26 @@
         "nullable": true,
         "example": "+6281234567890"
       },
-      "is_active": {
-        "type": "boolean",
-        "example": true
+      "avatar": { "type": "string", "nullable": true },
+      "is_active": { "type": "boolean", "example": true },
+      "is_login": { "type": "boolean", "example": true },
+      "last_login_at": {
+        "type": "string",
+        "format": "date-time",
+        "nullable": true
       },
       "roles": {
         "type": "array",
-        "description": "The user's assigned active roles.",
-        "items": {
-          "type": "object",
-          "required": ["id", "name", "slug"],
-          "properties": {
-            "id": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "name": {
-              "type": "string"
-            },
-            "slug": {
-              "type": "string",
-              "nullable": true
-            }
-          }
-        },
-        "example": [
-          {
-            "id": "67a2e8de-4129-4db4-b6ef-02350c59ebaa",
-            "name": "Project Manager",
-            "slug": "project-manager"
-          }
-        ]
+        "items": { "$ref": "#/components/schemas/AuthRole" }
       },
-      "role_menu_permissions": {
+      "permissions": {
         "type": "array",
-        "description": "An active menu and permission granted through an assigned role.",
-        "maxItems": 1,
-        "items": {
-          "type": "object",
-          "required": ["permission", "menu"],
-          "properties": {
-            "permission": {
-              "type": "object",
-              "required": ["id", "name", "slug"],
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "slug": {
-                  "type": "string"
-                }
-              }
-            },
-            "menu": {
-              "type": "object",
-              "description": "The complete menu entity."
-            }
-          }
-        }
+        "description": "Unique active permissions from assigned roles.",
+        "items": { "$ref": "#/components/schemas/AuthPermission" }
+      },
+      "role_menu_permission": {
+        "type": "array",
+        "items": { "$ref": "#/components/schemas/AuthRoleMenuPermission" }
       }
     }
   },
@@ -144,73 +183,56 @@
       },
       "access_token": {
         "type": "string",
-        "description": "JWT to send in the Authorization header as `Bearer <access_token>`.",
-        "example": "eyJhbGciOi..."
+        "description": "JWT access token.",
+        "example": "eyJ...access-token"
       },
       "refresh_token": {
         "type": "string",
-        "description": "Single-use refresh JWT. Store it securely and replace it after every refresh.",
-        "example": "eyJhbGciOi..."
+        "description": "JWT refresh token.",
+        "example": "eyJ...refresh-token"
       }
     }
   },
   "LoginResponse": {
     "allOf": [
-      {
-        "$ref": "#/components/schemas/In_SuccessResponse"
-      },
+      { "$ref": "#/components/schemas/In_SuccessResponse" },
       {
         "type": "object",
         "properties": {
-          "data": {
-            "$ref": "#/components/schemas/AuthTokenPair"
-          }
+          "data": { "$ref": "#/components/schemas/AuthTokenPair" }
         }
       }
     ]
   },
   "RefreshTokenResponse": {
     "allOf": [
-      {
-        "$ref": "#/components/schemas/In_SuccessResponse"
-      },
+      { "$ref": "#/components/schemas/In_SuccessResponse" },
       {
         "type": "object",
         "properties": {
-          "data": {
-            "$ref": "#/components/schemas/AuthTokenPair"
-          }
+          "data": { "$ref": "#/components/schemas/AuthTokenPair" }
         }
       }
     ]
   },
   "LogoutResponse": {
     "allOf": [
-      {
-        "$ref": "#/components/schemas/In_SuccessResponse"
-      },
+      { "$ref": "#/components/schemas/In_SuccessResponse" },
       {
         "type": "object",
         "properties": {
-          "message": {
-            "type": "string",
-            "example": "Logout berhasil dilakukan."
-          }
+          "message": { "type": "string", "example": "Logout berhasil." }
         }
       }
     ]
   },
   "CurrentUserResponse": {
     "allOf": [
-      {
-        "$ref": "#/components/schemas/In_SuccessResponse"
-      },
+      { "$ref": "#/components/schemas/In_SuccessResponse" },
       {
         "type": "object",
         "properties": {
-          "data": {
-            "$ref": "#/components/schemas/AuthUserProfile"
-          }
+          "data": { "$ref": "#/components/schemas/AuthUserProfile" }
         }
       }
     ]

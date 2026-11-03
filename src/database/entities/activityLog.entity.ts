@@ -24,6 +24,12 @@ export class ActivityLog extends BaseAuditEntity {
   @Column({ name: "entity_id", type: "uuid", nullable: true })
   entity_id?: string | null;
 
+  @Column({ name: "project_id", type: "uuid", nullable: true })
+  project_id?: string | null;
+
+  @Column({ name: "task_id", type: "uuid", nullable: true })
+  task_id?: string | null;
+
   @Column({
     name: "reference_type",
     type: "varchar",

@@ -1,33 +1,33 @@
-import { body } from 'express-validator';
+import { body } from "express-validator";
 
 export const loginValidation = [
-  body('email')
+  body("email")
     .notEmpty()
-    .withMessage('email wajib diisi.')
+    .withMessage("email wajib diisi.")
     .isString()
-    .withMessage('email harus berupa teks.')
+    .withMessage("email harus berupa teks.")
     .trim()
     .toLowerCase()
     .isEmail()
-    .withMessage('Format email tidak valid.'),
+    .withMessage("Format email tidak valid."),
 
-  body('password')
+  body("password")
     .notEmpty()
-    .withMessage('Password wajib diisi.')
+    .withMessage("Password wajib diisi.")
     .isString()
-    .withMessage('Password harus berupa teks.'),
+    .withMessage("Password harus berupa teks."),
 
-    body('remember_me')
-      .optional()
+  body("remember_me")
+    .optional()
     .isBoolean()
-      .withMessage('Nilai remember_me harus berupa boolean (true/false).')
-      .toBoolean(),
+    .withMessage("Nilai remember_me harus berupa boolean (true/false).")
+    .toBoolean(),
 ];
 
 export const refreshTokenValidation = [
-  body('refreshToken')
+  body("refreshToken")
     .notEmpty()
-    .withMessage('Refresh token wajib diisi.')
+    .withMessage("Refresh token wajib diisi.")
     .isString()
-    .withMessage('Refresh token harus berupa string.'),
+    .withMessage("Refresh token harus berupa string."),
 ];

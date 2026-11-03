@@ -1,4 +1,4 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { SCHEMA_NAMES } from "../../shared/constants/schemaNames";
 import { BaseAuditEntity } from "./base.entity";
 
@@ -21,4 +21,14 @@ export class Menu extends BaseAuditEntity {
 
   @Column({ type: "int", default: 0 })
   order_number!: number;
+
+  @ManyToOne(() => Menu, (menu) => menu.childrens, {
+    nullable: true,
+    onDelete: "RESTRICT",
+  })
+  @JoinColumn({ name: "parent_id" })
+  parent?: Menu | null;
+
+  @OneToMany(() => Menu, (menu) => menu.parent)
+  childrens?: Menu[];
 }

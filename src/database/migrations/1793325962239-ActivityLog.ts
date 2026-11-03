@@ -51,6 +51,8 @@ export class ActivityLogs1793325962239 implements MigrationInterface {
           },
 
           // ── Konteks (untuk feed per project / task) ──────────────────
+          uuidCol("project_id", true),
+          uuidCol("task_id", true),
           {
             name: "reference_type",
             type: "varchar",

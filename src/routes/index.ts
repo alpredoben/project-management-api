@@ -9,6 +9,7 @@ import projectRouter from "../modules/projects/route";
 import roleRouter from "../modules/roles/route";
 import userRouter from "../modules/users/route";
 import taskStatusRouter from "../modules/task-status/route";
+import taskTypeRouter from "../modules/task-type/route";
 
 const router = Router();
 
@@ -29,5 +30,6 @@ router.use("/project-status", projectStatusRouter);
 router.use("/project-type", projectTypeRouter);
 router.use("/projects", projectRouter);
 router.use("/task-status", taskStatusRouter);
+router.use("/task-type", taskTypeRouter);
 
 export default router;
