@@ -1,5 +1,5 @@
 import { config } from "../../config";
-import { devModeSlug } from "../utils/helper";
+import { devModeSlug } from "../utils/dev-mode.util";
 
 export const PAGINATION_PROPERTIES = {
   DEFAULT_PAGE: 1,

@@ -1,0 +1,56 @@
+{
+  "Permission": {
+    "type": "object",
+    "required": ["id", "name", "module", "description"],
+    "properties": {
+      "id": { "type": "string", "format": "uuid" },
+      "name": { "type": "string", "maxLength": 100 },
+      "module": { "type": "string", "maxLength": 50 },
+      "description": { "type": "string", "nullable": true },
+      "createdAt": { "type": "string", "format": "date-time" },
+      "updatedAt": { "type": "string", "format": "date-time" }
+    }
+  },
+  "CreatePermissionDto": {
+    "type": "object",
+    "required": ["name", "module"],
+    "properties": {
+      "name": { "type": "string", "maxLength": 100 },
+      "module": { "type": "string", "maxLength": 50 },
+      "description": { "type": "string", "nullable": true }
+    }
+  },
+  "UpdatePermissionDto": {
+    "type": "object",
+    "minProperties": 1,
+    "properties": {
+      "name": { "type": "string", "maxLength": 100 },
+      "module": { "type": "string", "maxLength": 50 },
+      "description": { "type": "string", "nullable": true }
+    }
+  },
+  "PermissionResponse": {
+    "allOf": [
+      { "$ref": "#/components/schemas/In_SuccessResponse" },
+      {
+        "type": "object",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/Permission" }
+        }
+      }
+    ]
+  },
+  "PermissionListResponse": {
+    "type": "object",
+    "properties": {
+      "success": { "type": "boolean", "example": true },
+      "message": { "type": "string" },
+      "data": {
+        "type": "array",
+        "items": { "$ref": "#/components/schemas/Permission" }
+      },
+      "meta": { "$ref": "#/components/schemas/In_MetaResponse" },
+      "timestamp": { "type": "string", "format": "date-time" }
+    }
+  }
+}

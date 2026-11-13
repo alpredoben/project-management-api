@@ -65,13 +65,7 @@ export const createSlug = (text: any): any => {
     .replace(/-+$/, ""); // Menghapus tanda hubung di akhir string
 };
 
-export const devModeSlug = (str: string) => {
-  const mode: string = config.app.env?.toLowerCase();
-  if (mode == "development" || mode == "dev") {
-    return `${str}_dev`;
-  }
-  return str;
-};
+export { devModeSlug } from "./dev-mode.util";
 
 export const paginationClear = (req: Request): In_DTO_Pagination => {
   const page: number = Number(req?.query?.["page"] ?? 1);

@@ -17,7 +17,7 @@ export class Permission extends AuditBaseEntity {
   module!: string;
 
   @Column({ type: 'text', nullable: true })
-  description!: string;
+  description!: string | null;
 
   @ManyToMany(() => Role, (role) => role.permissions)
   roles!: Role[];

@@ -19,8 +19,12 @@ services:
     depends_on:
       pm-db-dev:
         condition: service_healthy
-      pm-redis-dev:
+      pm-rabbitmq-dev:
         condition: service_healthy
+      pm-redis-dev:
+        condition: service_started
+      opensearch-node-dev:
+        condition: service_started
     deploy:
       resources:
         limits:
@@ -30,7 +34,7 @@ services:
 
   # Database
   pm-db-dev:
-    image: postgres:18-alpine
+    image: postgres:16-alpine
     container_name: pm-db-dev
     restart: always
     env_file:
@@ -40,7 +44,7 @@ services:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASS}
     ports:
-      - "5432:5432"
+      - "5772:5432"
     command: -c max_connections=50
     deploy:
       resources:
@@ -99,6 +103,8 @@ services:
   pm-rabbitmq-dev:
     image: rabbitmq:3-management-alpine
     container_name: pm-rabbitmq-dev
+    env_file:
+      - .env.dev
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
@@ -128,7 +134,9 @@ services:
     image: opensearchproject/opensearch-dashboards:2.11.1
     container_name: opensearch-dashboards-dev
     ports:
-      - "5601:5601"   
+      - "5601:5601"
+    env_file:
+      - .env.dev   
     environment:
       - OPENSEARCH_HOSTS=["https://opensearch-node-dev:9200"]
       - OPENSEARCH_USERNAME=${OPENSEARCH_USERNAME}
@@ -141,6 +149,8 @@ services:
   opensearch-node-dev:
     image: opensearchproject/opensearch:2.11.1
     container_name: opensearch-node-dev
+    env_file:
+      - .env.dev
     environment:
       - cluster.name=log-cluster
       - node.name=opensearch-node-dev

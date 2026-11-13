@@ -67,6 +67,9 @@ dev-restart: dev-check-env
 dev-logs:
 	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) logs -f
 
+dev-log-app:
+	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) logs -f $(CONTAINER_API_DEV)
+
 dev-down:
 	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) down
 

@@ -1,9 +1,9 @@
 import { DataSource } from "typeorm";
-import * as bcrypt from "bcrypt";
 import { User } from "../entities/user.entity";
 import { Role } from "../entities/role.entity";
 import { Permission } from "../entities/permission.entity";
 import { PasswordUtil } from "../../shared/utils/password.util";
+import { createSlug } from "../../shared/utils/helper";
 
 export async function seedSuperAdmin(dataSource: DataSource): Promise<void> {
   const userAccount = {
@@ -80,8 +80,10 @@ export async function seedSuperAdmin(dataSource: DataSource): Promise<void> {
   });
 
   if (!superAdminRole) {
+    const roleName: string = "Super Admin"
     superAdminRole = roleRepository.create({
-      name: "Super Admin",
+      name: roleName,
+      slug: createSlug(roleName),
       description: "Administrator utama dengan akses penuh ke seluruh sistem",
       permissions: createdPermissions, // Berikan semua permissions
     });

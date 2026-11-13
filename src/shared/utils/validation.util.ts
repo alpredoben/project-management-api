@@ -42,7 +42,10 @@ export const listQueryValidation = (
 ];
 
 /** Memastikan body request memuat minimal satu dari `fields` (untuk endpoint update parsial). */
-export const atLeastOneOf = (fields: readonly string[], message: string) =>
+export const atLeastOneOf = (
+  fields: readonly string[],
+  message: string | ((value: unknown, meta: Meta) => string),
+) =>
   body()
     .custom((_value, { req }) =>
       fields.some((field) => req.body?.[field] !== undefined),

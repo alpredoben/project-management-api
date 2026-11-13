@@ -1,17 +1,14 @@
 import { OpenDataSource } from "../data-source";
-import { Permission } from "../entities/permission.entity";
-import { permissionsSeeder } from "./permissions.seeder";
 import { rolesSeeder } from "./roles.seeder";
-import { usersSeeder } from "./users.seeder";
+import { seedSuperAdmin } from "./superadmin.seeder";
+import { userSeeder } from "./user.seeder";
 
 const runSeeders = async (): Promise<void> => {
-  await OpenDataSource.initialize();
+   await OpenDataSource.initialize();
   try {
     await OpenDataSource.transaction(async (manager) => {
-      const roles = await rolesSeeder.seed(manager);
-      await permissionsSeeder.seed(manager);
-      const permissions = await manager.getRepository(Permission).find();
-      await usersSeeder.seed(manager, roles, permissions);
+      await rolesSeeder.seed(manager);
+      await userSeeder.seed(manager);
     });
     console.info("Database seeders completed successfully.");
   } finally {
