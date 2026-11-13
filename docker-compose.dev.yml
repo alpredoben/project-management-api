@@ -123,6 +123,7 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # Opensearch
   opensearch-dashboards-dev:
     image: opensearchproject/opensearch-dashboards:2.11.1
     container_name: opensearch-dashboards-dev

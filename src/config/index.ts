@@ -79,23 +79,12 @@ export const config = {
       secretKey: getEnv("MINIO_SECRET_KEY", "minioSecret"),
       bucket: getEnv("MINIO_BUCKET", "warehouse-bucket"),
     },
-    loki: {
-      enabled: getEnvBool("LOKI_ENABLED", "true"),
-      host: getEnv("LOKI_HOST", "localhost"),
-      port: Number(getEnv("LOKI_PORT", "3201")),
-      username: getEnvOptional("LOKI_USERNAME"),
-      password: getEnvOptional("LOKI_PASSWORD"),
-      environment: getEnv("LOG_ENVIRONMENT", "development"),
-      multiTenancy: getEnvBool("LOKI_MULTITENANCY", "false"),
-      tenantId: getEnvOptional("LOKI_TENANT_ID", "warehouse-tenant-1"),
-      logName: getEnv("LOG_APP_NAME", "warehouse-api"),
-      batchInterval: Number(getEnv("LOKI_BATCH_INTERVAL", "2")), // detik
-      timeout: Number(getEnv("LOKI_TIMEOUT_MS", "10000")),
-    },
-    grafana: {
-      url: getEnv("GRAFANA_URL", "http://localhost:3001"),
-      username: getEnv("GRAFANA_ADMIN_USER", "admin"),
-      password: getEnv("GRAFANA_ADMIN_PASSWORD", "password123"),
+    opensearch: {
+      host: getEnv('OPENSEARCH_HOST', 'http://localhost:9200'),
+      nodePassword: getEnv('OPENSEARCH_NODE_PASSWORD', 'nodePassword'),
+      username: getEnv("OPENSEARCH_USERNAME", "admin"),
+      password: getEnv("OPENSEARCH_PASSWORD", "password"),
+      prefix: getEnv('OPENSEARCH_INDEX_PREFIX', 'pm-api-dev-logs'),
     },
     captcha: {
       enabled: getEnvBool("RECAPTCHA_ENABLED", "true"),
@@ -122,12 +111,4 @@ export const config = {
   },
 };
 
-export const lokiBaseUrl = (): string => {
-  const host = config.pkg.loki.host.trim().replace(/\/+$/, "");
-  if (/^https?:\/\//i.test(host)) {
-    const withoutScheme = host.replace(/^https?:\/\//i, "");
-    const hasPort = /:\d+$/.test(withoutScheme);
-    return hasPort ? host : `${host}:${config.pkg.loki.port}`;
-  }
-  return `http://${host}:${config.pkg.loki.port}`;
-};
+

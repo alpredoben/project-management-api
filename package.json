@@ -29,6 +29,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@opensearch-project/opensearch": "^3.10.0",
     "@socket.io/redis-adapter": "^8.3.0",
     "@tailwindcss/postcss": "^4.3.3",
     "amqplib": "^2.0.1",
@@ -60,7 +61,7 @@
     "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.20",
     "winston": "^3.19.0",
-    "winston-loki": "^6.1.6"
+    "winston-transport": "^4.9.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
