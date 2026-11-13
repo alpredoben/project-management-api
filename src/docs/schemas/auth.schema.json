@@ -16,33 +16,81 @@
         "example": "c0mplexP@ssw0rd",
         "default": "c0mplexP@ssw0rd"
       },
-      "remember_me": { "type": "boolean", "default": false, "example": false }
+      "remember_password": {
+        "type": "boolean",
+        "default": false,
+        "example": false
+      }
     },
     "example": {
       "email": "admin@example.com",
       "password": "c0mplexP@ssw0rd",
-      "remember_me": false
+      "remember_password": false
+    }
+  },
+  "RegisterDto": {
+    "type": "object",
+    "required": ["name", "nip", "email", "password", "confirm_password"],
+    "properties": {
+      "name": { "type": "string", "example": "Example User" },
+      "nip": { "type": "string", "maxLength": 50, "example": "1987654321" },
+      "email": { "type": "string", "format": "email" },
+      "password": { "type": "string", "format": "password", "minLength": 8 },
+      "confirm_password": {
+        "type": "string",
+        "format": "password",
+        "minLength": 8
+      }
+    }
+  },
+  "ForgotPasswordDto": {
+    "type": "object",
+    "required": ["email"],
+    "properties": { "email": { "type": "string", "format": "email" } }
+  },
+  "ResetPasswordDto": {
+    "type": "object",
+    "required": ["new_password", "confirm_password"],
+    "properties": {
+      "new_password": {
+        "type": "string",
+        "format": "password",
+        "minLength": 8
+      },
+      "confirm_password": {
+        "type": "string",
+        "format": "password",
+        "minLength": 8
+      },
+      "token": {
+        "type": "string",
+        "description": "Optional when the token is passed as a query parameter."
+      }
     }
   },
   "RefreshTokenDto": {
     "type": "object",
-    "required": ["refreshToken"],
+    "required": ["access_token"],
     "properties": {
-      "refreshToken": {
+      "access_token": {
         "type": "string",
         "minLength": 1,
+        "description": "Refresh JWT, despite the field name.",
         "example": "eyJ...refresh-token"
+      },
+      "refresh_token": {
+        "type": "string",
+        "description": "Accepted as an alias for access_token."
       }
     },
-    "example": { "refreshToken": "eyJ...refresh-token" }
+    "example": { "access_token": "eyJ...refresh-token" }
   },
   "AuthPermission": {
     "type": "object",
-    "required": ["id", "name", "slug"],
+    "required": ["id", "name"],
     "properties": {
       "id": { "type": "string", "format": "uuid" },
-      "name": { "type": "string", "example": "View Projects" },
-      "slug": { "type": "string", "example": "view-projects" }
+      "name": { "type": "string", "example": "View Projects" }
     }
   },
   "AuthRole": {
@@ -126,31 +174,28 @@
     "required": [
       "id",
       "name",
+      "nip",
       "email",
-      "phone",
       "avatar",
       "is_active",
+      "is_email_verified",
       "is_login",
       "last_login_at",
       "roles",
-      "permissions",
-      "role_menu_permission"
+      "permissions"
     ],
     "properties": {
       "id": { "type": "string", "format": "uuid" },
       "name": { "type": "string", "nullable": true, "example": "Example User" },
+      "nip": { "type": "string", "nullable": true, "example": "1987654321" },
       "email": {
         "type": "string",
         "format": "email",
         "example": "user@example.com"
       },
-      "phone": {
-        "type": "string",
-        "nullable": true,
-        "example": "+6281234567890"
-      },
       "avatar": { "type": "string", "nullable": true },
       "is_active": { "type": "boolean", "example": true },
+      "is_email_verified": { "type": "boolean", "example": true },
       "is_login": { "type": "boolean", "example": true },
       "last_login_at": {
         "type": "string",
@@ -165,10 +210,6 @@
         "type": "array",
         "description": "Unique active permissions from assigned roles.",
         "items": { "$ref": "#/components/schemas/AuthPermission" }
-      },
-      "role_menu_permission": {
-        "type": "array",
-        "items": { "$ref": "#/components/schemas/AuthRoleMenuPermission" }
       }
     }
   },

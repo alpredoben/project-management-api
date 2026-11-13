@@ -24,10 +24,11 @@ export interface In_AUTH_Role extends Pick<Role, "id" | "name" | "slug"> {
 export interface In_AUTH_UserProfile {
   id: string;
   name: string | null;
+  nip: string | null;
   email: string;
-  phone: string | null;
   avatar: string | null;
   is_active: boolean;
+  is_email_verified: boolean;
   is_login: boolean;
   last_login_at: Date | null;
   roles: In_AUTH_Role[];

@@ -89,6 +89,16 @@ export const config = {
     captcha: {
       enabled: getEnvBool("RECAPTCHA_ENABLED", "true"),
     },
+    smtp: {
+      mailer: getEnv('MAIL_MAILER', 'smtp'),
+      host: getEnv('MAIL_HOST', 'smtp.example.com'),
+      port: Number(getEnv('MAIL_PORT', '587')),
+      username: getEnv('MAIL_USERNAME', 'customer@example.com'),
+      password: getEnv('MAIL_PASSWORD', 'Your Password'),
+      encryption: getEnv('MAIL_ENCRYPTION', 'tls'),
+      fromAddress: getEnv('MAIL_FROM_ADDRESS', 'noreply@example.com'),
+      fromName: getEnv('MAIL_FROM_NAME', 'Your Application Name')
+    }
   },
   middleware: {
     rateLimit: {

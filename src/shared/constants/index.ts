@@ -34,6 +34,12 @@ export const HTTP_STATUS = {
 } as const;
 
 export const LIST_QUEUE = {
+  SMTP_MAIL: {
+    CHANNEL: devModeSlug("smtp-mail-channel"),
+    QUEUE: devModeSlug("queue_smtp_mail"),
+    EXCHANGE: devModeSlug("exchange_smtp_mail"),
+    ROUTING_KEY: devModeSlug("rk_smtp_mail"),
+  },
   UPLOAD_FILE: {
     CHANNEL: devModeSlug("upload-file-channel"),
     QUEUE: devModeSlug("queue_upload"),

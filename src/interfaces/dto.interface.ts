@@ -2,6 +2,14 @@ import {
   In_API_AttributMeta,
 } from "./responseApi.interface";
 
+
+
+export interface  In_DTO_SmtpMailProperties {
+  type: 'verify-email'|'reset-password'| 'invite-workspace';
+  data: Record<string, any> | any
+}
+
+
 export interface In_DTO_Pagination {
   page?: number | 1;
   limit?: number | 10;

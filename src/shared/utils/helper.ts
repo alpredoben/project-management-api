@@ -79,8 +79,7 @@ export const paginationClear = (req: Request): In_DTO_Pagination => {
   return {
     page,
     limit,
-    sortBy:
-      typeof req?.query["sortBy"] === "string" ? req.query["sortBy"] : "",
+    sortBy: typeof req?.query["sortBy"] === "string" ? req.query["sortBy"] : "",
     orderBy:
       String(req.query["orderBy"]).toUpperCase() === "ASC" ? "ASC" : "DESC",
     search:
@@ -113,10 +112,8 @@ export const getFormatDate = (
 
 export const combineArray = (arr: any[]): string => arr.join(", ");
 
-
 export const convertToString = (value: unknown): string | undefined =>
   typeof value === "string" ? value : undefined;
-
 
 export type T_SuccessVerb = keyof typeof SUCCESS_VERB;
 
@@ -133,3 +130,17 @@ export const makeSuccessMessage = (
   );
 
 export const reqIdParam = (req: Request): string => req.params["id"] as string;
+
+export const createVerificationUrl = (token: string): string => {
+  const appUrl = new URL(config.app.url);
+  if (!appUrl.port) {
+    appUrl.port = String(config.app.port);
+  }
+  const apiPrefix = config.app.prefix.replace(/^\/+|\/+$/g, "");
+  return `${appUrl.origin}/${apiPrefix}/auth/verified-email?token=${encodeURIComponent(token)}`;
+};
+
+export const createPasswordResetUrl = (token: string): string => {
+  const baseUrl = config.app.url.replace(/\/+$/, "");
+  return `${baseUrl}/reset-password?token=${encodeURIComponent(token)}`;
+};

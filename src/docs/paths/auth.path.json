@@ -1,4 +1,50 @@
 {
+  "/auth/register": {
+    "post": {
+      "tags": ["Authentication"],
+      "summary": "Register account",
+      "operationId": "register",
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/RegisterDto" }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Account created and verification email sent.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "409": { "description": "Email or NIP is already registered." },
+        "422": { "description": "Request validation failed." }
+      }
+    }
+  },
+  "/auth/verified-email": {
+    "get": {
+      "tags": ["Authentication"],
+      "summary": "Verify email address",
+      "operationId": "verifyEmail",
+      "parameters": [
+        {
+          "name": "token",
+          "in": "query",
+          "required": true,
+          "schema": { "type": "string" }
+        }
+      ],
+      "responses": {
+        "200": { "description": "Email verified." },
+        "400": { "description": "Token is invalid or expired." }
+      }
+    }
+  },
   "/auth/login": {
     "post": {
       "tags": ["Authentication"],
@@ -27,7 +73,7 @@
           }
         },
         "401": {
-          "description": "Email/password is incorrect or the account is inactive.",
+          "description": "Email/password is incorrect, the account is inactive, or email is not verified.",
           "content": {
             "application/json": {
               "schema": {
@@ -59,11 +105,79 @@
       }
     }
   },
+  "/auth/forgot-password": {
+    "post": {
+      "tags": ["Authentication"],
+      "summary": "Request a password reset",
+      "operationId": "forgotPassword",
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ForgotPasswordDto" }
+          }
+        }
+      },
+      "responses": {
+        "200": { "description": "Reset instructions sent if the account exists." },
+        "422": { "description": "Request validation failed." }
+      }
+    }
+  },
+  "/auth/reset-password": {
+    "post": {
+      "tags": ["Authentication"],
+      "summary": "Reset password",
+      "description": "Pass the one-time token as a query parameter or in the JSON body.",
+      "operationId": "resetPassword",
+      "parameters": [
+        {
+          "name": "token",
+          "in": "query",
+          "required": false,
+          "schema": { "type": "string" }
+        }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ResetPasswordDto" }
+          }
+        }
+      },
+      "responses": {
+        "200": { "description": "Password changed." },
+        "400": { "description": "Token is invalid or expired." },
+        "422": { "description": "Request validation failed." }
+      }
+    }
+  },
+  "/auth/refersh-token": {
+    "post": {
+      "tags": ["Authentication"],
+      "summary": "Refresh tokens",
+      "description": "Supply the refresh JWT in the access_token field. The token is rotated and can only be used once.",
+      "operationId": "refreshAuthTokensTypoCompatibility",
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/RefreshTokenDto" }
+          }
+        }
+      },
+      "responses": {
+        "200": { "description": "New access and refresh tokens issued." },
+        "401": { "description": "Refresh token is invalid, expired, or already used." }
+      }
+    }
+  },
   "/auth/refresh-token": {
     "post": {
       "tags": ["Authentication"],
       "summary": "Refresh tokens",
-      "description": "Validate the current refresh token, rotate it, and issue a new access token. A refresh token can only be used once.",
+      "description": "Supply the refresh JWT in the access_token field (or refresh_token for compatibility). The token is rotated and can only be used once.",
       "operationId": "refreshAuthTokens",
       "requestBody": {
         "required": true,
@@ -71,14 +185,6 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/RefreshTokenDto"
-            },
-            "examples": {
-              "refresh": {
-                "summary": "Refresh token request",
-                "value": {
-                  "refreshToken": "eyJhbGciOi..."
-                }
-              }
             }
           }
         }

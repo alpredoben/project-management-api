@@ -3,6 +3,7 @@ import logger from '../shared/utils/logger.util';
 import { ResponseAPI } from '../shared/utils/response-api.util';
 import { AppError } from '../shared/utils/error.util';
 import { config } from '../config';
+import { redactSensitiveQueryParameters } from '../shared/utils/url.util';
 
 // Global Error Handling Middleware
 export const errorMiddleware = (
@@ -45,7 +46,7 @@ export const errorMiddleware = (
 
   const errorMeta = {
     method: req.method,
-    url: req.originalUrl,
+    url: redactSensitiveQueryParameters(req.originalUrl),
     ip: req.ip || req.headers['x-forwarded-for'],
     userId: (req as any).user?.id || 'unauthenticated',
     stack: config.app.env === 'development' ? err.stack : undefined,

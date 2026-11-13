@@ -24,6 +24,7 @@ COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/public ./public
 COPY --from=builder /usr/src/app/views ./views
 COPY --from=builder /usr/src/app/src/lang/locale ./src/lang/locale
+COPY --from=builder /usr/src/app/src/mail/templates ./src/mail/templates
 
 RUN chown -R node:node /usr/src/app
 USER node

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { randomUUID } from "crypto";
 import logger from "../shared/utils/logger.util";
 import { HTTP_STATUS, SKIPPED_PATHS } from "../shared/constants";
+import { redactSensitiveQueryParameters } from "../shared/utils/url.util";
 
 export const loggerMiddleware = (
   req: Request,
@@ -32,11 +33,12 @@ export const loggerMiddleware = (
       (Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(",")[0]) ||
       req.socket.remoteAddress ||
       "unknown";
+    const safeUrl = redactSensitiveQueryParameters(req.originalUrl);
 
     const logMetadata = {
       request_id: requestId,
       method: req.method,
-      url: req.originalUrl,
+      url: safeUrl,
       route: req.route?.path ?? req.baseUrl ?? req.path,
       status: res.statusCode,
       execution_time_ms: duration,
@@ -47,7 +49,7 @@ export const loggerMiddleware = (
       aborted: !res.writableEnded,
     };
 
-    const message = `${req.method} ${req.originalUrl} [${res.statusCode}] - ${duration}ms`;
+    const message = `${req.method} ${safeUrl} [${res.statusCode}] - ${duration}ms`;
 
     if (res.statusCode >= HTTP_STATUS.INTERNAL_SERVER_ERROR) {
       logger.error(message, logMetadata);

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { redisService } from "../pkg/redis"; // Menggunakan instance Redis terpusat yang sudah ada
 import { AppError } from "../shared/utils/error.util";
 import logger from "../shared/utils/logger.util";
+import { redactSensitiveQueryParameters } from "../shared/utils/url.util";
 
 export const rateLimitMiddleware = (
   windowMs: number = 15 * 60 * 1000,
@@ -59,7 +60,7 @@ export const rateLimitMiddleware = (
 
       if (currentRequests > max) {
         logger.warn(
-          `[RateLimit] Batas terlampaui untuk IP: ${clientIp} pada rute: ${req.originalUrl}`,
+          `[RateLimit] Batas terlampaui untuk IP: ${clientIp} pada rute: ${redactSensitiveQueryParameters(req.originalUrl)}`,
         );
         const localizedMessage = req.t
           ? req.t("error.rate_limit", { defaultValue: message })

@@ -1,5 +1,7 @@
 import logger from '../shared/utils/logger.util';
 import { rabbitMQService } from '../pkg/rabbitmq';
+import { SmtpMailPublisher } from './publisher/smtp-mail.publisher';
+import { SmtpMailSubscriber } from './subscriber/smtp-mail.subscriber';
 
 // Queue Contract
 interface In_QueueSubscriber {
@@ -14,31 +16,34 @@ interface In_QueuePublisherTopology {
 
 const QUEUE_PUBLISHERS: In_QueuePublisherTopology[] = [
   // Add your queue publisher topology classes here
+  SmtpMailPublisher
 ];
 
 
 const QUEUE_SUBSCRIBERS: In_QueueSubscriber[] = [
   // Add your queue subscriber classes here
+  SmtpMailSubscriber
 ];
 
 export class QueueListenerManager {
   private static isRunning = false;
+  private static LOG_TITLE = 'Queue Listener Manager'
 
   // Open RabbitMQ Connection
   public static async startAll(): Promise<void> {
     if (QUEUE_SUBSCRIBERS.length === 0) {
       logger.info(
-        '[Queue Listener Manager] Tidak ada subscriber terdaftar, dilewati.'
+        `[${this.LOG_TITLE}] Tidak ada subscriber terdaftar, dilewati.`
       );
       return;
     }
 
     try {
       await rabbitMQService.connect();
-      logger.info('[Queue Listener Manager] Koneksi RabbitMQ berhasil dibuat.');
+      logger.info(`[${this.LOG_TITLE}] Koneksi RabbitMQ berhasil dibuat.`);
     } catch (error: any) {
       logger.error(
-        `[Queue Listener Manager] Gagal terhubung ke RabbitMQ: ${error.message}`,
+        `[${this.LOG_TITLE}] Gagal terhubung ke RabbitMQ: ${error.message}`,
         { stack: error.stack }
       );
       return;
@@ -49,11 +54,11 @@ export class QueueListenerManager {
         await publisher.setupTopology();
       }
       logger.info(
-        `[Queue Listener Manager] Topology ${QUEUE_PUBLISHERS.length} publisher berhasil disiapkan: ${QUEUE_PUBLISHERS.map((p) => p.name).join(', ')}`
+        `[${this.LOG_TITLE}] Topology ${QUEUE_PUBLISHERS.length} publisher berhasil disiapkan: ${QUEUE_PUBLISHERS.map((p) => p.name).join(', ')}`
       );
     } catch (error: any) {
       logger.error(
-        `[Queue Listener Manager] Gagal setup topology publisher: ${error.message}`,
+        `[${this.LOG_TITLE}] Gagal setup topology publisher: ${error.message}`,
         { stack: error.stack }
       );
       return;
@@ -64,14 +69,14 @@ export class QueueListenerManager {
     QUEUE_SUBSCRIBERS.forEach((subscriber) => {
       Promise.resolve(subscriber.listen()).catch((error: any) => {
         logger.error(
-          `[Queue Listener Manager] Subscriber "${subscriber.name}" gagal berjalan: ${error.message}`,
+          `[${this.LOG_TITLE}] Subscriber "${subscriber.name}" gagal berjalan: ${error.message}`,
           { stack: error.stack }
         );
       });
     });
 
     logger.info(
-      `[Queue Listener Manager] ${QUEUE_SUBSCRIBERS.length} queue subscriber berhasil diaktifkan di background: ${QUEUE_SUBSCRIBERS.map((s) => s.name).join(', ')}`
+      `[${this.LOG_TITLE}] ${QUEUE_SUBSCRIBERS.length} queue subscriber berhasil diaktifkan di background: ${QUEUE_SUBSCRIBERS.map((s) => s.name).join(', ')}`
     );
   }
 
@@ -82,11 +87,11 @@ export class QueueListenerManager {
     try {
       await rabbitMQService?.disconnect();
       logger.info(
-        '[Queue Listener Manager] Koneksi RabbitMQ berhasil ditutup.'
+        `[${this.LOG_TITLE}] Koneksi RabbitMQ berhasil ditutup.`
       );
     } catch (error: any) {
       logger.error(
-        `[Queue Listener Manager] Gagal menutup koneksi RabbitMQ: ${error.message}`,
+        `[${this.LOG_TITLE}] Gagal menutup koneksi RabbitMQ: ${error.message}`,
         { stack: error.stack }
       );
     } finally {
