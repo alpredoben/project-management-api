@@ -23,6 +23,15 @@ COMPOSE_PROD = docker-compose.prod.yml
 NETWORK_DEV = pm-network-dev
 NETWORK_PROD = pm-network-prod
 
+# Container Name Development
+CONTAINER_API_DEV = pm-api-dev
+CONTAINER_REDIS_DEV = pm-redis-dev
+CONTAINER_DATABASE_DEV = pm-db-dev
+CONTAINER_RABBIT_DEV = pm-rabbitmq-dev
+
+# Container Name Development
+CONTAINER_API_PROD = pm-api-prod
+
 # Global variables
 HEALTHCHECK_TIMEOUT=120
 
@@ -81,6 +90,9 @@ dev-compose-seed:
 
 dev-local-migrate:
 	npm run migration:run
+
+dev-redis-healthcheck:
+	docker inspect --format='{{json .State.Health.Status}}' $(CONTAINER_REDIS_DEV)
 	
 
 clean-images:

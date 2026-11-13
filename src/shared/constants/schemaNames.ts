@@ -1,33 +1,37 @@
 export const SCHEMA_NAMES = {
-  // RBAC
+  USER: 'users',
   ROLES: "roles",
   PERMISSIONS: "permissions",
-  MENUS: "menus",
-  USERS: "users",
-  USER_ROLES: "user_roles",
-  ROLE_PERMISSIONS: "role_permissions",
-  ROLE_MENU_PERMISSIONS: "role_menu_permissions",
+
+  // Project
+  PROJECTS: "projects",
   PROJECT_STATUS: "project_status",
   PROJECT_TYPES: "project_types",
-  MEMBER_TYPES: "member_types",
-  MEMBER_ROLES: "member_roles",
-
-  // Projects
-  PROJECTS: "projects",
-  PROJECT_COLLABORATORS: "project_collaborators",
+  PROJECT_MEMBERS:'project_members',
 
   // Task
+  TASKS: "tasks",
   TASK_STATUS: "task_status",
   TASK_TYPES: "task_types",
-  TASKS: "tasks",
-  TASK_MEMBERS: "task_members",
-  TASK_COMMENTS: "task_comments",
-  TASK_PROGRESS_LOGS: "task_progress_logs",
+  TASK_ASSIGNEES: "task_assignees",
+  TASK_SCHEDULERS: "task_schedulers",
+  TASK_ADDITIONAL_ATTACHMENTS: 'task_additional_attachments',
+  TASK_COMMENTS: 'task_comments',
   TASK_LIKES: "task_likes",
-  TASK_STATUS_HISTORIES: "task_status_histories",
 
-  ATTACHMENT_FILES: "attachment_files",
-  NOTIFICATIONS: "notifications",
-  ACTIVITY_LOGS: "activity_logs",
-  SETTINGS: "settings",
+  // Workspace
+  WORKSPACES: 'workspaces',
+  WORKSPACE_MEMBERS :'workspace_members',
+
+  // Milestone
+  MILESTONES: 'milestones',
+
+  // Comments
+  COMMENT_LIKES: 'comment_likes',
+
+  // Log
+  ACTIVITY_LOGS: 'activity_logs',
+
+  // Notification
+  NOTIFICATIONS: 'notifications',
 };

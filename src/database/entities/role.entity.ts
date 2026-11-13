@@ -1,30 +1,36 @@
-import { Column, Entity, OneToMany } from "typeorm";
-import { SCHEMA_NAMES } from "../../shared/constants/schemaNames";
-import { BaseAuditEntity } from "./base.entity";
-import { RoleMenuPermission } from "./roleMenuPermission.entity";
-import { RolePermission } from "./rolePermission.entity";
-import { UserRole } from "./userRole.entity";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
+import { AuditBaseEntity } from './base.entity';
+import {User} from './user.entity'
+import {Permission} from './permission.entity'
+import { SCHEMA_NAMES } from '../../shared/constants/schemaNames';
 
-@Entity({ name: SCHEMA_NAMES.ROLES })
-export class Role extends BaseAuditEntity {
-  @Column({ type: "varchar", length: 100, unique: true })
+@Entity({name: SCHEMA_NAMES.ROLES})
+export class Role extends AuditBaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ type: 'varchar', length: 150, unique: true, nullable: false })
   name!: string;
 
-  @Column({ type: "varchar", length: 100, nullable: true })
-  slug!: string | null;
+  @Column({ type: 'varchar', length: 150, unique: true, nullable: false })
+  slug!: string;
 
-  @Column({ type: "text", nullable: true })
-  description?: string | null;
+  @Column({ type: 'text', nullable: true })
+  description!: string;
 
-  @OneToMany(() => UserRole, (userRole) => userRole.role)
-  user_roles?: UserRole[];
+  @ManyToMany(() => Permission, (permission) => permission.roles)
+  @JoinTable({
+    name: 'role_permissions',
+    joinColumn: { name: 'role_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'permission_id', referencedColumnName: 'id' },
+  })
+  permissions!: Permission[];
 
-  @OneToMany(() => RolePermission, (rolePermission) => rolePermission.role)
-  role_permissions?: RolePermission[];
-
-  @OneToMany(
-    () => RoleMenuPermission,
-    (roleMenuPermission) => roleMenuPermission.role,
-  )
-  role_menu_permissions?: RoleMenuPermission[];
+  @ManyToMany(() => User, (user) => user.roles)
+  @JoinTable({
+    name: 'user_roles',
+    joinColumn: { name: 'role_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
+  })
+  users!: User[];
 }

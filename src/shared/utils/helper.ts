@@ -2,42 +2,43 @@ import { Request } from "express";
 import dayjs from "dayjs";
 import { config } from "../../config";
 import { In_DTO_Pagination } from "../../interfaces/dto.interface";
-import { BaseAuditEntity } from "../../database/entities";
+import { AuditBaseEntity } from "../../database/entities/base.entity";
+import { SUCCESS_VERB } from "../constants";
 
 export const makeBaseAudit = (
   req: Request,
   type: string,
-): Partial<BaseAuditEntity> => {
+): Partial<AuditBaseEntity> => {
   const today = new Date();
 
   switch (type) {
     case "create":
       return {
-        created_at: today,
-        updated_at: today,
-        created_by: req.user?.id,
-        updated_by: req.user?.id,
+        createdAt: today,
+        updatedAt: today,
+        createdBy: req.user?.id,
+        updatedBy: req.user?.id,
       };
     case "update":
       return {
-        updated_at: today,
-        updated_by: req.user?.id,
+        updatedAt: today,
+        updatedBy: req.user?.id,
       };
 
     case "delete":
       return {
-        deleted_at: today,
-        deleted_by: req.user?.id,
+        deletedAt: today,
+        deletedBy: req.user?.id,
       };
 
     default:
       return {
-        created_at: today,
-        updated_at: today,
-        deleted_at: today,
-        created_by: req.user?.id,
-        updated_by: req.user?.id,
-        deleted_by: req.user?.id,
+        createdAt: today,
+        updatedAt: today,
+        deletedAt: today,
+        createdBy: req.user?.id,
+        updatedBy: req.user?.id,
+        deletedBy: req.user?.id,
       };
   }
 };
@@ -78,10 +79,10 @@ export const paginationClear = (req: Request): In_DTO_Pagination => {
   return {
     page,
     limit,
-    sort_by:
-      typeof req?.query["sort_by"] === "string" ? req.query["sort_by"] : "",
-    order_by:
-      String(req.query["order_by"]).toUpperCase() === "ASC" ? "ASC" : "DESC",
+    sortBy:
+      typeof req?.query["sortBy"] === "string" ? req.query["sortBy"] : "",
+    orderBy:
+      String(req.query["orderBy"]).toUpperCase() === "ASC" ? "ASC" : "DESC",
     search:
       typeof req.query?.["search"] === "string" ? req.query["search"] : "",
   } as In_DTO_Pagination;
@@ -111,3 +112,24 @@ export const getFormatDate = (
 };
 
 export const combineArray = (arr: any[]): string => arr.join(", ");
+
+
+export const convertToString = (value: unknown): string | undefined =>
+  typeof value === "string" ? value : undefined;
+
+
+export type T_SuccessVerb = keyof typeof SUCCESS_VERB;
+
+export const makeSuccessMessage = (
+  req: Request,
+  kind: T_SuccessVerb,
+  label: string,
+): string =>
+  getStringMessage(
+    req,
+    `success.default.${kind}`,
+    `Data ${label} berhasil ${SUCCESS_VERB[kind]}.`,
+    { m: label },
+  );
+
+export const reqIdParam = (req: Request): string => req.params["id"] as string;

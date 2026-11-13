@@ -97,8 +97,7 @@ export const ENTITY_TYPES = {
   USER: "user",
   PROJECT: "project",
   TASK: "task",
-  TEAMS: "teams",
-  MEMBERS: "members",
+  WORSKPACE: "workspace",
 } as const;
 
 export const NOTIFICATION_STATUS = {
@@ -121,10 +120,9 @@ export const NOTIFICATION_PRIORITY = {
 };
 
 export const NOTIFICATION_EVENT_TYPE = {
-  ASSIGNED_MEMBER: "ASSIGNED_MEMBER",
-  PROGRESS_DONE: "PROGRESS_DONE",
-  PROGRESS_REJECTED: "PROGRESS_REJECTED",
-  PROGRESS_APPROVED: "PROGRESS_APPROVED",
+  CREATED_WORKSPACE: 'CREATED_WORKSPACE',
+  ADD_MEMBER_TO_WORKSPACE: 'ADD_MEMBER_TO_WORKSPACE',
+  ASSIGNED_TASK: 'ASSIGNED_TASK',
   TASK_CREATED: "TASK_CREATED",
   TASK_UPDATED: "TASK_UPDATED",
   TASK_DELETED: "TASK_DELETED",
@@ -138,3 +136,12 @@ export const NOTIFICATION_EVENT_NAMES = {
   NEW: "notification:new",
   MARK_READ: "notification:mark_read",
 };
+
+
+
+export const SUCCESS_VERB = {
+  created: "disimpan",
+  retrieved: "diambil",
+  updated: "diperbarui",
+  deleted: "dihapus",
+} as const;

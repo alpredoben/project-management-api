@@ -1,3 +1,3 @@
-/** Meng-escape karakter wildcard (`% _ \`) agar input pencarian dianggap teks biasa di LIKE/ILIKE. */
+/** Excape wildcard character (`% _ \`) for LIKE/ILIKE. */
 export const escapeLike = (value: string): string =>
   value.replace(/[\\%_]/g, "\\$&");
