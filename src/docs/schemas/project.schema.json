@@ -1,0 +1,73 @@
+{
+  "Project": {
+    "type": "object",
+    "required": ["id", "workspace_id", "name", "key"],
+    "properties": {
+      "id": { "type": "string", "format": "uuid" },
+      "workspace_id": { "type": "string", "format": "uuid" },
+      "project_type_id": { "type": "string", "format": "uuid", "nullable": true },
+      "project_status_id": { "type": "string", "format": "uuid", "nullable": true },
+      "name": { "type": "string", "maxLength": 150 },
+      "key": { "type": "string", "maxLength": 20 },
+      "description": { "type": "string", "nullable": true },
+      "start_date": { "type": "string", "format": "date", "nullable": true },
+      "end_date": { "type": "string", "format": "date", "nullable": true },
+      "created_at": { "type": "string", "format": "date-time" },
+      "updated_at": { "type": "string", "format": "date-time" }
+    }
+  },
+  "CreateProjectDto": {
+    "type": "object",
+    "required": ["workspace_id", "name", "key"],
+    "properties": {
+      "workspace_id": { "type": "string", "format": "uuid" },
+      "project_type_id": { "type": "string", "format": "uuid", "nullable": true },
+      "project_status_id": { "type": "string", "format": "uuid", "nullable": true },
+      "name": { "type": "string", "maxLength": 150 },
+      "key": { "type": "string", "maxLength": 20 },
+      "description": { "type": "string", "nullable": true },
+      "start_date": { "type": "string", "format": "date", "nullable": true },
+      "end_date": { "type": "string", "format": "date", "nullable": true }
+    }
+  },
+  "UpdateProjectDto": {
+    "type": "object",
+    "minProperties": 1,
+    "properties": {
+      "workspace_id": { "type": "string", "format": "uuid" },
+      "project_type_id": { "type": "string", "format": "uuid", "nullable": true },
+      "project_status_id": { "type": "string", "format": "uuid", "nullable": true },
+      "name": { "type": "string", "maxLength": 150 },
+      "key": { "type": "string", "maxLength": 20 },
+      "description": { "type": "string", "nullable": true },
+      "start_date": { "type": "string", "format": "date", "nullable": true },
+      "end_date": { "type": "string", "format": "date", "nullable": true }
+    }
+  },
+  "ChangeProjectStatusDto": {
+    "type": "object",
+    "required": ["project_status_id"],
+    "properties": {
+      "project_status_id": { "type": "string", "format": "uuid", "nullable": true }
+    }
+  },
+  "ChangeProjectTypeDto": {
+    "type": "object",
+    "required": ["project_type_id"],
+    "properties": {
+      "project_type_id": { "type": "string", "format": "uuid", "nullable": true }
+    }
+  },
+  "Milestone": {
+    "type": "object",
+    "required": ["id", "project_id", "title", "status"],
+    "properties": {
+      "id": { "type": "string", "format": "uuid" },
+      "project_id": { "type": "string", "format": "uuid" },
+      "title": { "type": "string", "maxLength": 150 },
+      "description": { "type": "string", "nullable": true },
+      "dueDate": { "type": "string", "format": "date", "nullable": true },
+      "status": { "type": "string", "maxLength": 50 }
+    }
+  }
+}

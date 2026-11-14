@@ -1,0 +1,125 @@
+{
+  "/project-member/list": {
+    "get": {
+      "tags": ["Project Member"],
+      "summary": "List project members",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "page", "in": "query", "default": 1, "schema": { "type": "integer", "minimum": 1 } },
+        { "name": "limit", "in": "query", "default": 10, "schema": { "type": "integer", "minimum": 1, "maximum": 100 } },
+        { "name": "search", "in": "query", "schema": { "type": "string" } },
+        { "name": "sort_by", "in": "query", "schema": { "type": "string", "enum": ["project_id", "user_id", "position_id", "created_at", "updated_at"] } },
+        { "name": "order_by", "in": "query", "schema": { "type": "string", "enum": ["ASC", "DESC"] } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Paginated project members with project, user, and position details.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_PaginationResponse" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/project-member/find/{id}": {
+    "get": {
+      "tags": ["Project Member"],
+      "summary": "Find project member by ID",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Project member found.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Project member not found." }
+      }
+    }
+  },
+  "/project-member/create": {
+    "post": {
+      "tags": ["Project Member"],
+      "summary": "Create project member",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/CreateProjectMemberDto" }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Project member created or reactivated.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Project, active user, or position not found." },
+        "409": { "description": "User is already a member of this project." }
+      }
+    }
+  },
+  "/project-member/update/{id}": {
+    "put": {
+      "tags": ["Project Member"],
+      "summary": "Update project member",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdateProjectMemberDto" }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Project member updated.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Project member or referenced project, active user, or position not found." },
+        "409": { "description": "User is already a member of this project." }
+      }
+    }
+  },
+  "/project-member/delete/{id}": {
+    "delete": {
+      "tags": ["Project Member"],
+      "summary": "Delete project member",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Project member soft-deleted.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Project member not found." }
+      }
+    }
+  }
+}

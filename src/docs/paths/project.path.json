@@ -1,0 +1,207 @@
+{
+  "/projects/list": {
+    "get": {
+      "tags": ["Project"],
+      "summary": "List projects",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "page", "in": "query", "default": 1, "schema": { "type": "integer", "minimum": 1 } },
+        { "name": "limit", "in": "query", "default": 10, "schema": { "type": "integer", "minimum": 1, "maximum": 100 } },
+        { "name": "search", "in": "query", "schema": { "type": "string" } },
+        { "name": "sort_by", "in": "query", "schema": { "type": "string", "enum": ["name", "key", "workspace_id", "project_type_id", "project_status_id", "start_date", "end_date", "created_at", "updated_at"] } },
+        { "name": "order_by", "in": "query", "schema": { "type": "string", "enum": ["ASC", "DESC"] } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Paginated projects with workspace, type, and status details.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_PaginationResponse" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/projects/find/{id}": {
+    "get": {
+      "tags": ["Project"],
+      "summary": "Find project by ID",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Project found.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Project not found." }
+      }
+    }
+  },
+  "/projects/create": {
+    "post": {
+      "tags": ["Project"],
+      "summary": "Create project",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/CreateProjectDto" }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Project created.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Workspace, project type, or project status not found." }
+      }
+    }
+  },
+  "/projects/update/{id}": {
+    "put": {
+      "tags": ["Project"],
+      "summary": "Update project",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdateProjectDto" }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Project updated.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Project or referenced workspace, type, or status not found." }
+      }
+    }
+  },
+  "/projects/delete/{id}": {
+    "delete": {
+      "tags": ["Project"],
+      "summary": "Delete project",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Project soft-deleted.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Project not found." }
+      }
+    }
+  },
+  "/project/{id}/change-status": {
+    "put": {
+      "tags": ["Project"],
+      "summary": "Change project status",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ChangeProjectStatusDto" }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Project status changed.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Project or status not found." }
+      }
+    }
+  },
+  "/project/{id}/change-type": {
+    "put": {
+      "tags": ["Project"],
+      "summary": "Change project type",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ChangeProjectTypeDto" }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Project type changed.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Project or type not found." }
+      }
+    }
+  },
+  "/project/{id}/list-milestones": {
+    "get": {
+      "tags": ["Project"],
+      "summary": "List milestones by project ID",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+        { "name": "page", "in": "query", "default": 1, "schema": { "type": "integer", "minimum": 1 } },
+        { "name": "limit", "in": "query", "default": 10, "schema": { "type": "integer", "minimum": 1, "maximum": 100 } },
+        { "name": "search", "in": "query", "schema": { "type": "string" } },
+        { "name": "sort_by", "in": "query", "schema": { "type": "string", "enum": ["title", "due_date", "status", "created_at", "updated_at"] } },
+        { "name": "order_by", "in": "query", "schema": { "type": "string", "enum": ["ASC", "DESC"] } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Paginated milestones for the project.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_PaginationResponse" }
+            }
+          }
+        },
+        "404": { "description": "Project not found." }
+      }
+    }
+  }
+}

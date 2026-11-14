@@ -1,0 +1,57 @@
+{
+  "ProjectMember": {
+    "type": "object",
+    "required": ["id", "project_id", "userId"],
+    "properties": {
+      "id": { "type": "string", "format": "uuid" },
+      "project_id": { "type": "string", "format": "uuid" },
+      "userId": { "type": "string", "format": "uuid" },
+      "position_id": { "type": "string", "format": "uuid", "nullable": true },
+      "project": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "key": { "type": "string" }
+        }
+      },
+      "user": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "avatarUrl": { "type": "string", "nullable": true }
+        }
+      },
+      "position": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" }
+        }
+      },
+      "created_at": { "type": "string", "format": "date-time" },
+      "updated_at": { "type": "string", "format": "date-time" }
+    }
+  },
+  "CreateProjectMemberDto": {
+    "type": "object",
+    "required": ["project_id", "userId"],
+    "properties": {
+      "project_id": { "type": "string", "format": "uuid" },
+      "userId": { "type": "string", "format": "uuid" },
+      "position_id": { "type": "string", "format": "uuid", "nullable": true }
+    }
+  },
+  "UpdateProjectMemberDto": {
+    "type": "object",
+    "minProperties": 1,
+    "properties": {
+      "project_id": { "type": "string", "format": "uuid" },
+      "userId": { "type": "string", "format": "uuid" },
+      "position_id": { "type": "string", "format": "uuid", "nullable": true }
+    }
+  }
+}

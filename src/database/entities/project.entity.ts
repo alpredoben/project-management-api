@@ -22,18 +22,18 @@ export class Project extends AuditBaseEntity {
   workspace!: Workspace;
 
   @Column({ name: 'project_type_id', type: 'uuid', nullable: true })
-  project_type_id!: string;
+  project_type_id!: string | null;
 
   @ManyToOne(() => ProjectType, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'project_type_id' })
-  project_type!: ProjectType;
+  project_type!: ProjectType | null;
 
   @Column({ name: 'project_status_id', type: 'uuid', nullable: true })
-  project_status_id!: string;
+  project_status_id!: string | null;
 
   @ManyToOne(() => ProjectStatus, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'project_status_id' })
-  project_status!: ProjectStatus;
+  project_status!: ProjectStatus | null;
 
   @Column({ type: 'varchar', length: 150, nullable: false })
   name!: string;
@@ -42,13 +42,13 @@ export class Project extends AuditBaseEntity {
   key!: string;
 
   @Column({ type: 'text', nullable: true })
-  description!: string;
+  description!: string | null;
 
   @Column({ name: 'start_date', type: 'date', nullable: true })
-  start_date!: string;
+  start_date!: string | null;
 
   @Column({ name: 'end_date', type: 'date', nullable: true })
-  end_date!: string;
+  end_date!: string | null;
 
   @OneToMany(() => Milestone, (milestone) => milestone.project)
   milestones!: Milestone[];

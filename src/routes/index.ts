@@ -9,6 +9,8 @@ import taskStatusRoute from "../modules/task-status/route";
 import taskTypeRoute from "../modules/task-types/route";
 import workspaceRoute from "../modules/workspaces/route";
 import workspaceMemberRoute from "../modules/workspace-members/route";
+import projectRoute, { projectActionRoute } from "../modules/projects/route";
+import projectMemberRoute from "../modules/project-members/route";
 
 const router = Router();
 
@@ -23,5 +25,8 @@ router.use("/task-status", taskStatusRoute);
 router.use("/task-type", taskTypeRoute);
 router.use("/workspace", workspaceRoute);
 router.use("/workspace-members", workspaceMemberRoute);
+router.use("/projects", projectRoute);
+router.use("/project", projectActionRoute);
+router.use("/project-member", projectMemberRoute);
 
 export default router;

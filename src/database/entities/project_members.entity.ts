@@ -1,9 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { AuditBaseEntity } from './base.entity';
 import { User } from './user.entity';
-import { Role } from './role.entity';
 import { SCHEMA_NAMES } from '../../shared/constants/schemaNames';
 import { Project } from './project.entity';
+import { Position } from './position.entity';
 
 
 @Entity({name: SCHEMA_NAMES.PROJECT_MEMBERS})
@@ -12,23 +12,23 @@ export class ProjectMember extends AuditBaseEntity {
   id!: string;
 
   @Column({ name: 'project_id', type: 'uuid' })
-  projectId!: string;
+  project_id!: string;
 
   @ManyToOne(() => Project, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'project_id' })
   project!: Project;
 
   @Column({ name: 'user_id', type: 'uuid' })
-  userId!: string;
+  user_id!: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user!: User;
 
-  @Column({ name: 'role_id', type: 'uuid', nullable: true })
-  roleId!: string;
+  @Column({ name: 'position_id', type: 'uuid', nullable: true })
+  position_id!: string | null;
 
-  @ManyToOne(() => Role, { onDelete: 'SET NULL', nullable: true })
-  @JoinColumn({ name: 'role_id' })
-  role!: Role;
+  @ManyToOne(() => Position, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'position_id' })
+  position!: Position | null;
 }

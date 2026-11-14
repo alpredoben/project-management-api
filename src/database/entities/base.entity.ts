@@ -14,8 +14,8 @@ export abstract class AuditBaseEntity {
     updated_by!: string;
 
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp with time zone', nullable: true })
-    deleted_at!: Date;
+    deleted_at!: Date | null;
 
   @Column({ name: 'deleted_by', type: 'uuid', nullable: true })
-    deleted_by!: string;
+    deleted_by!: string | null;
 }
