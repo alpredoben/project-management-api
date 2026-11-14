@@ -17,7 +17,7 @@ export class Workspace extends AuditBaseEntity {
   slug!: string;
 
   @Column({ name: 'logo_url', type: 'text', nullable: true })
-  logoUrl!: string;
+  logo_url!: string | null;
 
   @OneToMany(() => Project, (project) => project.workspace)
   projects!: Project[];

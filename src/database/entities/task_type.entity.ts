@@ -12,5 +12,5 @@ export class TaskType extends AuditBaseEntity {
   name!: string;
 
   @Column({ type: 'varchar', length: 50, nullable: true })
-  icon!: string;
+  icon!: string | null;
 }

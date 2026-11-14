@@ -12,26 +12,26 @@ export class WorkspaceMember extends AuditBaseEntity {
   id!: string;
 
   @Column({ name: 'workspace_id', type: 'uuid' })
-  workspaceId!: string;
+  workspace_id!: string;
 
   @ManyToOne(() => Workspace, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'workspace_id' })
   workspace!: Workspace;
 
   @Column({ name: 'user_id', type: 'uuid' })
-  userId!: string;
+  user_id!: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user!: User;
 
   @Column({ name: 'role_id', type: 'uuid', nullable: true })
-  roleId!: string;
+  role_id!: string | null;
 
   @ManyToOne(() => Role, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'role_id' })
-  role!: Role;
+  role!: Role | null;
 
   @Column({ name: 'joined_at', type: 'timestamp with time zone', default: () => 'CURRENT_TIMESTAMP' })
-  joinedAt!: Date;
+  joined_at!: Date;
 }

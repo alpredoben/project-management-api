@@ -24,7 +24,11 @@
       "exactArraySize": "Total item pada {{m}} harus berjumlah {{size}}.",
       "minValue": "Nilai minimal untuk {{m}} adalah {{min}}.",
       "not_supported": "Nilai {{m}} tidak didukung",
-      "exists": "{{m}} sudah digunakan"
+      "exists": "{{m}} sudah digunakan",
+      "invalid_task_status_color": "Warna status tugas harus menggunakan format #RRGGBB.",
+      "invalid_task_status_sequence": "Urutan status tugas harus berupa bilangan bulat nol atau lebih.",
+      "invalid_task_status_closed": "is_closed harus bernilai true atau false.",
+      "invalid_workspace_name": "Nama workspace harus menghasilkan slug yang valid."
     },
     "auth": {
       "failed_credential": "Username atau password salah.",

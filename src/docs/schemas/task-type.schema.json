@@ -1,0 +1,29 @@
+{
+  "TaskType": {
+    "type": "object",
+    "required": ["id", "name", "icon"],
+    "properties": {
+      "id": { "type": "string", "format": "uuid" },
+      "name": { "type": "string", "maxLength": 100 },
+      "icon": { "type": "string", "maxLength": 50, "nullable": true },
+      "created_at": { "type": "string", "format": "date-time" },
+      "updated_at": { "type": "string", "format": "date-time" }
+    }
+  },
+  "CreateTaskTypeDto": {
+    "type": "object",
+    "required": ["name"],
+    "properties": {
+      "name": { "type": "string", "maxLength": 100 },
+      "icon": { "type": "string", "maxLength": 50, "nullable": true }
+    }
+  },
+  "UpdateTaskTypeDto": {
+    "type": "object",
+    "minProperties": 1,
+    "properties": {
+      "name": { "type": "string", "maxLength": 100 },
+      "icon": { "type": "string", "maxLength": 50, "nullable": true }
+    }
+  }
+}

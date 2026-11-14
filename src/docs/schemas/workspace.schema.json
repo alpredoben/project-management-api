@@ -1,0 +1,30 @@
+{
+  "Workspace": {
+    "type": "object",
+    "required": ["id", "name", "slug", "logo_url"],
+    "properties": {
+      "id": { "type": "string", "format": "uuid" },
+      "name": { "type": "string", "maxLength": 150 },
+      "slug": { "type": "string", "maxLength": 150 },
+      "logo_url": { "type": "string", "nullable": true },
+      "created_at": { "type": "string", "format": "date-time" },
+      "updated_at": { "type": "string", "format": "date-time" }
+    }
+  },
+  "CreateWorkspaceDto": {
+    "type": "object",
+    "required": ["name"],
+    "properties": {
+      "name": { "type": "string", "maxLength": 150 },
+      "logo_url": { "type": "string", "nullable": true }
+    }
+  },
+  "UpdateWorkspaceDto": {
+    "type": "object",
+    "minProperties": 1,
+    "properties": {
+      "name": { "type": "string", "maxLength": 150 },
+      "logo_url": { "type": "string", "nullable": true }
+    }
+  }
+}

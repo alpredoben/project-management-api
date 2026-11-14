@@ -1,0 +1,22 @@
+{
+  "CreateTaskStatusDto": {
+    "type": "object",
+    "required": ["name"],
+    "properties": {
+      "name": { "type": "string", "maxLength": 100 },
+      "color_code": { "type": "string", "maxLength": 7, "pattern": "^#[0-9a-fA-F]{6}$", "default": "#FFFFFF" },
+      "sequence_order": { "type": "integer", "minimum": 0, "default": 0 },
+      "is_closed": { "type": "boolean", "default": false }
+    }
+  },
+  "UpdateTaskStatusDto": {
+    "type": "object",
+    "minProperties": 1,
+    "properties": {
+      "name": { "type": "string", "maxLength": 100 },
+      "color_code": { "type": "string", "maxLength": 7, "pattern": "^#[0-9a-fA-F]{6}$" },
+      "sequence_order": { "type": "integer", "minimum": 0 },
+      "is_closed": { "type": "boolean" }
+    }
+  }
+}

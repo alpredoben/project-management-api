@@ -1,0 +1,122 @@
+{
+  "/workspace-members/list": {
+    "get": {
+      "tags": ["Workspace Members"],
+      "summary": "List workspace members",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "page", "in": "query", "default": 1, "schema": { "type": "integer", "minimum": 1 } },
+        { "name": "limit", "in": "query", "default": 10, "schema": { "type": "integer", "minimum": 1, "maximum": 100 } },
+        { "name": "search", "in": "query", "schema": { "type": "string" } },
+        { "name": "sort_by", "in": "query", "schema": { "type": "string", "enum": ["workspace_id", "user_id", "role_id", "joined_at", "created_at", "updated_at"] } },
+        { "name": "order_by", "in": "query", "schema": { "type": "string", "enum": ["ASC", "DESC"] } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Paginated workspace members.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_PaginationResponse" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/workspace-members/find/{id}": {
+    "get": {
+      "tags": ["Workspace Members"],
+      "summary": "Find workspace member by ID",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Workspace member found.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Workspace member not found." }
+      }
+    }
+  },
+  "/workspace-members/create": {
+    "post": {
+      "tags": ["Workspace Members"],
+      "summary": "Create workspace member",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/CreateWorkspaceMemberDto" }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Workspace member created.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/workspace-members/update/{id}": {
+    "put": {
+      "tags": ["Workspace Members"],
+      "summary": "Update workspace member",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdateWorkspaceMemberDto" }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Workspace member updated.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Workspace member not found." }
+      }
+    }
+  },
+  "/workspace-members/delete/{id}": {
+    "delete": {
+      "tags": ["Workspace Members"],
+      "summary": "Delete workspace member",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Workspace member soft-deleted.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Workspace member not found." }
+      }
+    }
+  }
+}

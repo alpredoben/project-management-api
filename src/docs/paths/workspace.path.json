@@ -1,0 +1,126 @@
+{
+  "/workspace/list": {
+    "get": {
+      "tags": ["Workspace"],
+      "summary": "List workspaces",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "page", "in": "query", "default": 1, "schema": { "type": "integer", "minimum": 1 } },
+        { "name": "limit", "in": "query", "default": 10, "schema": { "type": "integer", "minimum": 1, "maximum": 100 } },
+        { "name": "search", "in": "query", "schema": { "type": "string" } },
+        { "name": "sort_by", "in": "query", "schema": { "type": "string", "enum": ["name", "slug", "logo_url", "created_at", "updated_at"] } },
+        { "name": "order_by", "in": "query", "schema": { "type": "string", "enum": ["ASC", "DESC"] } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Paginated workspaces.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_PaginationResponse" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/workspace/find/{id}": {
+    "get": {
+      "tags": ["Workspace"],
+      "summary": "Find workspace by ID",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Workspace found.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Workspace not found." }
+      }
+    }
+  },
+  "/workspace/create": {
+    "post": {
+      "tags": ["Workspace"],
+      "summary": "Create workspace",
+      "description": "The slug is generated from name and must not be supplied.",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/CreateWorkspaceDto" }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Workspace created.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "409": { "description": "Generated workspace slug already exists." }
+      }
+    }
+  },
+  "/workspace/update/{id}": {
+    "put": {
+      "tags": ["Workspace"],
+      "summary": "Update workspace",
+      "description": "When name is provided, slug is regenerated from the new name.",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdateWorkspaceDto" }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Workspace updated.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Workspace not found." },
+        "409": { "description": "Generated workspace slug already exists." }
+      }
+    }
+  },
+  "/workspace/delete/{id}": {
+    "delete": {
+      "tags": ["Workspace"],
+      "summary": "Delete workspace",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Workspace soft-deleted.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Workspace not found." }
+      }
+    }
+  }
+}

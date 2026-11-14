@@ -1,0 +1,123 @@
+{
+  "/task-type/list": {
+    "get": {
+      "tags": ["Task Type"],
+      "summary": "List task types",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "page", "in": "query", "default": 1, "schema": { "type": "integer", "minimum": 1 } },
+        { "name": "limit", "in": "query", "default": 10, "schema": { "type": "integer", "minimum": 1, "maximum": 100 } },
+        { "name": "search", "in": "query", "schema": { "type": "string" } },
+        { "name": "sort_by", "in": "query", "schema": { "type": "string", "enum": ["name", "icon", "created_at", "updated_at"] } },
+        { "name": "order_by", "in": "query", "schema": { "type": "string", "enum": ["ASC", "DESC"] } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Paginated task types.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_PaginationResponse" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/task-type/find/{id}": {
+    "get": {
+      "tags": ["Task Type"],
+      "summary": "Find task type by ID",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Task type found.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/task-type/create": {
+    "post": {
+      "tags": ["Task Type"],
+      "summary": "Create task type",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/CreateTaskTypeDto" }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Task type created.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "409": { "description": "Task type name already exists." }
+      }
+    }
+  },
+  "/task-type/update/{id}": {
+    "put": {
+      "tags": ["Task Type"],
+      "summary": "Update task type",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdateTaskTypeDto" }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Task type updated.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Task type not found." },
+        "409": { "description": "Task type name already exists." }
+      }
+    }
+  },
+  "/task-type/delete/{id}": {
+    "delete": {
+      "tags": ["Task Type"],
+      "summary": "Delete task type",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Task type soft-deleted.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Task type not found." }
+      }
+    }
+  }
+}
