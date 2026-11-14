@@ -122,5 +122,61 @@
         "404": { "description": "Workspace not found." }
       }
     }
+  },
+  "/workspace/{id}/list-members": {
+    "get": {
+      "tags": ["Workspace"],
+      "summary": "List workspace members",
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+        { "name": "page", "in": "query", "default": 1, "schema": { "type": "integer", "minimum": 1 } },
+        { "name": "limit", "in": "query", "default": 10, "schema": { "type": "integer", "minimum": 1, "maximum": 100 } },
+        { "name": "sort_by", "in": "query", "schema": { "type": "string", "enum": ["workspace_id", "user_id", "position_id", "joined_at", "created_at", "updated_at"] } },
+        { "name": "order_by", "in": "query", "schema": { "type": "string", "enum": ["ASC", "DESC"] } },
+        { "name": "search", "in": "query", "schema": { "type": "string" } }
+      ],
+      "security": [{ "bearerAuth": [] }],
+      "responses": {
+        "200": {
+          "description": "Paginated workspace members, including workspace, user, and position details.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_PaginationResponse" }
+            }
+          }
+        },
+        "404": { "description": "Workspace not found." }
+      }
+    }
+  },
+  "/workspace/{id}/add-update-members": {
+    "put": {
+      "tags": ["Workspace"],
+      "summary": "Add or reactivate workspace members",
+      "description": "Adds the supplied users without removing existing members. Existing member positions are preserved; new memberships use a null position.",
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/AddUpdateWorkspaceMembersDto" }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Workspace members added or reactivated.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Workspace not found." }
+      }
+    }
   }
 }

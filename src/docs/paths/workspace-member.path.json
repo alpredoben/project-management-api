@@ -8,7 +8,7 @@
         { "name": "page", "in": "query", "default": 1, "schema": { "type": "integer", "minimum": 1 } },
         { "name": "limit", "in": "query", "default": 10, "schema": { "type": "integer", "minimum": 1, "maximum": 100 } },
         { "name": "search", "in": "query", "schema": { "type": "string" } },
-        { "name": "sort_by", "in": "query", "schema": { "type": "string", "enum": ["workspace_id", "user_id", "role_id", "joined_at", "created_at", "updated_at"] } },
+        { "name": "sort_by", "in": "query", "schema": { "type": "string", "enum": ["workspace_id", "user_id", "position_id", "joined_at", "created_at", "updated_at"] } },
         { "name": "order_by", "in": "query", "schema": { "type": "string", "enum": ["ASC", "DESC"] } }
       ],
       "responses": {

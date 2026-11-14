@@ -6,14 +6,20 @@ import {
   notFoundError,
 } from "../../shared/utils/error.util";
 import i18next from "i18next";
+import { WorkspaceMember } from "../../database/entities/workspace_members.entity";
+import { In_API_AttributMeta } from "../../interfaces/responseApi.interface";
+import { WorkspaceMemberListQuery } from "../workspace-members/dto";
+import { WorkspaceMemberRepository } from "../workspace-members/repository";
 import { WorkspaceListQuery } from "./dto";
 import { WorkspaceRepository } from "./repository";
 
 export class WorkspaceService {
   private readonly repository: WorkspaceRepository;
+  private readonly workspaceMemberRepository: WorkspaceMemberRepository;
 
   constructor() {
     this.repository = new WorkspaceRepository();
+    this.workspaceMemberRepository = new WorkspaceMemberRepository();
   }
 
   fetchPagination(query: WorkspaceListQuery) {
@@ -24,6 +30,23 @@ export class WorkspaceService {
     const workspace = await this.repository.findById(id);
     if (!workspace) throw notFoundError("workspace");
     return workspace;
+  }
+
+  async fetchMembers(
+    id: string,
+    query: WorkspaceMemberListQuery,
+  ): Promise<{ data: WorkspaceMember[]; meta: In_API_AttributMeta }> {
+    await this.findById(id);
+    return this.workspaceMemberRepository.fetchByWorkspaceId(id, query);
+  }
+
+  async addMembers(
+    id: string,
+    userIds: string[],
+    audit: Partial<WorkspaceMember>,
+  ): Promise<void> {
+    await this.findById(id);
+    await this.workspaceMemberRepository.addMembers(id, userIds, audit);
   }
 
   async create(

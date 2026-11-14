@@ -2,6 +2,7 @@ export const SCHEMA_NAMES = {
   USER: 'users',
   ROLES: "roles",
   PERMISSIONS: "permissions",
+  POSITIONS: 'positions',
 
   // Project
   PROJECTS: "projects",

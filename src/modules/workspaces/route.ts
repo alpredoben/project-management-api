@@ -3,9 +3,11 @@ import { authMiddleware } from "../../middleware/auth.middleware";
 import { validationMiddleware as validate } from "../../middleware/validation.middleware";
 import { WorkspaceController } from "./controller";
 import {
+  workspaceAddMembersValidation,
   workspaceCreateValidation,
   workspaceIdValidation,
   workspaceListValidation,
+  workspaceMembersListValidation,
   workspaceUpdateValidation,
 } from "./validate";
 
@@ -41,6 +43,18 @@ router.delete(
   authMiddleware,
   validate(workspaceIdValidation),
   controller.delete,
+);
+router.get(
+  "/:id/list-members",
+  authMiddleware,
+  validate([...workspaceIdValidation, ...workspaceMembersListValidation]),
+  controller.fetchMembers,
+);
+router.put(
+  "/:id/add-update-members",
+  authMiddleware,
+  validate([...workspaceIdValidation, ...workspaceAddMembersValidation]),
+  controller.addMembers,
 );
 
 export default router;

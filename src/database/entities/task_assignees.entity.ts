@@ -12,19 +12,19 @@ export class TaskAssignee extends AuditBaseEntity {
   id!: string;
 
   @Column({ name: 'task_id', type: 'uuid' })
-  taskId!: string;
+  task_id!: string;
 
   @ManyToOne(() => Task, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'task_id' })
   task!: Task;
 
   @Column({ name: 'user_id', type: 'uuid' })
-  userId!: string;
+  user_id!: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user!: User;
 
   @Column({ name: 'assigned_at', type: 'timestamp with time zone', default: () => 'CURRENT_TIMESTAMP' })
-  assignedAt!: Date;
+  assigned_at!: Date;
 }

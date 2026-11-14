@@ -45,6 +45,20 @@ export class CreateInitialSchema1700000000000 implements MigrationInterface {
     `);
 
     await queryRunner.query(`
+      CREATE TABLE "positions" (
+        "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        "name" VARCHAR(150) UNIQUE NOT NULL,
+        "slug" VARCHAR(150) UNIQUE NOT NULL,
+        "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        "created_by" UUID,
+        "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        "updated_by" UUID,
+        "deleted_at" TIMESTAMP WITH TIME ZONE,
+        "deleted_by" UUID
+      );
+    `);
+
+    await queryRunner.query(`
       CREATE TABLE "permissions" (
         "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         "name" VARCHAR(100) UNIQUE NOT NULL,
@@ -172,7 +186,7 @@ export class CreateInitialSchema1700000000000 implements MigrationInterface {
         "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         "workspace_id" UUID REFERENCES "workspaces"("id") ON DELETE CASCADE,
         "user_id" UUID REFERENCES "users"("id") ON DELETE CASCADE,
-        "role_id" UUID REFERENCES "roles"("id") ON DELETE SET NULL,
+        "position_id" UUID REFERENCES "positions"("id") ON DELETE SET NULL,
         "joined_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         "created_by" UUID,
@@ -430,6 +444,7 @@ export class CreateInitialSchema1700000000000 implements MigrationInterface {
     await queryRunner.query(`CREATE INDEX "idx_workspaces_slug" ON "workspaces"("slug");`);
     await queryRunner.query(`CREATE INDEX "idx_workspace_members_workspace_id" ON "workspace_members"("workspace_id");`);
     await queryRunner.query(`CREATE INDEX "idx_workspace_members_user_id" ON "workspace_members"("user_id");`);
+    await queryRunner.query(`CREATE INDEX "idx_workspace_members_position_id" ON "workspace_members"("position_id");`);
     await queryRunner.query(`CREATE INDEX "idx_projects_workspace_id" ON "projects"("workspace_id");`);
     await queryRunner.query(`CREATE INDEX "idx_projects_status_id" ON "projects"("project_status_id");`);
     await queryRunner.query(`CREATE INDEX "idx_projects_key" ON "projects"("key");`);
@@ -481,6 +496,7 @@ export class CreateInitialSchema1700000000000 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE IF EXISTS "project_members";`);
     await queryRunner.query(`DROP TABLE IF EXISTS "projects";`);
     await queryRunner.query(`DROP TABLE IF EXISTS "workspace_members";`);
+    await queryRunner.query(`DROP TABLE IF EXISTS "positions";`);
     await queryRunner.query(`DROP TABLE IF EXISTS "workspaces";`);
     await queryRunner.query(`DROP TABLE IF EXISTS "task_status";`);
     await queryRunner.query(`DROP TABLE IF EXISTS "task_types";`);

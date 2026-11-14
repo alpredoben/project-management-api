@@ -44,6 +44,25 @@ export const workspaceIdValidation = [
   param("id").isUUID().withMessage(mustUUID("id")),
 ];
 
+export const workspaceMembersListValidation = listQueryValidation([
+  "workspace_id",
+  "user_id",
+  "position_id",
+  "joined_at",
+  "created_at",
+  "updated_at",
+]);
+
+export const workspaceAddMembersValidation = [
+  body("user_ids")
+    .exists()
+    .withMessage(required("user_ids"))
+    .bail()
+    .isArray({ min: 1 })
+    .withMessage(t("error.default.minArray", { m: "user_ids", min: "1" })),
+  body("user_ids.*").isUUID().withMessage(mustUUID("user_ids")),
+];
+
 export const workspaceCreateValidation = [
   nameValidation(),
   logoUrlValidation(),

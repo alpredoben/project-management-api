@@ -5,13 +5,13 @@ import { SCHEMA_NAMES } from '../../shared/constants/schemaNames';
 
 
 @Entity({name: SCHEMA_NAMES.MILESTONES})
-@Index(['projectId'])
+@Index(['project_id'])
 export class Milestone extends AuditBaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @Column({ name: 'project_id', type: 'uuid' })
-  projectId!: string;
+  project_id!: string;
 
   @ManyToOne(() => Project, (project) => project.milestones, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'project_id' })

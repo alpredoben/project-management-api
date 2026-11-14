@@ -3,7 +3,7 @@ import { In_DTO_ListQuery } from "../../interfaces/dto.interface";
 export const WORKSPACE_MEMBER_SORT_FIELDS = [
   "workspace_id",
   "user_id",
-  "role_id",
+  "position_id",
   "joined_at",
   "created_at",
   "updated_at",

@@ -34,7 +34,7 @@ export class WorkspaceMemberController {
       service.create({
         workspace_id: req.body.workspace_id,
         user_id: req.body.user_id,
-        role_id: req.body.role_id ?? null,
+        position_id: req.body.position_id ?? null,
         ...(req.body.joined_at !== undefined
           ? { joined_at: new Date(req.body.joined_at) }
           : {}),
@@ -48,7 +48,7 @@ export class WorkspaceMemberController {
     "anggota workspace",
     (req) =>
       service.update(reqIdParam(req), {
-        ...pick(req.body, ["workspace_id", "user_id", "role_id"]),
+        ...pick(req.body, ["workspace_id", "user_id", "position_id"]),
         ...(req.body.joined_at !== undefined
           ? { joined_at: new Date(req.body.joined_at) }
           : {}),

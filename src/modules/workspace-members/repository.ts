@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { Repository, SelectQueryBuilder } from "typeorm";
 import { OpenDataSource } from "../../database/data-source";
 import { WorkspaceMember } from "../../database/entities/workspace_members.entity";
 import { In_API_AttributMeta } from "../../interfaces/responseApi.interface";
@@ -15,20 +15,63 @@ export class WorkspaceMemberRepository {
   async fetchPagination(
     query: WorkspaceMemberListQuery,
   ): Promise<{ data: WorkspaceMember[]; meta: In_API_AttributMeta }> {
+    return this.fetchPaginated(this.createPaginationQuery(query), query);
+  }
+
+  async fetchByWorkspaceId(
+    workspaceId: string,
+    query: WorkspaceMemberListQuery,
+  ): Promise<{ data: WorkspaceMember[]; meta: In_API_AttributMeta }> {
+    const queryBuilder = this.createPaginationQuery(query).andWhere(
+      "workspace.id = :workspaceId",
+      { workspaceId },
+    );
+
+    return this.fetchPaginated(queryBuilder, query);
+  }
+
+  async addMembers(
+    workspaceId: string,
+    userIds: string[],
+    audit: Partial<WorkspaceMember>,
+  ): Promise<void> {
+    const values = [...new Set(userIds)].map((user_id) => ({
+      workspace_id: workspaceId,
+      user_id,
+      created_by: audit.created_by,
+      updated_by: audit.updated_by,
+      updated_at: audit.updated_at,
+    }));
+
+    await this.workspaceMembers
+      .createQueryBuilder()
+      .insert()
+      .into(WorkspaceMember)
+      .values(values)
+      .orUpdate(
+        ["deleted_at", "deleted_by", "updated_at", "updated_by"],
+        ["workspace_id", "user_id"],
+      )
+      .execute();
+  }
+
+  private createPaginationQuery(
+    query: WorkspaceMemberListQuery,
+  ): SelectQueryBuilder<WorkspaceMember> {
     const queryBuilder = this.workspaceMembers
       .createQueryBuilder("workspaceMember")
       .select([
         "workspaceMember.id",
         "workspaceMember.workspace_id",
         "workspaceMember.user_id",
-        "workspaceMember.role_id",
+        "workspaceMember.position_id",
         "workspaceMember.joined_at",
         "workspaceMember.created_at",
         "workspaceMember.updated_at",
       ])
       .leftJoin("workspaceMember.workspace", "workspace")
       .leftJoin("workspaceMember.user", "user")
-      .leftJoin("workspaceMember.role", "role")
+      .leftJoin("workspaceMember.position", "position")
       .addSelect([
         "workspace.id",
         "workspace.name",
@@ -37,22 +80,25 @@ export class WorkspaceMemberRepository {
         "user.id",
         "user.name",
         "user.avatarUrl",
-        "role.id",
-        "role.name",
-        "role.slug",
+        "position.id",
+        "position.name",
+        "position.slug",
       ]);
 
     if (query.search) {
       queryBuilder.andWhere(
-        `(
-          CAST(workspaceMember.workspace_id AS TEXT) ILIKE :search
-          OR CAST(workspaceMember.user_id AS TEXT) ILIKE :search
-          OR CAST(workspaceMember.role_id AS TEXT) ILIKE :search
-        )`,
+        "(LOWER(user.name) LIKE LOWER(:search) OR LOWER(position.name) LIKE LOWER(:search))",
         { search: `%${query.search}%` },
       );
     }
 
+    return queryBuilder;
+  }
+
+  private async fetchPaginated(
+    queryBuilder: SelectQueryBuilder<WorkspaceMember>,
+    query: WorkspaceMemberListQuery,
+  ): Promise<{ data: WorkspaceMember[]; meta: In_API_AttributMeta }> {
     const [data, totalItems] = await queryBuilder
       .orderBy(`workspaceMember.${query.sortBy}`, query.orderBy)
       .skip((query.page - 1) * query.limit)

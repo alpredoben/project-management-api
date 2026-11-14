@@ -1,4 +1,5 @@
 import { OpenDataSource } from "../data-source";
+import { positionSeeder } from "./position.seeder";
 import { rolesSeeder } from "./roles.seeder";
 import { userSeeder } from "./user.seeder";
 
@@ -6,6 +7,7 @@ const runSeeders = async (): Promise<void> => {
    await OpenDataSource.initialize();
   try {
     await OpenDataSource.transaction(async (manager) => {
+      await positionSeeder.seed(manager);
       await rolesSeeder.seed(manager);
       await userSeeder.seed(manager);
     });

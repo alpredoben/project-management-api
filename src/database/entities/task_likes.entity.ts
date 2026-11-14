@@ -5,20 +5,20 @@ import { User } from './user.entity';
 import { SCHEMA_NAMES } from '../../shared/constants/schemaNames';
 
 @Entity({name: SCHEMA_NAMES.TASK_LIKES})
-@Index(['taskId'])
+@Index(['task_id'])
 export class TaskLike extends AuditBaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @Column({ name: 'task_id', type: 'uuid' })
-  taskId!: string;
+  task_id!: string;
 
   @ManyToOne(() => Task, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'task_id' })
   task!: Task;
 
   @Column({ name: 'user_id', type: 'uuid' })
-  userId!: string;
+  user_id!: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })

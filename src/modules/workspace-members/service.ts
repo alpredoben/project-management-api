@@ -34,7 +34,7 @@ export class WorkspaceMemberService {
       member.workspace_id = input.workspace_id;
     }
     if (input.user_id !== undefined) member.user_id = input.user_id;
-    if (input.role_id !== undefined) member.role_id = input.role_id;
+    if (input.position_id !== undefined) member.position_id = input.position_id;
     if (input.joined_at !== undefined) member.joined_at = input.joined_at;
 
     return this.repository.save({

@@ -18,11 +18,11 @@ const uuidValidation = (
   return validation.isUUID().withMessage(mustUUID(field));
 };
 
-const roleIdValidation = () =>
-  body("role_id")
+const positionIdValidation = () =>
+  body("position_id")
     .optional({ nullable: true })
     .isUUID()
-    .withMessage(mustUUID("role_id"));
+    .withMessage(mustUUID("position_id"));
 
 const joinedAtValidation = () =>
   body("joined_at")
@@ -41,19 +41,19 @@ export const workspaceMemberIdValidation = [
 export const workspaceMemberCreateValidation = [
   uuidValidation("workspace_id"),
   uuidValidation("user_id"),
-  roleIdValidation(),
+  positionIdValidation(),
   joinedAtValidation(),
 ];
 
 export const workspaceMemberUpdateValidation = [
   uuidValidation("workspace_id", true),
   uuidValidation("user_id", true),
-  roleIdValidation(),
+  positionIdValidation(),
   joinedAtValidation(),
   atLeastOneOf(
-    ["workspace_id", "user_id", "role_id", "joined_at"],
+    ["workspace_id", "user_id", "position_id", "joined_at"],
     t("error.default.required", {
-      m: "workspace_id, user_id, role_id, atau joined_at",
+      m: "workspace_id, user_id, position_id, atau joined_at",
     }),
   ),
 ];
