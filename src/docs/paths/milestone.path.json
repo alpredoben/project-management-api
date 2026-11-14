@@ -1,0 +1,123 @@
+{
+  "/milestone/list": {
+    "get": {
+      "tags": ["Milestone"],
+      "summary": "List milestones",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "page", "in": "query", "default": 1, "schema": { "type": "integer", "minimum": 1 } },
+        { "name": "limit", "in": "query", "default": 10, "schema": { "type": "integer", "minimum": 1, "maximum": 100 } },
+        { "name": "search", "in": "query", "schema": { "type": "string" } },
+        { "name": "sort_by", "in": "query", "schema": { "type": "string", "enum": ["project_id", "title", "due_date", "status", "created_at", "updated_at"] } },
+        { "name": "order_by", "in": "query", "schema": { "type": "string", "enum": ["ASC", "DESC"] } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Paginated milestones with project details.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_PaginationResponse" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/milestone/find/{id}": {
+    "get": {
+      "tags": ["Milestone"],
+      "summary": "Find milestone by ID",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Milestone found.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Milestone not found." }
+      }
+    }
+  },
+  "/milestone/create": {
+    "post": {
+      "tags": ["Milestone"],
+      "summary": "Create milestone",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/CreateMilestoneDto" }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Milestone created.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Project not found." }
+      }
+    }
+  },
+  "/milestone/update/{id}": {
+    "put": {
+      "tags": ["Milestone"],
+      "summary": "Update milestone",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdateMilestoneDto" }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Milestone updated.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Milestone or referenced project not found." }
+      }
+    }
+  },
+  "/milestone/delete/{id}": {
+    "delete": {
+      "tags": ["Milestone"],
+      "summary": "Delete milestone",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Milestone soft-deleted.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        },
+        "404": { "description": "Milestone not found." }
+      }
+    }
+  }
+}

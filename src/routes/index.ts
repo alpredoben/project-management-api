@@ -11,6 +11,7 @@ import workspaceRoute from "../modules/workspaces/route";
 import workspaceMemberRoute from "../modules/workspace-members/route";
 import projectRoute, { projectActionRoute } from "../modules/projects/route";
 import projectMemberRoute from "../modules/project-members/route";
+import milestoneRoute from "../modules/milestones/route";
 
 const router = Router();
 
@@ -28,5 +29,6 @@ router.use("/workspace-members", workspaceMemberRoute);
 router.use("/projects", projectRoute);
 router.use("/project", projectActionRoute);
 router.use("/project-member", projectMemberRoute);
+router.use("/milestone", milestoneRoute);
 
 export default router;

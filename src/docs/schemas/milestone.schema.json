@@ -1,0 +1,46 @@
+{
+  "Milestone": {
+    "type": "object",
+    "required": ["id", "project_id", "title", "status"],
+    "properties": {
+      "id": { "type": "string", "format": "uuid" },
+      "project_id": { "type": "string", "format": "uuid" },
+      "title": { "type": "string", "maxLength": 150 },
+      "description": { "type": "string", "nullable": true },
+      "dueDate": { "type": "string", "format": "date", "nullable": true },
+      "status": { "type": "string", "maxLength": 50, "default": "open" },
+      "created_at": { "type": "string", "format": "date-time" },
+      "updated_at": { "type": "string", "format": "date-time" },
+      "project": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "key": { "type": "string" }
+        }
+      }
+    }
+  },
+  "CreateMilestoneDto": {
+    "type": "object",
+    "required": ["project_id", "title"],
+    "properties": {
+      "project_id": { "type": "string", "format": "uuid" },
+      "title": { "type": "string", "maxLength": 150 },
+      "description": { "type": "string", "nullable": true },
+      "dueDate": { "type": "string", "format": "date", "nullable": true },
+      "status": { "type": "string", "maxLength": 50, "default": "open" }
+    }
+  },
+  "UpdateMilestoneDto": {
+    "type": "object",
+    "minProperties": 1,
+    "properties": {
+      "project_id": { "type": "string", "format": "uuid" },
+      "title": { "type": "string", "maxLength": 150 },
+      "description": { "type": "string", "nullable": true },
+      "dueDate": { "type": "string", "format": "date", "nullable": true },
+      "status": { "type": "string", "maxLength": 50 }
+    }
+  }
+}

@@ -21,10 +21,10 @@ export class Milestone extends AuditBaseEntity {
   title!: string;
 
   @Column({ type: 'text', nullable: true })
-  description!: string;
+  description!: string | null;
 
   @Column({ name: 'due_date', type: 'date', nullable: true })
-  dueDate!: string;
+  dueDate!: string | null;
 
   @Column({ type: 'varchar', length: 50, default: 'open' })
   status!: string;
