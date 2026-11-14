@@ -50,7 +50,10 @@ dev-check-env:
 
 # Start development infrastructure
 dev-up: dev-check-env dev-network
-	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) up -d --force-recreate
+	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) up -d --force-recreate --remove-orphans --renew-anon-volumes
+
+dev-rebuild-app:
+	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) up -d --build $(CONTAINER_API_DEV)
 
 # Build development image without cache
 dev-build-no-cache: dev-check-env dev-network
@@ -86,6 +89,12 @@ dev-compose-migrate:
 # Revert last database migration via Docker Compose
 dev-compose-migrate-revert:
 	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) exec $(SERVICE_DEV_NAME) npm run migration:revert
+
+dev-restart-queue:
+	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) restart $(CONTAINER_RABBIT_DEV)
+
+dev-restart-app:
+	docker compose -p $(PROJECT_DEV) --env-file $(ENV_DEV) -f $(COMPOSE_DEV) restart $(CONTAINER_API_DEV) 
 
 # Run Seeder 
 dev-compose-seed:

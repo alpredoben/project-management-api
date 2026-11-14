@@ -11,5 +11,5 @@ export class ProjectType extends AuditBaseEntity {
   name!: string;
 
   @Column({ type: 'text', nullable: true })
-  description!: string;
+  description!: string | null;
 }

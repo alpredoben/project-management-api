@@ -20,9 +20,7 @@
               "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
             }
           }
-        },
-        "409": { "description": "Email or NIP is already registered." },
-        "422": { "description": "Request validation failed." }
+        }
       }
     }
   },
@@ -40,8 +38,14 @@
         }
       ],
       "responses": {
-        "200": { "description": "Email verified." },
-        "400": { "description": "Token is invalid or expired." }
+        "200": {
+          "description": "Email verified.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        }
       }
     }
   },
@@ -63,42 +67,10 @@
       },
       "responses": {
         "200": {
-          "description": "Login successful.",
+           "description": "Login successful.",
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginResponse"
-              }
-            }
-          }
-        },
-        "401": {
-          "description": "Email/password is incorrect, the account is inactive, or email is not verified.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/In_ErrorResponse"
-              }
-            }
-          }
-        },
-        "422": {
-          "description": "Request validation failed.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/In_ErrorResponse"
-              }
-            }
-          }
-        },
-        "500": {
-          "description": "Unexpected server error.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/In_ErrorResponse"
-              }
+              "schema": { "$ref": "#/components/schemas/LoginResponse" }
             }
           }
         }
@@ -119,8 +91,14 @@
         }
       },
       "responses": {
-        "200": { "description": "Reset instructions sent if the account exists." },
-        "422": { "description": "Request validation failed." }
+        "200": {
+          "description": "Reset instructions sent if the account exists.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        }
       }
     }
   },
@@ -147,9 +125,14 @@
         }
       },
       "responses": {
-        "200": { "description": "Password changed." },
-        "400": { "description": "Token is invalid or expired." },
-        "422": { "description": "Request validation failed." }
+        "200": {
+          "description": "Password changed.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        }
       }
     }
   },
@@ -168,8 +151,14 @@
         }
       },
       "responses": {
-        "200": { "description": "New access and refresh tokens issued." },
-        "401": { "description": "Refresh token is invalid, expired, or already used." }
+        "200": {
+         "description": "New access and refresh tokens issued.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        }
       }
     }
   },
@@ -199,36 +188,6 @@
               }
             }
           }
-        },
-        "401": {
-          "description": "Refresh token is invalid, expired, revoked, or already used.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/In_ErrorResponse"
-              }
-            }
-          }
-        },
-        "422": {
-          "description": "Request validation failed.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/In_ErrorResponse"
-              }
-            }
-          }
-        },
-        "500": {
-          "description": "Unexpected server error.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/In_ErrorResponse"
-              }
-            }
-          }
         }
       }
     }
@@ -250,27 +209,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/LogoutResponse"
-              }
-            }
-          }
-        },
-        "401": {
-          "description": "Access token is missing, invalid, expired, or not an access token.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/In_ErrorResponse"
-              }
-            }
-          }
-        },
-        "500": {
-          "description": "Unexpected server error.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/In_ErrorResponse"
+                "$ref": "#/components/schemas/In_SuccessResponse"
               }
             }
           }
@@ -295,27 +234,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CurrentUserResponse"
-              }
-            }
-          }
-        },
-        "401": {
-          "description": "Access token is missing, invalid, expired, or the user is inactive.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/In_ErrorResponse"
-              }
-            }
-          }
-        },
-        "500": {
-          "description": "Unexpected server error.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/In_ErrorResponse"
+                "$ref": "#/components/schemas/In_SuccessResponse"
               }
             }
           }

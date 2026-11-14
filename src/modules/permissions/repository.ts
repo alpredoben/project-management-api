@@ -12,7 +12,7 @@ export class PermissionRepository {
     this.permissions = OpenDataSource.getRepository(Permission);
   }
 
-  async findAll(
+  async fetchPagination(
     query: PermissionListQuery,
   ): Promise<{ data: Permission[]; meta: In_API_AttributMeta }> {
     const queryBuilder = this.permissions
@@ -22,8 +22,8 @@ export class PermissionRepository {
         "permission.name",
         "permission.module",
         "permission.description",
-        "permission.createdAt",
-        "permission.updatedAt",
+        "permission.created_at",
+        "permission.updated_at",
       ]);
 
     if (query.search) {
@@ -63,7 +63,6 @@ export class PermissionRepository {
   }
 
   async softDelete(permission: Permission): Promise<void> {
-    permission.deletedAt = new Date();
     await this.permissions.save(permission);
   }
 }

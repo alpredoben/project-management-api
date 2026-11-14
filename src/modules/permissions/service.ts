@@ -1,9 +1,7 @@
 import { Permission } from "../../database/entities/permission.entity";
 import { existsError, notFoundError } from "../../shared/utils/error.util";
 import {
-  CreatePermissionDto,
   PermissionListQuery,
-  UpdatePermissionDto,
 } from "./dto";
 import { PermissionRepository } from "./repository";
 
@@ -14,8 +12,8 @@ export class PermissionService {
     this.repository = new PermissionRepository();
   }
 
-  list(query: PermissionListQuery) {
-    return this.repository.findAll(query);
+  fetchPagination(query: PermissionListQuery) {
+    return this.repository.fetchPagination(query);
   }
 
   async findById(id: string): Promise<Permission> {
@@ -26,16 +24,15 @@ export class PermissionService {
     return permission;
   }
 
-  async create(input: CreatePermissionDto): Promise<Permission> {
-    if (await this.repository.findByName(input.name)) {
-      throw existsError("permission");
+  async create(input: Partial<Permission>): Promise<Permission> {
+    if (input.name !== undefined) {
+      const existRow = await this.repository.findByName(input.name);
+      if (existRow) {
+        throw existsError("permission");
+      }
     }
 
-    const permission = this.repository.create({
-      name: input.name,
-      module: input.module,
-      description: input.description ?? null,
-    });
+    const permission = this.repository.create(input);
 
     try {
       return await this.repository.save(permission);
@@ -47,7 +44,7 @@ export class PermissionService {
     }
   }
 
-  async update(id: string, input: UpdatePermissionDto): Promise<Permission> {
+  async update(id: string, input: Partial<Permission>): Promise<Permission> {
     const permission = await this.findById(id);
 
     if (
@@ -65,7 +62,11 @@ export class PermissionService {
     }
 
     try {
-      return await this.repository.save(permission);
+      return await this.repository.save({
+        ...permission,
+        updated_at: input.updated_at ?? permission.updated_at,
+        updated_by: input.updated_by ?? permission.updated_by
+      });
     } catch (error) {
       if (this.isUniqueConstraintError(error)) {
         throw existsError("permission");
@@ -74,9 +75,12 @@ export class PermissionService {
     }
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string, payload: Partial<Permission>): Promise<void> {
     const permission = await this.findById(id);
-    await this.repository.softDelete(permission);
+    if(!permission) {
+      throw notFoundError('permission') 
+    }
+    await this.repository.softDelete({...permission, ...payload});
   }
 
   private isUniqueConstraintError(error: unknown): boolean {

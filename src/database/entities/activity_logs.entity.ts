@@ -8,7 +8,7 @@ import { SCHEMA_NAMES } from '../../shared/constants/schemaNames';
 @Index(['workspaceId'])
 @Index(['userId'])
 @Index(['entityType', 'entityId'])
-@Index(['createdAt'])
+@Index(['created_at'])
 export class ActivityLog extends AuditBaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;

@@ -6,26 +6,18 @@
       "email": {
         "type": "string",
         "format": "email",
-        "example": "admin@example.com",
-        "default": "admin@example.com"
+        "default": "superadmin@system.com"
       },
       "password": {
         "type": "string",
         "format": "password",
         "writeOnly": true,
-        "example": "c0mplexP@ssw0rd",
-        "default": "c0mplexP@ssw0rd"
+        "default": "password123"
       },
       "remember_password": {
         "type": "boolean",
-        "default": false,
-        "example": false
+        "default": false
       }
-    },
-    "example": {
-      "email": "admin@example.com",
-      "password": "c0mplexP@ssw0rd",
-      "remember_password": false
     }
   },
   "RegisterDto": {

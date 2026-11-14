@@ -1,6 +1,6 @@
 import { HTTP_STATUS } from "../../shared/constants";
 import { handle, handleList, pick } from "../../shared/utils/controller.util";
-import { reqIdParam } from "../../shared/utils/helper";
+import { makeBaseAudit, reqIdParam } from "../../shared/utils/helper";
 import {
   PERMISSION_SORT_FIELDS,
   PermissionSortField,
@@ -8,11 +8,11 @@ import {
 import { permissionService as service } from "./service";
 
 export class PermissionController {
-  list = handleList<PermissionSortField>(
+  fetchPagination = handleList<PermissionSortField>(
     "permission",
     PERMISSION_SORT_FIELDS,
-    "createdAt",
-    (query) => service.list(query),
+    "created_at",
+    (query) => service.fetchPagination(query),
   );
 
   findById = handle(HTTP_STATUS.OK, "retrieved", "permission", (req) =>
@@ -23,18 +23,22 @@ export class PermissionController {
     service.create({
       name: req.body.name,
       module: req.body.module,
-      description: req.body.description,
+      description: req.body.description ?? null,
+      ...makeBaseAudit(req, 'create')
     }),
   );
 
   update = handle(HTTP_STATUS.OK, "updated", "permission", (req) =>
     service.update(
       reqIdParam(req),
-      pick(req.body, ["name", "module", "description"]),
+      {
+        ...pick(req.body, ["name", "module", "description"]),
+        ...makeBaseAudit(req, 'update')
+      },
     ),
   );
 
   delete = handle(HTTP_STATUS.OK, "deleted", "permission", (req) =>
-    service.delete(reqIdParam(req)),
+    service.delete(reqIdParam(req), makeBaseAudit(req, 'delete')),
   );
 }

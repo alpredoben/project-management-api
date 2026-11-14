@@ -3,7 +3,7 @@ import { AuditBaseEntity } from './base.entity';
 import { SCHEMA_NAMES } from '../../shared/constants/schemaNames';
 
 @Entity({name: SCHEMA_NAMES.TASK_STATUS})
-@Index(['sequenceOrder'])
+@Index(['sequence_order'])
 export class TaskStatus extends AuditBaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
@@ -12,11 +12,11 @@ export class TaskStatus extends AuditBaseEntity {
   name!: string;
 
   @Column({ name: 'color_code', type: 'varchar', length: 7, default: '#FFFFFF' })
-  colorCode!: string;
+  color_code!: string;
 
   @Column({ name: 'sequence_order', type: 'int', default: 0 })
-  sequenceOrder!: number;
+  sequence_order!: number;
 
   @Column({ name: 'is_closed', type: 'boolean', default: false })
-  isClosed!: boolean;
+  is_closed!: boolean;
 }

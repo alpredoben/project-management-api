@@ -2,20 +2,20 @@ import { CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Column } from 'ty
 
 export abstract class AuditBaseEntity {
   @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone', default: () => 'CURRENT_TIMESTAMP' })
-    createdAt!: Date;
+    created_at!: Date;
 
   @Column({ name: 'created_by', type: 'uuid', nullable: true })
-    createdBy!: string;
+    created_by!: string;
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp with time zone', default: () => 'CURRENT_TIMESTAMP' })
-    updatedAt!: Date;
+    updated_at!: Date;
 
   @Column({ name: 'updated_by', type: 'uuid', nullable: true })
-    updatedBy!: string;
+    updated_by!: string;
 
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp with time zone', nullable: true })
-    deletedAt!: Date;
+    deleted_at!: Date;
 
   @Column({ name: 'deleted_by', type: 'uuid', nullable: true })
-    deletedBy!: string;
+    deleted_by!: string;
 }

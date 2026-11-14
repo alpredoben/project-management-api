@@ -1,6 +1,5 @@
 import { OpenDataSource } from "../data-source";
 import { rolesSeeder } from "./roles.seeder";
-import { seedSuperAdmin } from "./superadmin.seeder";
 import { userSeeder } from "./user.seeder";
 
 const runSeeders = async (): Promise<void> => {

@@ -14,31 +14,31 @@ export const makeBaseAudit = (
   switch (type) {
     case "create":
       return {
-        createdAt: today,
-        updatedAt: today,
-        createdBy: req.user?.id,
-        updatedBy: req.user?.id,
+        created_at: today,
+        updated_at: today,
+        created_by: req.user?.id,
+        updated_by: req.user?.id,
       };
     case "update":
       return {
-        updatedAt: today,
-        updatedBy: req.user?.id,
+        updated_at: today,
+        updated_by: req.user?.id,
       };
 
     case "delete":
       return {
-        deletedAt: today,
-        deletedBy: req.user?.id,
+        deleted_at: today,
+        deleted_by: req.user?.id,
       };
 
     default:
       return {
-        createdAt: today,
-        updatedAt: today,
-        deletedAt: today,
-        createdBy: req.user?.id,
-        updatedBy: req.user?.id,
-        deletedBy: req.user?.id,
+        created_at: today,
+        updated_at: today,
+        deleted_at: today,
+        created_by: req.user?.id,
+        updated_by: req.user?.id,
+        deleted_by: req.user?.id,
       };
   }
 };

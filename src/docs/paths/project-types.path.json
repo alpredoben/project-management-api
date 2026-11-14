@@ -1,0 +1,121 @@
+{
+  "/project-types/list": {
+    "get": {
+      "tags": ["Project Type"],
+      "summary": "List project types",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "page", "in": "query", "default": 1, "schema": { "type": "integer", "minimum": 1 } },
+        { "name": "limit", "in": "query", "default": 10, "schema": { "type": "integer", "minimum": 1, "maximum": 100 } },
+        { "name": "search", "in": "query", "schema": { "type": "string" } },
+        { "name": "sort_by", "in": "query", "schema": { "type": "string", "enum": ["name", "created_at", "updated_at"] } },
+        { "name": "order_by", "in": "query", "schema": { "type": "string", "enum": ["ASC", "DESC"] } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Paginated project types.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_PaginationResponse" }
+            }
+          }
+        },
+        "401": { "description": "Authentication token is missing or invalid." },
+        "422": { "description": "Invalid pagination or filter parameters." }
+      }
+    }
+  },
+  "/project-types/find/{id}": {
+    "get": {
+      "tags": ["Project Type"],
+      "summary": "Find project type by ID",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Project type found.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/project-types/create": {
+    "post": {
+      "tags": ["Project Type"],
+      "summary": "Create project type",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/CreateProjectTypeDto" }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Project type created.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/project-types/update/{id}": {
+    "put": {
+      "tags": ["Project Type"],
+      "summary": "Update project type",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdateProjectTypeDto" }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Project type updated.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/project-types/delete/{id}": {
+    "delete": {
+      "tags": ["Project Type"],
+      "summary": "Delete project type",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Project type soft-deleted.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

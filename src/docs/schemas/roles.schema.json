@@ -1,0 +1,58 @@
+{
+  "Role": {
+    "type": "object",
+    "required": ["id", "name", "slug", "description", "permissions"],
+    "properties": {
+      "id": { "type": "string", "format": "uuid" },
+      "name": { "type": "string", "maxLength": 150 },
+      "slug": { "type": "string", "maxLength": 150 },
+      "description": { "type": "string", "nullable": true },
+      "permissions": {
+        "type": "array",
+        "items": { "$ref": "#/components/schemas/Permission" }
+      },
+      "created_at": { "type": "string", "format": "date-time" },
+      "updated_at": { "type": "string", "format": "date-time" }
+    }
+  },
+  "CreateRoleDto": {
+    "type": "object",
+    "required": ["name"],
+    "properties": {
+      "name": { "type": "string", "maxLength": 150 },
+      "description": { "type": "string", "nullable": true }
+    }
+  },
+  "UpdateRoleDto": {
+    "type": "object",
+    "minProperties": 1,
+    "properties": {
+      "name": { "type": "string", "maxLength": 150 },
+      "description": { "type": "string", "nullable": true }
+    }
+  },
+  "RoleResponse": {
+    "allOf": [
+      { "$ref": "#/components/schemas/In_SuccessResponse" },
+      {
+        "type": "object",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/Role" }
+        }
+      }
+    ]
+  },
+  "RoleListResponse": {
+    "type": "object",
+    "properties": {
+      "success": { "type": "boolean", "example": true },
+      "message": { "type": "string" },
+      "data": {
+        "type": "array",
+        "items": { "$ref": "#/components/schemas/Role" }
+      },
+      "meta": { "$ref": "#/components/schemas/In_MetaResponse" },
+      "timestamp": { "type": "string", "format": "date-time" }
+    }
+  }
+}

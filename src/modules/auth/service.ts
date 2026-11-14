@@ -86,6 +86,8 @@ export class AuthService {
     const user = await this.repository.findByEmail(
       input.email.trim().toLowerCase(),
     );
+
+    console.log('Data user', user)
     if (
       !user ||
       !user.isActive ||

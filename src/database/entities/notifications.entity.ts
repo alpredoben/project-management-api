@@ -5,7 +5,7 @@ import { SCHEMA_NAMES } from '../../shared/constants/schemaNames';
 
 @Entity({name: SCHEMA_NAMES.NOTIFICATIONS})
 @Index(['userId', 'isRead'], { where: 'is_read = FALSE' }) // Partial Index
-@Index(['createdAt'])
+@Index(['created_at'])
 export class Notification extends AuditBaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;

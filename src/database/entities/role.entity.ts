@@ -16,7 +16,7 @@ export class Role extends AuditBaseEntity {
   slug!: string;
 
   @Column({ type: 'text', nullable: true })
-  description!: string;
+  description!: string | null;
 
   @ManyToMany(() => Permission, (permission) => permission.roles)
   @JoinTable({

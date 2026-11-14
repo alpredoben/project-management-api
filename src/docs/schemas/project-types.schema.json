@@ -1,0 +1,18 @@
+{
+  "CreateProjectTypeDto": {
+    "type": "object",
+    "required": ["name"],
+    "properties": {
+      "name": { "type": "string", "maxLength": 100 },
+      "description": { "type": "string", "nullable": true }
+    }
+  },
+  "UpdateProjectTypeDto": {
+    "type": "object",
+    "minProperties": 1,
+    "properties": {
+      "name": { "type": "string", "maxLength": 100 },
+      "description": { "type": "string", "nullable": true }
+    }
+  }
+}

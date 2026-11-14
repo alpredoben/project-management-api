@@ -11,6 +11,7 @@ const userAccount = {
   email: "superadmin@system.com",
   password: "password123",
   isActive: true,
+  isEmailVerified: true,
   roleName: "Super Admin",
 };
 
@@ -109,6 +110,7 @@ export class UserSeeder {
         password: hashedPassword,
         passwordHash: hashedPassword,
         isActive: userAccount.isActive,
+        isEmailVerified: userAccount.isEmailVerified,
         roles: [superAdminRole],
       } as Partial<User>);
     } else {

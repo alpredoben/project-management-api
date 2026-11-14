@@ -1,0 +1,119 @@
+{
+  "/project-status/list": {
+    "get": {
+      "tags": ["Project Status"],
+      "summary": "List project statuses",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "page", "in": "query", "default": 1, "schema": { "type": "integer", "minimum": 1 } },
+        { "name": "limit", "in": "query", "default": 10, "schema": { "type": "integer", "minimum": 1, "maximum": 100 } },
+        { "name": "search", "in": "query", "schema": { "type": "string" } },
+        { "name": "sort_by", "in": "query", "schema": { "type": "string", "enum": ["name", "color_code", "sequence_order", "created_at", "updated_at"] } },
+        { "name": "order_by", "in": "query", "schema": { "type": "string", "enum": ["ASC", "DESC"] } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Paginated project statuses.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_PaginationResponse" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/project-status/find/{id}": {
+    "get": {
+      "tags": ["Project Status"],
+      "summary": "Find project status by ID",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Project status found.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/project-status/create": {
+    "post": {
+      "tags": ["Project Status"],
+      "summary": "Create project status",
+      "security": [{ "bearerAuth": [] }],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/CreateProjectStatusDto" }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "description": "Project status created.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/project-status/update/{id}": {
+    "put": {
+      "tags": ["Project Status"],
+      "summary": "Update project status",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "requestBody": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdateProjectStatusDto" }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Project status updated.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/project-status/delete/{id}": {
+    "delete": {
+      "tags": ["Project Status"],
+      "summary": "Delete project status",
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      ],
+      "responses": {
+        "200": {
+          "description": "Project status soft-deleted.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/In_SuccessResponse" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
